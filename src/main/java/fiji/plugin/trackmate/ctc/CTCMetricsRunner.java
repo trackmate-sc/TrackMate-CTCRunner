@@ -226,7 +226,7 @@ public class CTCMetricsRunner
 		}
 		catch ( final IOException e )
 		{
-			batchLogger.error( "Could export tracking data to CTC files:\n" + e.getMessage() + '\n' );
+			batchLogger.error( "Could not export tracking data to CTC files:\n" + e.getMessage() + '\n' );
 			e.printStackTrace();
 		}
 	}
@@ -263,7 +263,7 @@ public class CTCMetricsRunner
 					batchLogger.error( "Cannot open CSV file " + csvFile + " for writing:\n" + e.getMessage() );
 					e.printStackTrace();
 				}
-				batchLogger.log( "CSV file " + csvFile + " does not exist. Created it: " + csvFile + '\n' );
+				batchLogger.log( "CSV file " + csvFile + " does not exist. Created it.\n" );
 				return csvFile;
 			}
 
