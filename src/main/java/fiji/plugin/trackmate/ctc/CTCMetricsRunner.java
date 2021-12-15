@@ -29,7 +29,7 @@ import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.action.CTCExporter;
 import fiji.plugin.trackmate.action.CTCExporter.ExportType;
 import fiji.plugin.trackmate.ctc.CTCMetricsProcessor.CTCMetrics;
-import fiji.plugin.trackmate.detection.SpotDetectorFactory;
+import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.io.TmXmlReader;
 import fiji.plugin.trackmate.io.TmXmlWriter;
 import fiji.plugin.trackmate.tracking.SpotTrackerFactory;
@@ -80,7 +80,7 @@ public class CTCMetricsRunner
 		this.ctc = new CTCMetricsProcessor( context, logLevel );
 	}
 
-	public ValuePair< TrackMate, Double > getOrExecDetection( final SpotDetectorFactory< ? > detectorFactory, final Map< String, Object > detectorSettings )
+	public ValuePair< TrackMate, Double > getOrExecDetection( final SpotDetectorFactoryBase< ? > detectorFactory, final Map< String, Object > detectorSettings )
 	{
 		final Settings settings = new Settings( imp );
 		settings.detectorFactory = detectorFactory;
