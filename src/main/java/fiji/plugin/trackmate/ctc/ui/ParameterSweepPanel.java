@@ -12,7 +12,9 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ItemListener;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -28,6 +30,7 @@ import javax.swing.border.EmptyBorder;
 import com.itextpdf.text.Font;
 
 import fiji.plugin.trackmate.gui.components.LogPanel;
+import ij.ImagePlus;
 
 public class ParameterSweepPanel extends JPanel
 {
@@ -351,7 +354,7 @@ public class ParameterSweepPanel extends JPanel
 		gbcRdbtnOpenedImage.gridy = 3;
 		panelPath.add( rdbtnOpenedImage, gbcRdbtnOpenedImage );
 
-		final JComboBox cmbboxImp = new JComboBox();
+		final JComboBox< ImagePlus > cmbboxImp = new JComboBox<>( new ImpComboBoxModel() );
 		cmbboxImp.setFont( SMALL_FONT );
 		final GridBagConstraints gbcCmbboxImp = new GridBagConstraints();
 		gbcCmbboxImp.gridwidth = 2;
@@ -485,6 +488,22 @@ public class ParameterSweepPanel extends JPanel
 		gbcLblParamSweep.gridy = 1;
 		panelSweepConfig.add( lblParamSweep, gbcLblParamSweep );
 
+		/*
+		 * Wire some listeners.
+		 */
+
+		final ButtonGroup buttonGroup = new ButtonGroup();
+		buttonGroup.add( rdbtnOpenedImage );
+		buttonGroup.add( rdbtnPathToImage );
+
+		final ItemListener alDisablePath = e -> {
+			tfPathToImage.setEnabled( rdbtnPathToImage.isSelected() );
+			btnBrowseInput.setEnabled( rdbtnPathToImage.isSelected() );
+			cmbboxImp.setEnabled( !rdbtnPathToImage.isSelected() );
+		};
+		rdbtnPathToImage.addItemListener( alDisablePath );
+		rdbtnOpenedImage.setSelected( true );
+		alDisablePath.itemStateChanged( null );
 
 
 	}
