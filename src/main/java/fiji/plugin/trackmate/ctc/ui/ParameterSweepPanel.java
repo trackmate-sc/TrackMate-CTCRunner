@@ -13,6 +13,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ItemListener;
+import java.io.File;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -27,9 +28,16 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import org.scijava.Context;
+import org.scijava.prefs.PrefService;
+
 import com.itextpdf.text.Font;
 
 import fiji.plugin.trackmate.gui.components.LogPanel;
+import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
+import fiji.plugin.trackmate.util.FileChooser;
+import fiji.plugin.trackmate.util.FileChooser.DialogType;
+import fiji.plugin.trackmate.util.FileChooser.SelectionMode;
 import ij.ImagePlus;
 
 public class ParameterSweepPanel extends JPanel
@@ -37,14 +45,26 @@ public class ParameterSweepPanel extends JPanel
 
 	private static final long serialVersionUID = 1L;
 
+	private static final String KEY_IMAGE_PATH = "IMAGE_PATH";
+
+	private static final String KEY_GT_PATH = "G_PATH";
+
 	private final JTextField tfPathToImage;
 
 	private final JTextField tfGroundTruth;
 
 	private final JTabbedPane tabbedPane;
 
-	public ParameterSweepPanel()
+	private final EverythingDisablerAndReenabler enabler;
+
+	private final PrefService prefService;
+
+	public ParameterSweepPanel( final Context context )
 	{
+		prefService = context.getService( PrefService.class );
+
+		enabler = new EverythingDisablerAndReenabler( this, new Class[] { JLabel.class } );
+
 		setLayout( new BorderLayout( 5, 5 ) );
 
 		/*
@@ -293,7 +313,6 @@ public class ParameterSweepPanel extends JPanel
 		gbcChckbxStarDistCustom.gridy = 9;
 		panelChkboxes.add( chckbxStarDistCustom, gbcChckbxStarDistCustom );
 
-
 		/*
 		 * Path panel. Set image and ground-truth path, plus other options.
 		 */
@@ -492,6 +511,7 @@ public class ParameterSweepPanel extends JPanel
 		 * Wire some listeners.
 		 */
 
+		// Radio buttons.
 		final ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add( rdbtnOpenedImage );
 		buttonGroup.add( rdbtnPathToImage );
@@ -505,7 +525,64 @@ public class ParameterSweepPanel extends JPanel
 		rdbtnOpenedImage.setSelected( true );
 		alDisablePath.itemStateChanged( null );
 
+		// Browse buttons.
+		btnBrowseGT.addActionListener( e -> browseGroundTruthPath() );
+		btnBrowseInput.addActionListener( e -> browseImagePath() );
 
+		/*
+		 * Default values.
+		 */
+
+		tfGroundTruth.setText( prefService.get( ParameterSweepPanel.class,
+				KEY_GT_PATH, System.getProperty( "user.dir" ) ) );
+		tfPathToImage.setText( prefService.get( ParameterSweepPanel.class,
+				KEY_IMAGE_PATH, System.getProperty( "user.dir" ) ) );
 	}
 
+	private void browseImagePath()
+	{
+		enabler.disable();
+		try
+		{
+			final File file = FileChooser.chooseFile( this, tfPathToImage.getText(), null,
+					"Browse to an image file", DialogType.LOAD );
+			if ( file != null )
+			{
+				tfPathToImage.setText( file.getAbsolutePath() );
+				prefService.put( ParameterSweepPanel.class,
+						KEY_IMAGE_PATH,
+						file.getAbsolutePath() );
+			}
+		}
+		finally
+		{
+			enabler.reenable();
+		}
+	}
+
+	private void browseGroundTruthPath()
+	{
+		enabler.disable();
+		try
+		{
+			final File file = FileChooser.chooseFile(
+					this,
+					tfGroundTruth.getText(),
+					null,
+					"Browse to the ground truth folder",
+					DialogType.LOAD,
+					SelectionMode.DIRECTORIES_ONLY );
+			if ( file != null )
+			{
+				tfGroundTruth.setText( file.getAbsolutePath() );
+				prefService.put( ParameterSweepPanel.class,
+						KEY_GT_PATH,
+						file.getAbsolutePath() );
+			}
+		}
+		finally
+		{
+			enabler.reenable();
+		}
+	}
 }
