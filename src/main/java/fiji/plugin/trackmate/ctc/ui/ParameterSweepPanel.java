@@ -12,28 +12,27 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ItemListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import org.scijava.Context;
-import org.scijava.prefs.PrefService;
-
 import com.itextpdf.text.Font;
 
+import fiji.plugin.trackmate.Spot;
+import fiji.plugin.trackmate.features.FeatureFilter;
+import fiji.plugin.trackmate.features.track.TrackBranchingAnalyzer;
 import fiji.plugin.trackmate.gui.components.LogPanel;
+import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings.TrackMateObject;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import fiji.plugin.trackmate.util.FileChooser;
 import fiji.plugin.trackmate.util.FileChooser.DialogType;
@@ -45,24 +44,14 @@ public class ParameterSweepPanel extends JPanel
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String KEY_IMAGE_PATH = "IMAGE_PATH";
-
-	private static final String KEY_GT_PATH = "G_PATH";
-
-	private final JTextField tfPathToImage;
-
 	private final JTextField tfGroundTruth;
 
 	private final JTabbedPane tabbedPane;
 
 	private final EverythingDisablerAndReenabler enabler;
 
-	private final PrefService prefService;
-
-	public ParameterSweepPanel( final Context context )
+	public ParameterSweepPanel( final ImagePlus imp )
 	{
-		prefService = context.getService( PrefService.class );
-
 		enabler = new EverythingDisablerAndReenabler( this, new Class[] { JLabel.class } );
 
 		setLayout( new BorderLayout( 5, 5 ) );
@@ -78,10 +67,12 @@ public class ParameterSweepPanel extends JPanel
 		final LogPanel panelLog = new LogPanel();
 		tabbedPane.addTab( "Log", null, panelLog, null );
 
-		final JPanel panelSpotFilters = new JPanel();
+		final List< FeatureFilter > spotFilters = new ArrayList<>(); // TODO
+		final FilterConfigPanel panelSpotFilters = new FilterConfigPanel( TrackMateObject.SPOTS, spotFilters, Spot.QUALITY, imp );
 		tabbedPane.addTab( "Spot filters", null, panelSpotFilters, null );
 
-		final JPanel panelTrackFilters = new JPanel();
+		final List< FeatureFilter > trackFilters = new ArrayList<>(); // TODO
+		final FilterConfigPanel panelTrackFilters = new FilterConfigPanel( TrackMateObject.TRACKS, trackFilters, TrackBranchingAnalyzer.NUMBER_SPOTS, imp );
 		tabbedPane.addTab( "Track filters", null, panelTrackFilters, null );
 
 		/*
@@ -321,12 +312,12 @@ public class ParameterSweepPanel extends JPanel
 		panelPath.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
 		final GridBagLayout gblPanelPath = new GridBagLayout();
 		gblPanelPath.columnWidths = new int[] { 0, 0, 0 };
-		gblPanelPath.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		gblPanelPath.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		gblPanelPath.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
-		gblPanelPath.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		gblPanelPath.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		panelPath.setLayout( gblPanelPath );
 
-		final JLabel lblSourceImage = new JLabel( "Source image" );
+		final JLabel lblSourceImage = new JLabel( "Source image:" );
 		lblSourceImage.setFont( FONT.deriveFont( Font.BOLD ) );
 		final GridBagConstraints gbcLblSourceImage = new GridBagConstraints();
 		gbcLblSourceImage.gridwidth = 2;
@@ -336,59 +327,22 @@ public class ParameterSweepPanel extends JPanel
 		gbcLblSourceImage.gridy = 0;
 		panelPath.add( lblSourceImage, gbcLblSourceImage );
 
-		final JRadioButton rdbtnPathToImage = new JRadioButton( "Path to image file:" );
-		rdbtnPathToImage.setFont( SMALL_FONT );
-		final GridBagConstraints gbcRdbtnPathToImage = new GridBagConstraints();
-		gbcRdbtnPathToImage.anchor = GridBagConstraints.WEST;
-		gbcRdbtnPathToImage.insets = new Insets( 0, 0, 5, 5 );
-		gbcRdbtnPathToImage.gridx = 0;
-		gbcRdbtnPathToImage.gridy = 1;
-		panelPath.add( rdbtnPathToImage, gbcRdbtnPathToImage );
-
-		final JButton btnBrowseInput = new JButton( "Browse" );
-		btnBrowseInput.setFont( SMALL_FONT );
-		final GridBagConstraints gbcBtnBrowseInput = new GridBagConstraints();
-		gbcBtnBrowseInput.insets = new Insets( 0, 0, 5, 0 );
-		gbcBtnBrowseInput.gridx = 1;
-		gbcBtnBrowseInput.gridy = 1;
-		panelPath.add( btnBrowseInput, gbcBtnBrowseInput );
-
-		tfPathToImage = new JTextField();
-		tfPathToImage.setFont( SMALL_FONT );
-		final GridBagConstraints gbcTfPathToImage = new GridBagConstraints();
-		gbcTfPathToImage.gridwidth = 2;
-		gbcTfPathToImage.insets = new Insets( 0, 0, 5, 0 );
-		gbcTfPathToImage.fill = GridBagConstraints.HORIZONTAL;
-		gbcTfPathToImage.gridx = 0;
-		gbcTfPathToImage.gridy = 2;
-		panelPath.add( tfPathToImage, gbcTfPathToImage );
-		tfPathToImage.setColumns( 10 );
-
-		final JRadioButton rdbtnOpenedImage = new JRadioButton( "Opened image:" );
-		rdbtnOpenedImage.setFont( SMALL_FONT );
-		final GridBagConstraints gbcRdbtnOpenedImage = new GridBagConstraints();
-		gbcRdbtnOpenedImage.insets = new Insets( 0, 0, 5, 5 );
-		gbcRdbtnOpenedImage.anchor = GridBagConstraints.WEST;
-		gbcRdbtnOpenedImage.gridx = 0;
-		gbcRdbtnOpenedImage.gridy = 3;
-		panelPath.add( rdbtnOpenedImage, gbcRdbtnOpenedImage );
-
-		final JComboBox< ImagePlus > cmbboxImp = new JComboBox<>( new ImpComboBoxModel() );
-		cmbboxImp.setFont( SMALL_FONT );
-		final GridBagConstraints gbcCmbboxImp = new GridBagConstraints();
-		gbcCmbboxImp.gridwidth = 2;
-		gbcCmbboxImp.insets = new Insets( 0, 0, 5, 0 );
-		gbcCmbboxImp.fill = GridBagConstraints.HORIZONTAL;
-		gbcCmbboxImp.gridx = 0;
-		gbcCmbboxImp.gridy = 4;
-		panelPath.add( cmbboxImp, gbcCmbboxImp );
+		final JLabel lblImageName = new JLabel( imp.getShortTitle() );
+		lblImageName.setFont( SMALL_FONT );
+		final GridBagConstraints gbc_lblImageName = new GridBagConstraints();
+		gbc_lblImageName.fill = GridBagConstraints.BOTH;
+		gbc_lblImageName.gridwidth = 2;
+		gbc_lblImageName.insets = new Insets( 0, 0, 5, 5 );
+		gbc_lblImageName.gridx = 0;
+		gbc_lblImageName.gridy = 1;
+		panelPath.add( lblImageName, gbc_lblImageName );
 
 		final GridBagConstraints gbcSeparator1 = new GridBagConstraints();
 		gbcSeparator1.fill = GridBagConstraints.BOTH;
 		gbcSeparator1.gridwidth = 2;
 		gbcSeparator1.insets = new Insets( 0, 0, 5, 0 );
 		gbcSeparator1.gridx = 0;
-		gbcSeparator1.gridy = 5;
+		gbcSeparator1.gridy = 2;
 		panelPath.add( new JSeparator(), gbcSeparator1 );
 
 		final JLabel lblGroundTruth = new JLabel( "Path to CTC ground-truth folder:" );
@@ -397,7 +351,7 @@ public class ParameterSweepPanel extends JPanel
 		gbcLblGroundTruth.insets = new Insets( 0, 0, 5, 5 );
 		gbcLblGroundTruth.anchor = GridBagConstraints.WEST;
 		gbcLblGroundTruth.gridx = 0;
-		gbcLblGroundTruth.gridy = 6;
+		gbcLblGroundTruth.gridy = 3;
 		panelPath.add( lblGroundTruth, gbcLblGroundTruth );
 
 		final JButton btnBrowseGT = new JButton( "Browse" );
@@ -405,7 +359,7 @@ public class ParameterSweepPanel extends JPanel
 		final GridBagConstraints gbcBtnBrowseGT = new GridBagConstraints();
 		gbcBtnBrowseGT.insets = new Insets( 0, 0, 5, 0 );
 		gbcBtnBrowseGT.gridx = 1;
-		gbcBtnBrowseGT.gridy = 6;
+		gbcBtnBrowseGT.gridy = 3;
 		panelPath.add( btnBrowseGT, gbcBtnBrowseGT );
 
 		tfGroundTruth = new JTextField();
@@ -415,7 +369,7 @@ public class ParameterSweepPanel extends JPanel
 		gbcTfGroundTruth.gridwidth = 2;
 		gbcTfGroundTruth.fill = GridBagConstraints.HORIZONTAL;
 		gbcTfGroundTruth.gridx = 0;
-		gbcTfGroundTruth.gridy = 7;
+		gbcTfGroundTruth.gridy = 4;
 		panelPath.add( tfGroundTruth, gbcTfGroundTruth );
 		tfGroundTruth.setColumns( 10 );
 
@@ -424,7 +378,7 @@ public class ParameterSweepPanel extends JPanel
 		gbcSeparator2.fill = GridBagConstraints.BOTH;
 		gbcSeparator2.gridwidth = 2;
 		gbcSeparator2.gridx = 0;
-		gbcSeparator2.gridy = 8;
+		gbcSeparator2.gridy = 5;
 		panelPath.add( new JSeparator(), gbcSeparator2 );
 
 		final JCheckBox chckbxSaveTrackMateFile = new JCheckBox( "Save TrackMate file for every test" );
@@ -434,7 +388,7 @@ public class ParameterSweepPanel extends JPanel
 		gbcChckbxSaveTrackMateFile.gridwidth = 2;
 		gbcChckbxSaveTrackMateFile.anchor = GridBagConstraints.WEST;
 		gbcChckbxSaveTrackMateFile.gridx = 0;
-		gbcChckbxSaveTrackMateFile.gridy = 9;
+		gbcChckbxSaveTrackMateFile.gridy = 6;
 		panelPath.add( chckbxSaveTrackMateFile, gbcChckbxSaveTrackMateFile );
 
 		final GridBagConstraints gbcSeparator4 = new GridBagConstraints();
@@ -442,7 +396,7 @@ public class ParameterSweepPanel extends JPanel
 		gbcSeparator4.gridwidth = 2;
 		gbcSeparator4.insets = new Insets( 0, 0, 5, 0 );
 		gbcSeparator4.gridx = 0;
-		gbcSeparator4.gridy = 10;
+		gbcSeparator4.gridy = 7;
 		panelPath.add( new JSeparator(), gbcSeparator4 );
 
 		final JPanel panelButtons = new JPanel();
@@ -453,7 +407,7 @@ public class ParameterSweepPanel extends JPanel
 		gbcPanelButtons.gridwidth = 2;
 		gbcPanelButtons.fill = GridBagConstraints.HORIZONTAL;
 		gbcPanelButtons.gridx = 0;
-		gbcPanelButtons.gridy = 11;
+		gbcPanelButtons.gridy = 8;
 		panelPath.add( panelButtons, gbcPanelButtons );
 
 		final JButton btnStop = new JButton( "Stop" );
@@ -511,53 +465,14 @@ public class ParameterSweepPanel extends JPanel
 		 * Wire some listeners.
 		 */
 
-		// Radio buttons.
-		final ButtonGroup buttonGroup = new ButtonGroup();
-		buttonGroup.add( rdbtnOpenedImage );
-		buttonGroup.add( rdbtnPathToImage );
-
-		final ItemListener alDisablePath = e -> {
-			tfPathToImage.setEnabled( rdbtnPathToImage.isSelected() );
-			btnBrowseInput.setEnabled( rdbtnPathToImage.isSelected() );
-			cmbboxImp.setEnabled( !rdbtnPathToImage.isSelected() );
-		};
-		rdbtnPathToImage.addItemListener( alDisablePath );
-		rdbtnOpenedImage.setSelected( true );
-		alDisablePath.itemStateChanged( null );
-
 		// Browse buttons.
 		btnBrowseGT.addActionListener( e -> browseGroundTruthPath() );
-		btnBrowseInput.addActionListener( e -> browseImagePath() );
 
 		/*
 		 * Default values.
 		 */
 
-		tfGroundTruth.setText( prefService.get( ParameterSweepPanel.class,
-				KEY_GT_PATH, System.getProperty( "user.dir" ) ) );
-		tfPathToImage.setText( prefService.get( ParameterSweepPanel.class,
-				KEY_IMAGE_PATH, System.getProperty( "user.dir" ) ) );
-	}
-
-	private void browseImagePath()
-	{
-		enabler.disable();
-		try
-		{
-			final File file = FileChooser.chooseFile( this, tfPathToImage.getText(), null,
-					"Browse to an image file", DialogType.LOAD );
-			if ( file != null )
-			{
-				tfPathToImage.setText( file.getAbsolutePath() );
-				prefService.put( ParameterSweepPanel.class,
-						KEY_IMAGE_PATH,
-						file.getAbsolutePath() );
-			}
-		}
-		finally
-		{
-			enabler.reenable();
-		}
+		// TODO
 	}
 
 	private void browseGroundTruthPath()
@@ -573,12 +488,7 @@ public class ParameterSweepPanel extends JPanel
 					DialogType.LOAD,
 					SelectionMode.DIRECTORIES_ONLY );
 			if ( file != null )
-			{
 				tfGroundTruth.setText( file.getAbsolutePath() );
-				prefService.put( ParameterSweepPanel.class,
-						KEY_GT_PATH,
-						file.getAbsolutePath() );
-			}
 		}
 		finally
 		{

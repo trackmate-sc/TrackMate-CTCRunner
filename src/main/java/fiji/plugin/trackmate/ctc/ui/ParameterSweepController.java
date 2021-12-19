@@ -2,9 +2,8 @@ package fiji.plugin.trackmate.ctc.ui;
 
 import javax.swing.JFrame;
 
-import org.scijava.Context;
-
 import fiji.plugin.trackmate.gui.Icons;
+import ij.ImagePlus;
 
 public class ParameterSweepController
 {
@@ -13,9 +12,9 @@ public class ParameterSweepController
 
 	private final JFrame frame;
 
-	public ParameterSweepController( final Context context )
+	public ParameterSweepController( final ImagePlus imp )
 	{
-		gui = new ParameterSweepPanel( context );
+		gui = new ParameterSweepPanel( imp );
 		frame = new JFrame( "TrackMate parameter sweep" );
 		frame.setIconImage( Icons.TRACKMATE_ICON.getImage() );
 		frame.getContentPane().add( gui );
