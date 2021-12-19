@@ -18,7 +18,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -27,6 +26,8 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import com.itextpdf.text.Font;
+
+import fiji.plugin.trackmate.gui.components.LogPanel;
 
 public class ParameterSweepPanel extends JPanel
 {
@@ -51,7 +52,7 @@ public class ParameterSweepPanel extends JPanel
 		tabbedPane.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
 		add( tabbedPane, BorderLayout.CENTER );
 
-		final JPanel panelLog = new JPanel();
+		final LogPanel panelLog = new LogPanel();
 		tabbedPane.addTab( "Log", null, panelLog, null );
 
 		final JPanel panelSpotFilters = new JPanel();
@@ -298,9 +299,9 @@ public class ParameterSweepPanel extends JPanel
 		panelPath.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
 		final GridBagLayout gblPanelPath = new GridBagLayout();
 		gblPanelPath.columnWidths = new int[] { 0, 0, 0 };
-		gblPanelPath.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		gblPanelPath.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		gblPanelPath.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
-		gblPanelPath.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE };
+		gblPanelPath.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		panelPath.setLayout( gblPanelPath );
 
 		final JLabel lblSourceImage = new JLabel( "Source image" );
@@ -426,7 +427,6 @@ public class ParameterSweepPanel extends JPanel
 		final FlowLayout flowLayout = ( FlowLayout ) panelButtons.getLayout();
 		flowLayout.setAlignment( FlowLayout.RIGHT );
 		final GridBagConstraints gbcPanelButtons = new GridBagConstraints();
-		gbcPanelButtons.insets = new Insets( 0, 0, 5, 0 );
 		gbcPanelButtons.anchor = GridBagConstraints.SOUTH;
 		gbcPanelButtons.gridwidth = 2;
 		gbcPanelButtons.fill = GridBagConstraints.HORIZONTAL;
@@ -444,15 +444,6 @@ public class ParameterSweepPanel extends JPanel
 		btnRun.setIcon( EXECUTE_ICON );
 
 		panelButtons.add( btnRun );
-
-		final JProgressBar progressBar = new JProgressBar();
-		progressBar.setFont( SMALL_FONT );
-		final GridBagConstraints gbcProgressBar = new GridBagConstraints();
-		gbcProgressBar.fill = GridBagConstraints.BOTH;
-		gbcProgressBar.gridwidth = 2;
-		gbcProgressBar.gridx = 0;
-		gbcProgressBar.gridy = 12;
-		panelPath.add( progressBar, gbcProgressBar );
 
 		/*
 		 * The split-pane that contains the path panel and the checkbox panel.
