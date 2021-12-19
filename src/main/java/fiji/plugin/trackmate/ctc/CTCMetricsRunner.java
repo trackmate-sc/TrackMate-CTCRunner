@@ -30,6 +30,7 @@ import fiji.plugin.trackmate.action.CTCExporter;
 import fiji.plugin.trackmate.action.CTCExporter.ExportType;
 import fiji.plugin.trackmate.ctc.CTCMetricsProcessor.CTCMetrics;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
+import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.io.TmXmlReader;
 import fiji.plugin.trackmate.io.TmXmlWriter;
 import fiji.plugin.trackmate.tracking.SpotTrackerFactory;
@@ -80,13 +81,46 @@ public class CTCMetricsRunner
 		this.ctc = new CTCMetricsProcessor( context, logLevel );
 	}
 
-	public ValuePair< TrackMate, Double > getOrExecDetection( final SpotDetectorFactoryBase< ? > detectorFactory, final Map< String, Object > detectorSettings )
+	public ValuePair< TrackMate, Double > execDetection( final SpotDetectorFactoryBase< ? > detectorFactory, final Map< String, Object > detectorSettings, final FeatureFilter... filters )
 	{
 		final Settings settings = new Settings( imp );
 		settings.detectorFactory = detectorFactory;
 		settings.detectorSettings = detectorSettings;
 		settings.addAllAnalyzers();
 		settings.initialSpotFilterValue = 0.;
+
+		// Filters
+		for ( final FeatureFilter filter : filters )
+			settings.addSpotFilter( filter );
+
+		final long start = System.currentTimeMillis();
+		final TrackMate trackmate = new TrackMate( settings );
+		trackmate.getModel().setLogger( trackmateLogger );
+		if ( !trackmate.execDetection()
+				|| !trackmate.execInitialSpotFiltering()
+				|| !trackmate.computeSpotFeatures( true )
+				|| !trackmate.execSpotFiltering( true ) )
+		{
+			System.err.println( "Error in the detection step:\n" + trackmate.getErrorMessage() );
+			return null;
+		}
+		final long end = System.currentTimeMillis();
+		final double detectionTiming = ( end - start ) / 1000.;
+
+		return new ValuePair<>( trackmate, detectionTiming );
+	}
+
+	public ValuePair< TrackMate, Double > getOrExecDetection( final SpotDetectorFactoryBase< ? > detectorFactory, final Map< String, Object > detectorSettings, final FeatureFilter... filters )
+	{
+		final Settings settings = new Settings( imp );
+		settings.detectorFactory = detectorFactory;
+		settings.detectorSettings = detectorSettings;
+		settings.addAllAnalyzers();
+		settings.initialSpotFilterValue = 0.;
+
+		// Filters
+		for ( final FeatureFilter filter : filters )
+			settings.addSpotFilter( filter );
 
 		// For timing.
 		double detectionTiming = Double.NaN;
