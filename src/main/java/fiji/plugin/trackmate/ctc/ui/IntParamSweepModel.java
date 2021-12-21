@@ -1,20 +1,22 @@
 package fiji.plugin.trackmate.ctc.ui;
 
-public class DoubleParamSweepModel extends NumberParamSweepModel
+import java.util.LinkedHashSet;
+
+public class IntParamSweepModel extends NumberParamSweepModel
 {
 
-	private DoubleParamSweepModel(
+	public IntParamSweepModel(
 			final String paramName,
 			final String units,
 			final RangeType type,
-			final double min,
-			final double max,
+			final int min,
+			final int max,
 			final int nSteps,
-			final Double[] manualRange )
+			final Integer[] manualRange )
 	{
 		super( paramName, units, type, min, max, nSteps, manualRange );
 	}
-	
+
 	@Override
 	public Number[] getRange()
 	{
@@ -23,13 +25,15 @@ public class DoubleParamSweepModel extends NumberParamSweepModel
 		case FIXED:
 			return new Number[] { min };
 		case LIN_RANGE:
-			return linspace( min.doubleValue(), max.doubleValue(), nSteps );
+			return unique( linspace( min.intValue(), max.intValue(), nSteps ) );
 		case LOG_RANGE:
-			final Double[] e = linspace( Math.log( 1 ), Math.log( 1. - min.doubleValue() + max.doubleValue() ), nSteps );
-			final Double[] out = new Double[ e.length ];
+			final Double[] e = DoubleParamSweepModel.linspace(
+					Math.log( 1 ),
+					Math.log( 1. - min.intValue() + max.intValue() ), nSteps );
+			final Integer[] out = new Integer[ e.length ];
 			for ( int i = 0; i < out.length; i++ )
-				out[ i ] = Math.exp( e[ i ] ) + min.doubleValue() - 1.;
-			return out;
+				out[ i ] = ( int ) Math.round( Math.exp( e[ i ] ) + min.doubleValue() - 1. );
+			return unique( out );
 		case MANUAL:
 			return manualRange;
 		default:
@@ -41,7 +45,7 @@ public class DoubleParamSweepModel extends NumberParamSweepModel
 	{
 		return new Builder();
 	}
-	
+
 	public static class Builder
 	{
 		private String paramName = "no name set";
@@ -50,14 +54,14 @@ public class DoubleParamSweepModel extends NumberParamSweepModel
 
 		private RangeType rangeType = RangeType.LIN_RANGE;
 
-		private double min = 1.;
+		private int min = 1;
 
-		private double max = 10.;
+		private int max = 10;
 
 		private int nSteps = 10;
-		
-		private Double[] manualRange = new Double[] { 1., 2., 3., 4., 5., 6., 7., 8., 9., 10. };
-		
+
+		private Integer[] manualRange = new Integer[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
 		public Builder paramName( final String paramName )
 		{
 			this.paramName = paramName;
@@ -70,13 +74,13 @@ public class DoubleParamSweepModel extends NumberParamSweepModel
 			return this;
 		}
 
-		public Builder min( final double min )
+		public Builder min( final int min )
 		{
 			this.min = min;
 			return this;
 		}
 
-		public Builder max( final double max )
+		public Builder max( final int max )
 		{
 			this.max = max;
 			return this;
@@ -88,7 +92,7 @@ public class DoubleParamSweepModel extends NumberParamSweepModel
 			return this;
 		}
 
-		public Builder manualRange( final Double... vals )
+		public Builder manualRange( final Integer... vals )
 		{
 			this.manualRange = vals;
 			return this;
@@ -100,9 +104,9 @@ public class DoubleParamSweepModel extends NumberParamSweepModel
 			return this;
 		}
 
-		public DoubleParamSweepModel get()
+		public IntParamSweepModel get()
 		{
-			return new DoubleParamSweepModel(
+			return new IntParamSweepModel(
 					paramName,
 					units,
 					rangeType,
@@ -113,25 +117,38 @@ public class DoubleParamSweepModel extends NumberParamSweepModel
 		}
 	}
 
-	static final Double[] linspace( final double min, final double max, final int nSteps )
+	private static final Integer[] linspace( final int min, final int max, final int nSteps )
 	{
-		final Double[] range = new Double[ nSteps ];
-		for ( int i = 0; i < range.length; i++ )
+		final Integer[] range = new Integer[ nSteps ];
+		for ( int i = 0; i < nSteps; i++ )
 			range[ i ] = min + ( max - min ) * i / ( nSteps - 1 );
 
 		return range;
 	}
 
-	public static final String str( final Number[] range )
+	private static final Integer[] unique( final Integer[] in )
+	{
+		final LinkedHashSet< Integer > set = new LinkedHashSet<>();
+		for ( int i = 0; i < in.length; i++ )
+			set.add( in[ i ] );
+
+		final Integer[] out = new Integer[ set.size() ];
+		int index = 0;
+		for ( final Integer i : set )
+			out[ index++ ] = i;
+		return out;
+	}
+
+	public static final String str( final int[] range )
 	{
 		if ( range.length == 0 )
 			return "[]";
 
 		final StringBuilder str = new StringBuilder();
 		str.append( "[ " );
-		str.append( String.format( "%s", range[ 0 ] ) );
+		str.append( String.format( "%d", range[ 0 ] ) );
 		for ( int i = 1; i < range.length; i++ )
-			str.append( String.format( ", %s", range[ i ] ) );
+			str.append( String.format( ", %d", range[ i ] ) );
 
 		str.append( " ]" );
 		return str.toString();

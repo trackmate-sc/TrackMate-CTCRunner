@@ -9,6 +9,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -28,17 +29,17 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeListener;
 
-import fiji.plugin.trackmate.ctc.ui.DoubleParamSweepModel.RangeType;
+import fiji.plugin.trackmate.ctc.ui.NumberParamSweepModel.RangeType;
 import fiji.plugin.trackmate.gui.Fonts;
 
-public class DoubleRangeSweepPanel extends JPanel
+public class RangeSweepPanel extends JPanel
 {
 
 	private static final long serialVersionUID = 1L;
 
 	private final JTextField tfValues;
 
-	private final DoubleParamSweepModel defaultValues;
+	private final NumberParamSweepModel defaultValues;
 
 	private final JRadioButton rdbtnRane;
 
@@ -56,7 +57,7 @@ public class DoubleRangeSweepPanel extends JPanel
 
 	private final JSpinner spinnerNSteps;
 
-	public DoubleRangeSweepPanel( final DoubleParamSweepModel val )
+	public RangeSweepPanel( final NumberParamSweepModel val )
 	{
 		this.defaultValues = val;
 		setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
@@ -100,7 +101,7 @@ public class DoubleRangeSweepPanel extends JPanel
 		gbcLblFrom.gridy = 2;
 		add( new JLabel( "From" ), gbcLblFrom );
 
-		ftfFromValue = new JFormattedTextField( Double.valueOf( val.min ) );
+		ftfFromValue = new JFormattedTextField( val.min );
 		ftfFromValue.setHorizontalAlignment( SwingConstants.TRAILING );
 		ftfFromValue.setColumns( 6 );
 		final GridBagConstraints gbcFtfFromValue = new GridBagConstraints();
@@ -123,7 +124,7 @@ public class DoubleRangeSweepPanel extends JPanel
 		gbcLblTo.gridy = 2;
 		add( new JLabel( "to" ), gbcLblTo );
 
-		ftfToValue = new JFormattedTextField( Double.valueOf( val.max ) );
+		ftfToValue = new JFormattedTextField( val.max );
 		ftfToValue.setHorizontalAlignment( SwingConstants.TRAILING );
 		ftfToValue.setColumns( 6 );
 		final GridBagConstraints gbcFtfToValue = new GridBagConstraints();
@@ -168,7 +169,7 @@ public class DoubleRangeSweepPanel extends JPanel
 		gbc_rdbtnManualRange.gridy = 3;
 		add( rdbtnManualRange, gbc_rdbtnManualRange );
 
-		tfValues = new JTextField( DoubleParamSweepModel.str( val.getRange() ) );
+		tfValues = new JTextField( Arrays.toString( val.getRange() ) );
 		tfValues.setHorizontalAlignment( SwingConstants.CENTER );
 		tfValues.setBorder( null );
 		tfValues.setEditable( false );
@@ -190,7 +191,7 @@ public class DoubleRangeSweepPanel extends JPanel
 		gbcRdbtnFixed.gridy = 5;
 		add( rdbtnFixed, gbcRdbtnFixed );
 
-		ftfFixedValue = new JFormattedTextField( Double.valueOf( val.min ) );
+		ftfFixedValue = new JFormattedTextField( val.min );
 		ftfFixedValue.setHorizontalAlignment( SwingConstants.TRAILING );
 		ftfFixedValue.setColumns( 6 );
 		final GridBagConstraints gbcFtfFixedValue = new GridBagConstraints();
@@ -251,7 +252,7 @@ public class DoubleRangeSweepPanel extends JPanel
 
 	private void update()
 	{
-		final DoubleParamSweepModel vals = getModel();
+		final NumberParamSweepModel vals = getModel();
 
 		final String rangeStr = DoubleParamSweepModel.str( vals.getRange() );
 		if ( !rangeStr.equals( tfValues.getText() ) )
@@ -292,11 +293,11 @@ public class DoubleRangeSweepPanel extends JPanel
 		}
 	}
 
-	private DoubleParamSweepModel getModel()
+	private NumberParamSweepModel getModel()
 	{
-		final double min = ( ( Number ) ftfFromValue.getValue() ).doubleValue();
-		final double max = ( ( Number ) ftfToValue.getValue() ).doubleValue();
-		final double fixed = ( ( Number ) ftfFixedValue.getValue() ).doubleValue();
+		final Number min = ( ( Number ) ftfFromValue.getValue() );
+		final Number max = ( ( Number ) ftfToValue.getValue() );
+		final Number fixed = ( ( Number ) ftfFixedValue.getValue() );
 		RangeType type;
 		if ( rdbtnRane.isSelected() )
 		{
@@ -310,18 +311,38 @@ public class DoubleRangeSweepPanel extends JPanel
 		else
 			type = RangeType.MANUAL;
 
-		return DoubleParamSweepModel.create()
-				.paramName( defaultValues.paramName )
-				.units( defaultValues.units )
-				.rangeType( type )
-				.min( type == RangeType.FIXED ? fixed : min )
-				.max( max )
-				.nSteps( ( ( Number ) spinnerNSteps.getValue() ).intValue() )
-				.manualRange( parseRange() )
-				.get();
+		if ( defaultValues instanceof DoubleParamSweepModel )
+		{
+			return DoubleParamSweepModel.create()
+					.paramName( defaultValues.paramName )
+					.units( defaultValues.units )
+					.rangeType( type )
+					.min( type == RangeType.FIXED ? fixed.doubleValue() : min.doubleValue() )
+					.max( max.doubleValue() )
+					.nSteps( ( ( Number ) spinnerNSteps.getValue() ).intValue() )
+					.manualRange( parseRange() )
+					.get();
+		}
+		else
+		{
+			final Double[] range = parseRange();
+			final Integer[] arr = new Integer[ range.length ];
+			for ( int i = 0; i < range.length; i++ )
+				arr[ i ] = range[ i ].intValue();
+
+			return IntParamSweepModel.create()
+					.paramName( defaultValues.paramName )
+					.units( defaultValues.units )
+					.rangeType( type )
+					.min( type == RangeType.FIXED ? fixed.intValue() : min.intValue() )
+					.max( max.intValue() )
+					.nSteps( ( ( Number ) spinnerNSteps.getValue() ).intValue() )
+					.manualRange( arr )
+					.get();
+		}
 	}
 
-	private double[] parseRange()
+	private Double[] parseRange()
 	{
 		final String str = tfValues.getText();
 		final List< Double > vals = new ArrayList<>();
@@ -341,7 +362,7 @@ public class DoubleRangeSweepPanel extends JPanel
 				}
 			}
 		}
-		final double[] arr = new double[ vals.size() ];
+		final Double[] arr = new Double[ vals.size() ];
 		for ( int i = 0; i < vals.size(); i++ )
 			arr[ i ] = vals.get( i ).doubleValue();
 
@@ -351,10 +372,17 @@ public class DoubleRangeSweepPanel extends JPanel
 	public static void main( final String[] args ) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
 	{
 		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
-		final JFrame frame = new JFrame();
-		frame.getContentPane().add( new DoubleRangeSweepPanel( DoubleParamSweepModel.create().get() ) );
-		frame.pack();
-		frame.setLocationRelativeTo( null );
-		frame.setVisible( true );
+
+		final JFrame frame1 = new JFrame();
+		frame1.getContentPane().add( new RangeSweepPanel( DoubleParamSweepModel.create().get() ) );
+		frame1.pack();
+		frame1.setLocationRelativeTo( null );
+		frame1.setVisible( true );
+
+		final JFrame frame2 = new JFrame();
+		frame2.getContentPane().add( new RangeSweepPanel( IntParamSweepModel.create().get() ) );
+		frame2.pack();
+		frame2.setLocationRelativeTo( null );
+		frame2.setVisible( true );
 	}
 }
