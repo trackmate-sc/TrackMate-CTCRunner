@@ -32,7 +32,7 @@ import javax.swing.event.ChangeListener;
 import fiji.plugin.trackmate.ctc.ui.NumberParamSweepModel.RangeType;
 import fiji.plugin.trackmate.gui.Fonts;
 
-public class RangeSweepPanel extends JPanel
+public class NumberRangeSweepPanel extends JPanel
 {
 
 	private static final long serialVersionUID = 1L;
@@ -57,7 +57,7 @@ public class RangeSweepPanel extends JPanel
 
 	private final JSpinner spinnerNSteps;
 
-	public RangeSweepPanel( final NumberParamSweepModel val )
+	public NumberRangeSweepPanel( final NumberParamSweepModel val )
 	{
 		this.defaultValues = val;
 		setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
@@ -374,13 +374,13 @@ public class RangeSweepPanel extends JPanel
 		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
 
 		final JFrame frame1 = new JFrame();
-		frame1.getContentPane().add( new RangeSweepPanel( DoubleParamSweepModel.create().get() ) );
+		frame1.getContentPane().add( new NumberRangeSweepPanel( DoubleParamSweepModel.create().get() ) );
 		frame1.pack();
 		frame1.setLocationRelativeTo( null );
 		frame1.setVisible( true );
 
 		final JFrame frame2 = new JFrame();
-		frame2.getContentPane().add( new RangeSweepPanel( IntParamSweepModel.create().get() ) );
+		frame2.getContentPane().add( new NumberRangeSweepPanel( IntParamSweepModel.create().get() ) );
 		frame2.pack();
 		frame2.setLocationRelativeTo( null );
 		frame2.setVisible( true );
