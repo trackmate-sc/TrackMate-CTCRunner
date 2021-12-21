@@ -35,7 +35,7 @@ public class DoubleParamSweepModel
 
 	final int nSteps;
 
-	private final double[] manualRange;
+	final double[] manualRange;
 
 	private DoubleParamSweepModel(
 			final String paramName,

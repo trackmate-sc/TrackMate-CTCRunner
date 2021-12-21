@@ -4,8 +4,13 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
@@ -41,8 +46,6 @@ public class DoubleRangeSweepPanel extends JPanel
 
 	private final JFormattedTextField ftfToValue;
 
-	private final SpinnerNumberModel spinnerNumberModel;
-
 	private final JCheckBox chckbxLog;
 
 	private final JFormattedTextField ftfFixedValue;
@@ -50,6 +53,8 @@ public class DoubleRangeSweepPanel extends JPanel
 	private final JRadioButton rdbtnManualRange;
 
 	private final JRadioButton rdbtnFixed;
+
+	private final JSpinner spinnerNSteps;
 
 	public DoubleRangeSweepPanel( final DoubleParamSweepModel val )
 	{
@@ -82,7 +87,7 @@ public class DoubleRangeSweepPanel extends JPanel
 		chckbxLog = new JCheckBox( "Logarithmic scale", val.type == RangeType.LOG_RANGE );
 		final GridBagConstraints gbcChckbxLog = new GridBagConstraints();
 		gbcChckbxLog.anchor = GridBagConstraints.EAST;
-		gbcChckbxLog.gridwidth = 12;
+		gbcChckbxLog.gridwidth = 4;
 		gbcChckbxLog.insets = new Insets( 0, 0, 5, 0 );
 		gbcChckbxLog.gridx = 5;
 		gbcChckbxLog.gridy = 1;
@@ -140,8 +145,8 @@ public class DoubleRangeSweepPanel extends JPanel
 		gbcLblIn.gridy = 2;
 		add( new JLabel( "in" ), gbcLblIn );
 
-		spinnerNumberModel = new SpinnerNumberModel( val.nSteps, 2, 100, 1 );
-		final JSpinner spinnerNSteps = new JSpinner( spinnerNumberModel );
+		final SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel( val.nSteps, 2, 100, 1 );
+		spinnerNSteps = new JSpinner( spinnerNumberModel );
 		final GridBagConstraints gbcSpinnerNSteps = new GridBagConstraints();
 		gbcSpinnerNSteps.insets = new Insets( 0, 0, 5, 5 );
 		gbcSpinnerNSteps.gridx = 7;
@@ -210,30 +215,81 @@ public class DoubleRangeSweepPanel extends JPanel
 		fiji.plugin.trackmate.gui.GuiUtils.selectAllOnFocus( ftfToValue );
 		fiji.plugin.trackmate.gui.GuiUtils.selectAllOnFocus( ftfFixedValue );
 
-		// Radiu buttons.
+		// Radio buttons.
 		final ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add( rdbtnFixed );
 		buttonGroup.add( rdbtnRane );
 		buttonGroup.add( rdbtnManualRange );
 
+		// Enable / Disable.
+		update();
+
 		// Listeners.
-		final PropertyChangeListener pcl = e -> updateRange();
+		final PropertyChangeListener pcl = e -> update();
 		ftfFromValue.addPropertyChangeListener( "value", pcl );
 		ftfToValue.addPropertyChangeListener( "value", pcl );
 		ftfFixedValue.addPropertyChangeListener( "value", pcl );
-		final ChangeListener cl = e -> updateRange();
+		final ChangeListener cl = e -> update();
 		spinnerNumberModel.addChangeListener( cl );
-		final ItemListener il = e -> updateRange();
+		final ItemListener il = e -> update();
 		rdbtnFixed.addItemListener( il );
 		rdbtnRane.addItemListener( il );
 		rdbtnManualRange.addItemListener( il );
 		chckbxLog.addItemListener( il );
+		final ActionListener al = e -> update();
+		tfValues.addActionListener( al );
+		final FocusAdapter fa = new FocusAdapter()
+		{
+			@Override
+			public void focusLost( final java.awt.event.FocusEvent e )
+			{
+				update();
+			}
+		};
+		tfValues.addFocusListener( fa );
 	}
 
-	private void updateRange()
+	private void update()
 	{
 		final DoubleParamSweepModel vals = getModel();
-		tfValues.setText( DoubleParamSweepModel.str( vals.getRange() ) );
+
+		final String rangeStr = DoubleParamSweepModel.str( vals.getRange() );
+		if ( !rangeStr.equals( tfValues.getText() ) )
+			tfValues.setText( rangeStr );
+
+		switch ( vals.type )
+		{
+		case FIXED:
+			ftfFixedValue.setEnabled( true );
+			ftfFromValue.setEnabled( false );
+			ftfToValue.setEnabled( false );
+			spinnerNSteps.setEnabled( false );
+			chckbxLog.setEnabled( false );
+			tfValues.setEditable( false );
+			tfValues.setBackground( getBackground() );
+			break;
+		case LIN_RANGE:
+		case LOG_RANGE:
+			ftfFixedValue.setEnabled( false );
+			ftfFromValue.setEnabled( true );
+			ftfToValue.setEnabled( true );
+			spinnerNSteps.setEnabled( true );
+			chckbxLog.setEnabled( true );
+			tfValues.setEditable( false );
+			tfValues.setBackground( getBackground() );
+			break;
+		case MANUAL:
+			ftfFixedValue.setEnabled( false );
+			ftfFromValue.setEnabled( false );
+			ftfToValue.setEnabled( false );
+			spinnerNSteps.setEnabled( false );
+			chckbxLog.setEnabled( false );
+			tfValues.setEditable( true );
+			tfValues.setBackground( ftfFixedValue.getBackground() );
+			break;
+		default:
+			throw new IllegalArgumentException( "Unknown range type: " + vals.type );
+		}
 	}
 
 	private DoubleParamSweepModel getModel()
@@ -260,9 +316,36 @@ public class DoubleRangeSweepPanel extends JPanel
 				.rangeType( type )
 				.min( type == RangeType.FIXED ? fixed : min )
 				.max( max )
-				.nSteps( ( ( Number ) spinnerNumberModel.getValue() ).intValue() )
-//				.rangeType( parseRange() ) // TODO
+				.nSteps( ( ( Number ) spinnerNSteps.getValue() ).intValue() )
+				.manualRange( parseRange() )
 				.get();
+	}
+
+	private double[] parseRange()
+	{
+		final String str = tfValues.getText();
+		final List< Double > vals = new ArrayList<>();
+		try (final Scanner scanner = new Scanner( str ))
+		{
+			scanner.useDelimiter( "\\s*,\\s*|\\s+" );
+			while ( scanner.hasNext() )
+			{
+				if ( scanner.hasNextDouble() )
+				{
+					final double val = scanner.nextDouble();
+					vals.add( Double.valueOf( val ) );
+				}
+				else
+				{
+					scanner.next();
+				}
+			}
+		}
+		final double[] arr = new double[ vals.size() ];
+		for ( int i = 0; i < vals.size(); i++ )
+			arr[ i ] = vals.get( i ).doubleValue();
+
+		return arr;
 	}
 
 	public static void main( final String[] args ) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
@@ -274,5 +357,4 @@ public class DoubleRangeSweepPanel extends JPanel
 		frame.setLocationRelativeTo( null );
 		frame.setVisible( true );
 	}
-
 }
