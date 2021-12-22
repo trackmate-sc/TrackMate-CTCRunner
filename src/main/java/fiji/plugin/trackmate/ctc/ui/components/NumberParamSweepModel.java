@@ -1,4 +1,4 @@
-package fiji.plugin.trackmate.ctc.ui;
+package fiji.plugin.trackmate.ctc.ui.components;
 
 import java.util.Arrays;
 

@@ -29,6 +29,7 @@ import javax.swing.border.EmptyBorder;
 import com.itextpdf.text.Font;
 
 import fiji.plugin.trackmate.Spot;
+import fiji.plugin.trackmate.ctc.ui.components.FilterConfigPanel;
 import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.features.track.TrackBranchingAnalyzer;
 import fiji.plugin.trackmate.gui.components.LogPanel;

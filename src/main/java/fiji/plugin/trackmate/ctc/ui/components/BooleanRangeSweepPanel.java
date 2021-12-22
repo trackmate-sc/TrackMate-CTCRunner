@@ -1,4 +1,4 @@
-package fiji.plugin.trackmate.ctc.ui;
+package fiji.plugin.trackmate.ctc.ui.components;
 
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -15,7 +15,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 
-import fiji.plugin.trackmate.ctc.ui.BooleanParamSweepModel.RangeType;
+import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel.RangeType;
 import fiji.plugin.trackmate.gui.Fonts;
 
 public class BooleanRangeSweepPanel extends JPanel

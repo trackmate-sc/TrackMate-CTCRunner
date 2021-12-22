@@ -1,4 +1,4 @@
-package fiji.plugin.trackmate.ctc.ui;
+package fiji.plugin.trackmate.ctc.ui.components;
 
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -29,7 +29,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeListener;
 
-import fiji.plugin.trackmate.ctc.ui.NumberParamSweepModel.RangeType;
+import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel.RangeType;
 import fiji.plugin.trackmate.gui.Fonts;
 
 public class NumberRangeSweepPanel extends JPanel
