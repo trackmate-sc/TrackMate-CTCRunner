@@ -1,5 +1,9 @@
 package fiji.plugin.trackmate.ctc.ui.components;
 
+import org.scijava.listeners.Listeners;
+
+import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel.ModelListener;
+
 public class BooleanParamSweepModel
 {
 
@@ -21,94 +25,92 @@ public class BooleanParamSweepModel
 		}
 	}
 
-	final String paramName;
+	private final transient Listeners.List< ModelListener > modelListeners;
 
-	final RangeType type;
+	String paramName = "";
 
-	final boolean fixedValue;
+	RangeType rangeType = RangeType.TEST_ALL;
 
-	public BooleanParamSweepModel(
-			final String paramName,
-			final RangeType type,
-			final boolean fixedValue )
+	boolean fixedValue = true;
+
+	public BooleanParamSweepModel()
 	{
-		this.paramName = paramName;
-		this.type = type;
-		this.fixedValue = fixedValue;
+		this.modelListeners = new Listeners.SynchronizedList<>();
 	}
 
 	public Boolean[] getRange()
 	{
-		switch ( type )
+		switch ( rangeType )
 		{
 		case FIXED:
 			return new Boolean[] { fixedValue };
 		case TEST_ALL:
 			return new Boolean[] { false, true };
 		default:
-			throw new IllegalArgumentException( "Unknown range type: " + type );
+			throw new IllegalArgumentException( "Unknown range type: " + rangeType );
 		}
 	}
 
 	@Override
 	public String toString()
 	{
-		switch ( type )
+		switch ( rangeType )
 		{
 		case FIXED:
 			return String.format( "%s:\n"
 					+ " - type: %s\n"
 					+ " - value: %s",
 					paramName,
-					type,
+					rangeType,
 					fixedValue );
 		case TEST_ALL:
 			return String.format( "%s:\n"
 					+ " - type: %s\n",
 					paramName,
-					type );
+					rangeType );
 		default:
-			throw new IllegalArgumentException( "Unknown range type: " + type );
+			throw new IllegalArgumentException( "Unknown range type: " + rangeType );
 		}
 	}
 
-	public static Builder create()
+	public BooleanParamSweepModel paramName( final String paramName )
 	{
-		return new Builder();
-	}
-
-	public static class Builder
-	{
-		private String paramName = "no name set";
-
-		private RangeType rangeType = RangeType.FIXED;
-
-		private boolean fixedValue = true;
-
-		public Builder paramName( final String paramName )
+		if ( !this.paramName.equals( paramName ) )
 		{
 			this.paramName = paramName;
-			return this;
+			notifyListeners();
 		}
+		return this;
+	}
 
-		public Builder rangeType( final RangeType rangeType )
+	public BooleanParamSweepModel rangeType( final RangeType rangeType )
+	{
+		if ( this.rangeType != rangeType )
 		{
 			this.rangeType = rangeType;
-			return this;
+			notifyListeners();
 		}
+		return this;
+	}
 
-		public Builder fixedValue( final boolean fixedValue )
+	public BooleanParamSweepModel fixedValue( final boolean fixedValue )
+	{
+		if ( this.fixedValue != fixedValue )
 		{
 			this.fixedValue = fixedValue;
-			return this;
+			notifyListeners();
 		}
+		return this;
+	}
 
-		public BooleanParamSweepModel get()
-		{
-			return new BooleanParamSweepModel(
-					paramName,
-					rangeType,
-					fixedValue );
-		}
+	public Listeners.List< ModelListener > listeners()
+	{
+		return modelListeners;
+	}
+
+	private void notifyListeners()
+	{
+		for ( final ModelListener l : modelListeners.list )
+			l.modelChanged();
 	}
 }

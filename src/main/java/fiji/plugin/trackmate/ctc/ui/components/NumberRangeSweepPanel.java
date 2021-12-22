@@ -39,7 +39,7 @@ public class NumberRangeSweepPanel extends JPanel
 
 	private final JTextField tfValues;
 
-	private final NumberParamSweepModel defaultValues;
+	private final NumberParamSweepModel values;
 
 	private final JRadioButton rdbtnRane;
 
@@ -59,7 +59,7 @@ public class NumberRangeSweepPanel extends JPanel
 
 	public NumberRangeSweepPanel( final NumberParamSweepModel val )
 	{
-		this.defaultValues = val;
+		this.values = val;
 		setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
 		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 80, 0, 0, 80, 0, 0, 0, 0, 0 };
@@ -76,7 +76,7 @@ public class NumberRangeSweepPanel extends JPanel
 		gbcLblParamName.gridy = 0;
 		add( lblParamName, gbcLblParamName );
 
-		rdbtnRane = new JRadioButton( "Range of values", val.type == RangeType.LIN_RANGE || val.type == RangeType.LOG_RANGE );
+		rdbtnRane = new JRadioButton( "Range of values", val.rangeType == RangeType.LIN_RANGE || val.rangeType == RangeType.LOG_RANGE );
 		final GridBagConstraints gbcRdbtnSweep = new GridBagConstraints();
 		gbcRdbtnSweep.anchor = GridBagConstraints.WEST;
 		gbcRdbtnSweep.gridwidth = 4;
@@ -85,7 +85,7 @@ public class NumberRangeSweepPanel extends JPanel
 		gbcRdbtnSweep.gridy = 1;
 		add( rdbtnRane, gbcRdbtnSweep );
 
-		chckbxLog = new JCheckBox( "Logarithmic scale", val.type == RangeType.LOG_RANGE );
+		chckbxLog = new JCheckBox( "Logarithmic scale", val.rangeType == RangeType.LOG_RANGE );
 		final GridBagConstraints gbcChckbxLog = new GridBagConstraints();
 		gbcChckbxLog.anchor = GridBagConstraints.EAST;
 		gbcChckbxLog.gridwidth = 4;
@@ -182,7 +182,7 @@ public class NumberRangeSweepPanel extends JPanel
 		add( tfValues, gbc_tfValues );
 		tfValues.setColumns( 10 );
 
-		rdbtnFixed = new JRadioButton( "Fixed value", val.type == RangeType.FIXED );
+		rdbtnFixed = new JRadioButton( "Fixed value", val.rangeType == RangeType.FIXED );
 		final GridBagConstraints gbcRdbtnFixed = new GridBagConstraints();
 		gbcRdbtnFixed.anchor = GridBagConstraints.WEST;
 		gbcRdbtnFixed.gridwidth = 4;
@@ -252,13 +252,53 @@ public class NumberRangeSweepPanel extends JPanel
 
 	private void update()
 	{
-		final NumberParamSweepModel vals = getModel();
+		// Update model.
+		final Number min = ( ( Number ) ftfFromValue.getValue() );
+		final Number max = ( ( Number ) ftfToValue.getValue() );
+		final Number fixed = ( ( Number ) ftfFixedValue.getValue() );
+		RangeType type;
+		if ( rdbtnRane.isSelected() )
+		{
+			if ( chckbxLog.isSelected() )
+				type = RangeType.LOG_RANGE;
+			else
+				type = RangeType.LIN_RANGE;
+		}
+		else if ( rdbtnFixed.isSelected() )
+			type = RangeType.FIXED;
+		else
+			type = RangeType.MANUAL;
 
-		final String rangeStr = DoubleParamSweepModel.str( vals.getRange() );
+		values.rangeType( type )
+				.nSteps( ( ( Number ) spinnerNSteps.getValue() ).intValue() );
+		if ( values instanceof DoubleParamSweepModel )
+		{
+			( ( DoubleParamSweepModel ) values )
+					.min( type == RangeType.FIXED
+							? fixed.doubleValue()
+							: min.doubleValue() )
+					.max( max.doubleValue() )
+					.manualRange( parseRange() );
+		}
+		else
+		{
+			final Double[] range = parseRange();
+			final Integer[] arr = new Integer[ range.length ];
+			for ( int i = 0; i < range.length; i++ )
+				arr[ i ] = range[ i ].intValue();
+			( ( IntParamSweepModel ) values )
+					.min( type == RangeType.FIXED ? fixed.intValue() : min.intValue() )
+					.max( max.intValue() )
+					.nSteps( ( ( Number ) spinnerNSteps.getValue() ).intValue() )
+					.manualRange( arr );
+		}
+
+		// Update UI.
+		final String rangeStr = DoubleParamSweepModel.str( values.getRange() );
 		if ( !rangeStr.equals( tfValues.getText() ) )
 			tfValues.setText( rangeStr );
 
-		switch ( vals.type )
+		switch ( values.rangeType )
 		{
 		case FIXED:
 			ftfFixedValue.setEnabled( true );
@@ -289,56 +329,7 @@ public class NumberRangeSweepPanel extends JPanel
 			tfValues.setBackground( ftfFixedValue.getBackground() );
 			break;
 		default:
-			throw new IllegalArgumentException( "Unknown range type: " + vals.type );
-		}
-	}
-
-	private NumberParamSweepModel getModel()
-	{
-		final Number min = ( ( Number ) ftfFromValue.getValue() );
-		final Number max = ( ( Number ) ftfToValue.getValue() );
-		final Number fixed = ( ( Number ) ftfFixedValue.getValue() );
-		RangeType type;
-		if ( rdbtnRane.isSelected() )
-		{
-			if ( chckbxLog.isSelected() )
-				type = RangeType.LOG_RANGE;
-			else
-				type = RangeType.LIN_RANGE;
-		}
-		else if ( rdbtnFixed.isSelected() )
-			type = RangeType.FIXED;
-		else
-			type = RangeType.MANUAL;
-
-		if ( defaultValues instanceof DoubleParamSweepModel )
-		{
-			return DoubleParamSweepModel.create()
-					.paramName( defaultValues.paramName )
-					.units( defaultValues.units )
-					.rangeType( type )
-					.min( type == RangeType.FIXED ? fixed.doubleValue() : min.doubleValue() )
-					.max( max.doubleValue() )
-					.nSteps( ( ( Number ) spinnerNSteps.getValue() ).intValue() )
-					.manualRange( parseRange() )
-					.get();
-		}
-		else
-		{
-			final Double[] range = parseRange();
-			final Integer[] arr = new Integer[ range.length ];
-			for ( int i = 0; i < range.length; i++ )
-				arr[ i ] = range[ i ].intValue();
-
-			return IntParamSweepModel.create()
-					.paramName( defaultValues.paramName )
-					.units( defaultValues.units )
-					.rangeType( type )
-					.min( type == RangeType.FIXED ? fixed.intValue() : min.intValue() )
-					.max( max.intValue() )
-					.nSteps( ( ( Number ) spinnerNSteps.getValue() ).intValue() )
-					.manualRange( arr )
-					.get();
+			throw new IllegalArgumentException( "Unknown range type: " + values.rangeType );
 		}
 	}
 
@@ -373,14 +364,20 @@ public class NumberRangeSweepPanel extends JPanel
 	{
 		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
 
+		final DoubleParamSweepModel model1 = new DoubleParamSweepModel();
+		model1.listeners().add( () -> System.out.println( model1 ) );
+
 		final JFrame frame1 = new JFrame();
-		frame1.getContentPane().add( new NumberRangeSweepPanel( DoubleParamSweepModel.create().get() ) );
+		frame1.getContentPane().add( new NumberRangeSweepPanel( model1 ) );
 		frame1.pack();
 		frame1.setLocationRelativeTo( null );
 		frame1.setVisible( true );
 
+		final IntParamSweepModel model2 = new IntParamSweepModel();
+		model2.listeners().add( () -> System.out.println( model2 ) );
+
 		final JFrame frame2 = new JFrame();
-		frame2.getContentPane().add( new NumberRangeSweepPanel( IntParamSweepModel.create().get() ) );
+		frame2.getContentPane().add( new NumberRangeSweepPanel( model2 ) );
 		frame2.pack();
 		frame2.setLocationRelativeTo( null );
 		frame2.setVisible( true );

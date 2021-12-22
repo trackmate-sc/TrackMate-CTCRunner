@@ -23,7 +23,7 @@ public class BooleanRangeSweepPanel extends JPanel
 
 	private static final long serialVersionUID = 1L;
 
-	private final BooleanParamSweepModel defaultValues;
+	private final BooleanParamSweepModel values;
 
 	private final JRadioButton rdbtnTestAll;
 
@@ -33,9 +33,9 @@ public class BooleanRangeSweepPanel extends JPanel
 
 	private final JRadioButton rdbtnFalse;
 
-	public BooleanRangeSweepPanel( final BooleanParamSweepModel val )
+	public BooleanRangeSweepPanel( final BooleanParamSweepModel values )
 	{
-		this.defaultValues = val;
+		this.values = values;
 		setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
 		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 80, 0, 0 };
@@ -44,7 +44,7 @@ public class BooleanRangeSweepPanel extends JPanel
 		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		setLayout( gridBagLayout );
 
-		final JLabel lblParamName = new JLabel( val.paramName );
+		final JLabel lblParamName = new JLabel( values.paramName );
 		final GridBagConstraints gbcLblParamName = new GridBagConstraints();
 		gbcLblParamName.gridwidth = 3;
 		gbcLblParamName.insets = new Insets( 0, 0, 5, 0 );
@@ -52,7 +52,7 @@ public class BooleanRangeSweepPanel extends JPanel
 		gbcLblParamName.gridy = 0;
 		add( lblParamName, gbcLblParamName );
 
-		rdbtnTestAll = new JRadioButton( "Test true and false", val.type == RangeType.TEST_ALL );
+		rdbtnTestAll = new JRadioButton( "Test true and false", values.rangeType == RangeType.TEST_ALL );
 		final GridBagConstraints gbc_rdbtnTestAll = new GridBagConstraints();
 		gbc_rdbtnTestAll.gridwidth = 3;
 		gbc_rdbtnTestAll.anchor = GridBagConstraints.WEST;
@@ -61,7 +61,7 @@ public class BooleanRangeSweepPanel extends JPanel
 		gbc_rdbtnTestAll.gridy = 1;
 		add( rdbtnTestAll, gbc_rdbtnTestAll );
 
-		rdbtnFixed = new JRadioButton( "Fixed value", val.type == RangeType.FIXED );
+		rdbtnFixed = new JRadioButton( "Fixed value", values.rangeType == RangeType.FIXED );
 		final GridBagConstraints gbcRdbtnFixed = new GridBagConstraints();
 		gbcRdbtnFixed.anchor = GridBagConstraints.WEST;
 		gbcRdbtnFixed.insets = new Insets( 0, 0, 0, 5 );
@@ -69,14 +69,14 @@ public class BooleanRangeSweepPanel extends JPanel
 		gbcRdbtnFixed.gridy = 2;
 		add( rdbtnFixed, gbcRdbtnFixed );
 
-		rdbtnTrue = new JRadioButton( "true", val.fixedValue );
+		rdbtnTrue = new JRadioButton( "true", values.fixedValue );
 		final GridBagConstraints gbc_rdbtnTrue = new GridBagConstraints();
 		gbc_rdbtnTrue.insets = new Insets( 0, 0, 0, 5 );
 		gbc_rdbtnTrue.gridx = 1;
 		gbc_rdbtnTrue.gridy = 2;
 		add( rdbtnTrue, gbc_rdbtnTrue );
 
-		rdbtnFalse = new JRadioButton( "false", !val.fixedValue );
+		rdbtnFalse = new JRadioButton( "false", !values.fixedValue );
 		final GridBagConstraints gbc_rdbtnFalse = new GridBagConstraints();
 		gbc_rdbtnFalse.gridx = 2;
 		gbc_rdbtnFalse.gridy = 2;
@@ -101,12 +101,19 @@ public class BooleanRangeSweepPanel extends JPanel
 		final ItemListener il = e -> update();
 		rdbtnFixed.addItemListener( il );
 		rdbtnTestAll.addItemListener( il );
+		rdbtnFalse.addItemListener( il );
+		rdbtnTrue.addItemListener( il );
 	}
 
 	private void update()
 	{
-		final BooleanParamSweepModel vals = getModel();
-		switch ( vals.type )
+		// Update model.
+		final RangeType type = ( rdbtnTestAll.isSelected() ) ? RangeType.TEST_ALL : RangeType.FIXED;
+		values.rangeType( type )
+				.fixedValue( rdbtnTrue.isSelected() );
+
+		// Update UI.
+		switch ( values.rangeType )
 		{
 		case FIXED:
 			rdbtnFalse.setEnabled( true );
@@ -117,26 +124,19 @@ public class BooleanRangeSweepPanel extends JPanel
 			rdbtnTrue.setEnabled( false );
 			break;
 		default:
-			throw new IllegalArgumentException( "Unknown range type: " + vals.type );
+			throw new IllegalArgumentException( "Unknown range type: " + values.rangeType );
 		}
-	}
-
-	private BooleanParamSweepModel getModel()
-	{
-		final RangeType type = ( rdbtnTestAll.isSelected() ) ? RangeType.TEST_ALL : RangeType.FIXED;
-		return BooleanParamSweepModel.create()
-				.paramName( defaultValues.paramName )
-				.rangeType( type )
-				.fixedValue( rdbtnTrue.isSelected() )
-				.get();
 	}
 
 	public static void main( final String[] args ) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
 	{
 		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
 
+		final BooleanParamSweepModel model = new BooleanParamSweepModel();
+		model.listeners().add( () -> System.out.println( model ) );
+
 		final JFrame frame = new JFrame();
-		frame.getContentPane().add( new BooleanRangeSweepPanel( BooleanParamSweepModel.create().get() ) );
+		frame.getContentPane().add( new BooleanRangeSweepPanel( model ) );
 		frame.pack();
 		frame.setLocationRelativeTo( null );
 		frame.setVisible( true );

@@ -2,12 +2,19 @@ package fiji.plugin.trackmate.ctc.ui.components;
 
 import java.util.Arrays;
 
+import org.scijava.listeners.Listeners;
+
 public abstract class NumberParamSweepModel
 {
 
+	public interface ModelListener
+	{
+		public void modelChanged();
+	}
+
 	public enum RangeType
 	{
-		LIN_RANGE( "linear range" ), LOG_RANGE( "log range" ), FIXED( "fixedd value" ), MANUAL( "manual range" );
+		LIN_RANGE( "linear range" ), LOG_RANGE( "log range" ), FIXED( "fixed value" ), MANUAL( "manual range" );
 
 		private final String name;
 
@@ -23,45 +30,73 @@ public abstract class NumberParamSweepModel
 		}
 	}
 
-	protected final String paramName;
+	private final transient Listeners.List< ModelListener > modelListeners;
 
-	protected final String units;
+	protected String paramName = "";
 
-	protected final RangeType type;
+	protected String units = "";
 
-	protected final Number min;
+	protected RangeType rangeType = RangeType.LIN_RANGE;
 
-	protected final Number max;
+	protected Number min = 1;
 
-	protected final int nSteps;
+	protected Number max = 10;
 
-	protected final Number[] manualRange;
+	protected int nSteps = 10;
 
-	public NumberParamSweepModel(
-			final String paramName,
-			final String units,
-			final RangeType type,
-			final Number min,
-			final Number max,
-			final int nSteps,
-			final Number[] manualRange )
+	protected Number[] manualRange = new Number[] { 1., 2., 3., 4., 5., 6., 7., 8., 9., 10. };
 
+	public NumberParamSweepModel()
 	{
-		this.paramName = paramName;
-		this.units = units;
-		this.type = type;
-		this.min = min;
-		this.max = max;
-		this.nSteps = nSteps;
-		this.manualRange = manualRange;
+		this.modelListeners = new Listeners.SynchronizedList<>();
 	}
 
 	public abstract Number[] getRange();
 
+	public NumberParamSweepModel paramName( final String paramName )
+	{
+		if ( this.paramName.equals( paramName ) )
+		{
+			this.paramName = paramName;
+			notifyListeners();
+		}
+		return this;
+	}
+
+	public NumberParamSweepModel units( final String units )
+	{
+		if ( this.units.equals( units ) )
+		{
+			this.units = units;
+			notifyListeners();
+		}
+		return this;
+	}
+
+	public NumberParamSweepModel rangeType( final RangeType rangeType )
+	{
+		if ( this.rangeType != rangeType )
+		{
+			this.rangeType = rangeType;
+			notifyListeners();
+		}
+		return this;
+	}
+
+	public NumberParamSweepModel nSteps( final int nSteps )
+	{
+		if ( this.nSteps != nSteps )
+		{
+			this.nSteps = nSteps;
+			notifyListeners();
+		}
+		return this;
+	}
+
 	@Override
 	public String toString()
 	{
-		switch ( type )
+		switch ( rangeType )
 		{
 		case FIXED:
 			return String.format( "%s (%s):\n"
@@ -69,7 +104,7 @@ public abstract class NumberParamSweepModel
 					+ " - value: %s",
 					paramName,
 					units,
-					type,
+					rangeType,
 					min );
 		case LIN_RANGE:
 		case LOG_RANGE:
@@ -81,7 +116,7 @@ public abstract class NumberParamSweepModel
 					+ " - values: %s",
 					paramName,
 					units,
-					type,
+					rangeType,
 					min,
 					max,
 					nSteps,
@@ -92,10 +127,21 @@ public abstract class NumberParamSweepModel
 					+ " - values: %s",
 					paramName,
 					units,
-					type,
+					rangeType,
 					Arrays.toString( getRange() ) );
 		default:
-			throw new IllegalArgumentException( "Unknown range type: " + type );
+			throw new IllegalArgumentException( "Unknown range type: " + rangeType );
 		}
+	}
+
+	public Listeners.List< ModelListener > listeners()
+	{
+		return modelListeners;
+	}
+
+	protected void notifyListeners()
+	{
+		for ( final ModelListener l : modelListeners.list )
+			l.modelChanged();
 	}
 }

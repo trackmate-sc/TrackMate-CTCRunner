@@ -1,24 +1,14 @@
 package fiji.plugin.trackmate.ctc.ui.components;
 
+import java.util.Arrays;
+
 public class DoubleParamSweepModel extends NumberParamSweepModel
 {
 
-	private DoubleParamSweepModel(
-			final String paramName,
-			final String units,
-			final RangeType type,
-			final double min,
-			final double max,
-			final int nSteps,
-			final Double[] manualRange )
-	{
-		super( paramName, units, type, min, max, nSteps, manualRange );
-	}
-	
 	@Override
 	public Number[] getRange()
 	{
-		switch ( type )
+		switch ( rangeType )
 		{
 		case FIXED:
 			return new Number[] { min };
@@ -33,84 +23,62 @@ public class DoubleParamSweepModel extends NumberParamSweepModel
 		case MANUAL:
 			return manualRange;
 		default:
-			throw new IllegalArgumentException( "Unknown range type: " + type );
+			throw new IllegalArgumentException( "Unknown range type: " + rangeType );
 		}
 	}
 
-	public static Builder create()
+	public DoubleParamSweepModel min( final double min )
 	{
-		return new Builder();
-	}
-	
-	public static class Builder
-	{
-		private String paramName = "no name set";
-
-		private String units = "";
-
-		private RangeType rangeType = RangeType.LIN_RANGE;
-
-		private double min = 1.;
-
-		private double max = 10.;
-
-		private int nSteps = 10;
-		
-		private Double[] manualRange = new Double[] { 1., 2., 3., 4., 5., 6., 7., 8., 9., 10. };
-		
-		public Builder paramName( final String paramName )
-		{
-			this.paramName = paramName;
-			return this;
-		}
-
-		public Builder units( final String units )
-		{
-			this.units = units;
-			return this;
-		}
-
-		public Builder min( final double min )
+		if ( this.min.doubleValue() != min )
 		{
 			this.min = min;
-			return this;
+			notifyListeners();
 		}
+		return this;
+	}
 
-		public Builder max( final double max )
+	public DoubleParamSweepModel max( final double max )
+	{
+		if ( this.max.doubleValue() != max )
 		{
 			this.max = max;
-			return this;
+			notifyListeners();
 		}
+		return this;
+	}
 
-		public Builder rangeType( final RangeType rangeType )
-		{
-			this.rangeType = rangeType;
-			return this;
-		}
-
-		public Builder manualRange( final Double... vals )
+	public DoubleParamSweepModel manualRange( final Double... vals )
+	{
+		if ( !Arrays.equals( this.manualRange, vals ) )
 		{
 			this.manualRange = vals;
-			return this;
+			notifyListeners();
 		}
+		return this;
+	}
 
-		public Builder nSteps( final int nSteps )
-		{
-			this.nSteps = nSteps;
-			return this;
-		}
+	@Override
+	public DoubleParamSweepModel paramName( final String paramName )
+	{
+		return ( DoubleParamSweepModel ) super.paramName( paramName );
+	}
 
-		public DoubleParamSweepModel get()
-		{
-			return new DoubleParamSweepModel(
-					paramName,
-					units,
-					rangeType,
-					Math.min( max, min ),
-					Math.max( max, min ),
-					Math.max( 2, nSteps ),
-					manualRange );
-		}
+	@Override
+	public DoubleParamSweepModel units( final String units )
+	{
+		return ( DoubleParamSweepModel ) super.units( units );
+	}
+
+	@Override
+	public DoubleParamSweepModel nSteps( final int nSteps )
+	{
+		return ( DoubleParamSweepModel ) super.nSteps( nSteps );
+	}
+
+	@Override
+	public DoubleParamSweepModel rangeType( final RangeType rangeType )
+	{
+		return ( DoubleParamSweepModel ) super.rangeType( rangeType );
 	}
 
 	static final Double[] linspace( final double min, final double max, final int nSteps )

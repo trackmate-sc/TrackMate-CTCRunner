@@ -1,26 +1,15 @@
 package fiji.plugin.trackmate.ctc.ui.components;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 
 public class IntParamSweepModel extends NumberParamSweepModel
 {
 
-	public IntParamSweepModel(
-			final String paramName,
-			final String units,
-			final RangeType type,
-			final int min,
-			final int max,
-			final int nSteps,
-			final Integer[] manualRange )
-	{
-		super( paramName, units, type, min, max, nSteps, manualRange );
-	}
-
 	@Override
 	public Number[] getRange()
 	{
-		switch ( type )
+		switch ( rangeType )
 		{
 		case FIXED:
 			return new Number[] { min };
@@ -37,84 +26,50 @@ public class IntParamSweepModel extends NumberParamSweepModel
 		case MANUAL:
 			return manualRange;
 		default:
-			throw new IllegalArgumentException( "Unknown range type: " + type );
+			throw new IllegalArgumentException( "Unknown range type: " + rangeType );
 		}
 	}
 
-	public static Builder create()
+	public IntParamSweepModel min( final int min )
 	{
-		return new Builder();
-	}
-
-	public static class Builder
-	{
-		private String paramName = "no name set";
-
-		private String units = "";
-
-		private RangeType rangeType = RangeType.LIN_RANGE;
-
-		private int min = 1;
-
-		private int max = 10;
-
-		private int nSteps = 10;
-
-		private Integer[] manualRange = new Integer[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-
-		public Builder paramName( final String paramName )
-		{
-			this.paramName = paramName;
-			return this;
-		}
-
-		public Builder units( final String units )
-		{
-			this.units = units;
-			return this;
-		}
-
-		public Builder min( final int min )
+		if ( this.min.intValue() != min )
 		{
 			this.min = min;
-			return this;
+			notifyListeners();
 		}
+		return this;
+	}
 
-		public Builder max( final int max )
+	public IntParamSweepModel max( final int max )
+	{
+		if ( this.max.intValue() != max )
 		{
 			this.max = max;
-			return this;
+			notifyListeners();
 		}
+		return this;
+	}
 
-		public Builder rangeType( final RangeType rangeType )
-		{
-			this.rangeType = rangeType;
-			return this;
-		}
+	@Override
+	public IntParamSweepModel rangeType( final RangeType rangeType )
+	{
+		return ( IntParamSweepModel ) super.rangeType( rangeType );
+	}
 
-		public Builder manualRange( final Integer... vals )
+	public IntParamSweepModel manualRange( final Integer... vals )
+	{
+		if ( !Arrays.equals( this.manualRange, vals ) )
 		{
 			this.manualRange = vals;
-			return this;
+			notifyListeners();
 		}
+		return this;
+	}
 
-		public Builder nSteps( final int nSteps )
-		{
-			this.nSteps = nSteps;
-			return this;
-		}
-
-		public IntParamSweepModel get()
-		{
-			return new IntParamSweepModel(
-					paramName,
-					units,
-					rangeType,
-					Math.min( max, min ),
-					Math.max( max, min ),
-					Math.max( 2, nSteps ),
-					manualRange );
-		}
+	@Override
+	public IntParamSweepModel nSteps( final int nSteps )
+	{
+		return ( IntParamSweepModel ) super.nSteps( nSteps );
 	}
 
 	private static final Integer[] linspace( final int min, final int max, final int nSteps )
