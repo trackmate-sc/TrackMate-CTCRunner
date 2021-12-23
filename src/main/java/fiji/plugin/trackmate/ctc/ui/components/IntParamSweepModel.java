@@ -35,6 +35,12 @@ public class IntParamSweepModel extends NumberParamSweepModel
 		}
 	}
 
+	@Override
+	public IntParamSweepModel paramName( final String paramName )
+	{
+		return ( IntParamSweepModel ) super.paramName( paramName );
+	}
+
 	public IntParamSweepModel min( final int min )
 	{
 		if ( this.min.intValue() != min )

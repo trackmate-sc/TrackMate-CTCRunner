@@ -48,7 +48,6 @@ public class StringRangeParamSweepPanel extends JPanel
 
 	public StringRangeParamSweepPanel( final StringRangeParamSweepModel val, final boolean showBrowse )
 	{
-		// TODO
 		this.values = val;
 		this.showBrowse = showBrowse;
 		this.enabler = new EverythingDisablerAndReenabler( this, new Class[] { JLabel.class } );
@@ -94,6 +93,13 @@ public class StringRangeParamSweepPanel extends JPanel
 
 		buttonsPanel.add( Box.createHorizontalGlue() );
 		buttonsPanel.add( Box.createHorizontalStrut( 5 ) );
+
+		/*
+		 * Default values.
+		 */
+
+		for ( final String string : values.getRange() )
+			addStringPanel( string );
 
 		/*
 		 * Listeners & co.

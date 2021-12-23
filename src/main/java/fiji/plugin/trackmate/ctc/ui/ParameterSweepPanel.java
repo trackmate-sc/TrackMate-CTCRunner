@@ -31,10 +31,6 @@ import com.itextpdf.text.Font;
 
 import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.ctc.ui.components.FilterConfigPanel;
-import fiji.plugin.trackmate.ctc.ui.detectors.DogDetectorSweepModel;
-import fiji.plugin.trackmate.ctc.ui.detectors.DogDetectorSweepPanel;
-import fiji.plugin.trackmate.ctc.ui.detectors.LogDetectorSweepModel;
-import fiji.plugin.trackmate.ctc.ui.detectors.LogDetectorSweepPanel;
 import fiji.plugin.trackmate.detection.DetectionUtils;
 import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.features.track.TrackBranchingAnalyzer;
@@ -529,16 +525,12 @@ public class ParameterSweepPanel extends JPanel
 		/*
 		 * The detector models.
 		 */
-		
-		final LogDetectorSweepModel logDetectorModel = new LogDetectorSweepModel();
-		final DogDetectorSweepModel dogDetectorModel = new DogDetectorSweepModel();
+		// TODO
 		
 		/*
 		 * The detector panels.
 		 */
-		
-		final LogDetectorSweepPanel logDetectorSweepPanel = new LogDetectorSweepPanel( logDetectorModel  );
-		final DogDetectorSweepPanel dogDetectorSweepPanel = new DogDetectorSweepPanel( dogDetectorModel );
+		// TODO
 		
 		/*
 		 * Wire some listeners.
@@ -546,22 +538,8 @@ public class ParameterSweepPanel extends JPanel
 
 		// Browse buttons.
 		btnBrowseGT.addActionListener( e -> browseGroundTruthPath() );
+		// TODO
 
-		// Log detector.
-		chckbxLoGDetector.addActionListener( l -> {
-			if ( chckbxLoGDetector.isSelected() )
-			tabbedPane.add( "LoG detector", logDetectorSweepPanel );
-		else
-			tabbedPane.remove( logDetectorSweepPanel );
-		} );
-
-		// Dog detector.
-		chckbxDoGDetector.addActionListener( l -> {
-			if ( chckbxDoGDetector.isSelected() )
-				tabbedPane.add( "DoG detector", dogDetectorSweepPanel );
-			else
-				tabbedPane.remove( dogDetectorSweepPanel );
-		} );
 
 		/*
 		 * Default values.
