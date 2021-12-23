@@ -33,6 +33,7 @@ import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.ctc.ui.components.FilterConfigPanel;
 import fiji.plugin.trackmate.ctc.ui.detectors.LogDetectorSweepModel;
 import fiji.plugin.trackmate.ctc.ui.detectors.LogDetectorSweepPanel;
+import fiji.plugin.trackmate.detection.DetectionUtils;
 import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.features.track.TrackBranchingAnalyzer;
 import fiji.plugin.trackmate.gui.components.LogPanel;
@@ -307,6 +308,14 @@ public class ParameterSweepPanel extends JPanel
 		gbcChckbxStarDistCustom.gridx = 1;
 		gbcChckbxStarDistCustom.gridy = 9;
 		panelChkboxes.add( chckbxStarDistCustom, gbcChckbxStarDistCustom );
+
+		// Disable some detectors if we don't have a 2D image.
+		if ( !DetectionUtils.is2D( imp ) )
+		{
+			chckbxCellposeDetector.setEnabled( false );
+			chckbxStarDistCustom.setEnabled( false );
+			chckbxStarDistDetector.setEnabled( false );
+		}
 
 		/*
 		 * Path panel. Set image and ground-truth path, plus other options.
