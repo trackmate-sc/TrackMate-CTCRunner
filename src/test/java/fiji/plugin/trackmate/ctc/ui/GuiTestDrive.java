@@ -15,7 +15,7 @@ public class GuiTestDrive
 		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
 		final ImageJ ij = new ImageJ();
 		ij.launch( args );
-		final ImagePlus imp = IJ.openImage( "samples/FakeTracks.tif" );
+		final ImagePlus imp = IJ.openImage( "samples/MAX_Merged.tif" );
 		imp.show();
 		new ParameterSweepController( imp ).show();
 	}
