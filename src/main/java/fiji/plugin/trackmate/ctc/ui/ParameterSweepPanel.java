@@ -21,6 +21,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -315,9 +316,9 @@ public class ParameterSweepPanel extends JPanel
 		panelPath.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
 		final GridBagLayout gblPanelPath = new GridBagLayout();
 		gblPanelPath.columnWidths = new int[] { 0, 0, 0 };
-		gblPanelPath.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		gblPanelPath.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		gblPanelPath.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
-		gblPanelPath.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		gblPanelPath.rowWeights = new double[] { 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		panelPath.setLayout( gblPanelPath );
 
 		final JLabel lblSourceImage = new JLabel( "Source image:" );
@@ -335,17 +336,47 @@ public class ParameterSweepPanel extends JPanel
 		final GridBagConstraints gbc_lblImageName = new GridBagConstraints();
 		gbc_lblImageName.fill = GridBagConstraints.BOTH;
 		gbc_lblImageName.gridwidth = 2;
-		gbc_lblImageName.insets = new Insets( 0, 0, 5, 5 );
+		gbc_lblImageName.insets = new Insets( 0, 0, 5, 0 );
 		gbc_lblImageName.gridx = 0;
 		gbc_lblImageName.gridy = 1;
 		panelPath.add( lblImageName, gbc_lblImageName );
+
+		final JLabel lblSegmentInChannel = new JLabel( "Detection in channel:" );
+		lblSegmentInChannel.setFont( SMALL_FONT );
+		final GridBagConstraints gbc_lblDetectioonChannel = new GridBagConstraints();
+		gbc_lblDetectioonChannel.anchor = GridBagConstraints.WEST;
+		gbc_lblDetectioonChannel.gridwidth = 2;
+		gbc_lblDetectioonChannel.insets = new Insets( 0, 0, 5, 0 );
+		gbc_lblDetectioonChannel.gridx = 0;
+		gbc_lblDetectioonChannel.gridy = 2;
+		panelPath.add( lblSegmentInChannel, gbc_lblDetectioonChannel );
+
+		final JPanel panelChannel = new JPanel();
+		final GridBagConstraints gbc_panelChannel = new GridBagConstraints();
+		gbc_panelChannel.gridwidth = 2;
+		gbc_panelChannel.insets = new Insets( 0, 0, 0, 0 );
+		gbc_panelChannel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_panelChannel.gridx = 0;
+		gbc_panelChannel.gridy = 3;
+		panelPath.add( panelChannel, gbc_panelChannel );
+
+		final JSlider sliderChannel = new JSlider();
+		panelChannel.add( sliderChannel );
+		sliderChannel.setMaximum( 60 );
+		sliderChannel.setMaximum( imp.getNChannels() );
+		sliderChannel.setMinimum( 1 );
+		sliderChannel.setValue( imp.getChannel() );
+
+		final JLabel labelChannel = new JLabel( "1" );
+		labelChannel.setFont( SMALL_FONT );
+		panelChannel.add( labelChannel );
 
 		final GridBagConstraints gbcSeparator1 = new GridBagConstraints();
 		gbcSeparator1.fill = GridBagConstraints.BOTH;
 		gbcSeparator1.gridwidth = 2;
 		gbcSeparator1.insets = new Insets( 0, 0, 5, 0 );
 		gbcSeparator1.gridx = 0;
-		gbcSeparator1.gridy = 2;
+		gbcSeparator1.gridy = 4;
 		panelPath.add( new JSeparator(), gbcSeparator1 );
 
 		final JLabel lblGroundTruth = new JLabel( "Path to CTC ground-truth folder:" );
@@ -354,7 +385,7 @@ public class ParameterSweepPanel extends JPanel
 		gbcLblGroundTruth.insets = new Insets( 0, 0, 5, 5 );
 		gbcLblGroundTruth.anchor = GridBagConstraints.WEST;
 		gbcLblGroundTruth.gridx = 0;
-		gbcLblGroundTruth.gridy = 3;
+		gbcLblGroundTruth.gridy = 5;
 		panelPath.add( lblGroundTruth, gbcLblGroundTruth );
 
 		final JButton btnBrowseGT = new JButton( "Browse" );
@@ -362,7 +393,7 @@ public class ParameterSweepPanel extends JPanel
 		final GridBagConstraints gbcBtnBrowseGT = new GridBagConstraints();
 		gbcBtnBrowseGT.insets = new Insets( 0, 0, 5, 0 );
 		gbcBtnBrowseGT.gridx = 1;
-		gbcBtnBrowseGT.gridy = 3;
+		gbcBtnBrowseGT.gridy = 5;
 		panelPath.add( btnBrowseGT, gbcBtnBrowseGT );
 
 		tfGroundTruth = new JTextField();
@@ -372,7 +403,7 @@ public class ParameterSweepPanel extends JPanel
 		gbcTfGroundTruth.gridwidth = 2;
 		gbcTfGroundTruth.fill = GridBagConstraints.HORIZONTAL;
 		gbcTfGroundTruth.gridx = 0;
-		gbcTfGroundTruth.gridy = 4;
+		gbcTfGroundTruth.gridy = 6;
 		panelPath.add( tfGroundTruth, gbcTfGroundTruth );
 		tfGroundTruth.setColumns( 10 );
 
@@ -381,7 +412,7 @@ public class ParameterSweepPanel extends JPanel
 		gbcSeparator2.fill = GridBagConstraints.BOTH;
 		gbcSeparator2.gridwidth = 2;
 		gbcSeparator2.gridx = 0;
-		gbcSeparator2.gridy = 5;
+		gbcSeparator2.gridy = 7;
 		panelPath.add( new JSeparator(), gbcSeparator2 );
 
 		final JCheckBox chckbxSaveTrackMateFile = new JCheckBox( "Save TrackMate file for every test" );
@@ -391,7 +422,7 @@ public class ParameterSweepPanel extends JPanel
 		gbcChckbxSaveTrackMateFile.gridwidth = 2;
 		gbcChckbxSaveTrackMateFile.anchor = GridBagConstraints.WEST;
 		gbcChckbxSaveTrackMateFile.gridx = 0;
-		gbcChckbxSaveTrackMateFile.gridy = 6;
+		gbcChckbxSaveTrackMateFile.gridy = 8;
 		panelPath.add( chckbxSaveTrackMateFile, gbcChckbxSaveTrackMateFile );
 
 		final GridBagConstraints gbcSeparator4 = new GridBagConstraints();
@@ -399,7 +430,7 @@ public class ParameterSweepPanel extends JPanel
 		gbcSeparator4.gridwidth = 2;
 		gbcSeparator4.insets = new Insets( 0, 0, 5, 0 );
 		gbcSeparator4.gridx = 0;
-		gbcSeparator4.gridy = 7;
+		gbcSeparator4.gridy = 9;
 		panelPath.add( new JSeparator(), gbcSeparator4 );
 
 		final JPanel panelButtons = new JPanel();
@@ -410,7 +441,7 @@ public class ParameterSweepPanel extends JPanel
 		gbcPanelButtons.gridwidth = 2;
 		gbcPanelButtons.fill = GridBagConstraints.HORIZONTAL;
 		gbcPanelButtons.gridx = 0;
-		gbcPanelButtons.gridy = 8;
+		gbcPanelButtons.gridy = 10;
 		panelPath.add( panelButtons, gbcPanelButtons );
 
 		final JButton btnStop = new JButton( "Stop" );
@@ -423,6 +454,26 @@ public class ParameterSweepPanel extends JPanel
 		btnRun.setIcon( EXECUTE_ICON );
 
 		panelButtons.add( btnRun );
+
+		/*
+		 * Deal with channels: the slider and channel labels are only visible if
+		 * we find more than one channel.
+		 */
+		final int nChannels = imp.getNChannels();
+
+		if ( nChannels <= 1 )
+		{
+			lblSegmentInChannel.setVisible( false );
+			labelChannel.setVisible( false );
+			sliderChannel.setVisible( false );
+		}
+		else
+		{
+			lblSegmentInChannel.setVisible( true );
+			labelChannel.setVisible( true );
+			sliderChannel.setVisible( true );
+		}
+		sliderChannel.addChangeListener( e -> labelChannel.setText( "" + sliderChannel.getValue() ) );
 
 		/*
 		 * The split-pane that contains the path panel and the checkbox panel.
