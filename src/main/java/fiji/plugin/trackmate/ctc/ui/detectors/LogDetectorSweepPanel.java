@@ -27,7 +27,7 @@ public class LogDetectorSweepPanel extends JPanel
 
 	private final JLabel lblLog;
 
-	private final AbstractSweepModel model;
+	private final AbstractSettingsSweepModel model;
 
 	public LogDetectorSweepPanel( final LogDetectorSweepModel model )
 	{

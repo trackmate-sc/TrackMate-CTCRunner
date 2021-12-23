@@ -9,7 +9,7 @@ import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.DoubleParamSweepModel;
 import fiji.plugin.trackmate.detection.ThresholdDetectorFactory;
 
-public class ThresholdDetectorSweepModel extends AbstractSweepModel
+public class ThresholdDetectorSweepModel extends AbstractSettingsSweepModel
 {
 
 	private final BooleanParamSweepModel simplifyContourParam;

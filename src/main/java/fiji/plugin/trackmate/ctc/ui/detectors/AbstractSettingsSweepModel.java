@@ -7,13 +7,13 @@ import org.scijava.listeners.Listeners;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel.ModelListener;
 
-public abstract class AbstractSweepModel
+public abstract class AbstractSettingsSweepModel
 {
 
 	protected final transient Listeners.List< ModelListener > modelListeners;
 
 
-	public AbstractSweepModel()
+	public AbstractSettingsSweepModel()
 	{
 		super();
 		this.modelListeners = new Listeners.SynchronizedList<>();

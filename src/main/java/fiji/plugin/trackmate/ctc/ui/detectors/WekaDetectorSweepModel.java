@@ -13,7 +13,7 @@ import fiji.plugin.trackmate.detection.ThresholdDetectorFactory;
 import fiji.plugin.trackmate.morpholibj.Connectivity;
 import fiji.plugin.trackmate.morpholibj.MorphoLibJDetectorFactory;
 
-public class WekaDetectorSweepModel extends AbstractSweepModel
+public class WekaDetectorSweepModel extends AbstractSettingsSweepModel
 {
 
 	final DoubleParamSweepModel toleranceParam;

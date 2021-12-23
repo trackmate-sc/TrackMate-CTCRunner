@@ -9,7 +9,7 @@ import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel;
 import fiji.plugin.trackmate.detection.LabeImageDetectorFactory;
 import fiji.plugin.trackmate.detection.ThresholdDetectorFactory;
 
-public class LabelImgDetectorSweepModel extends AbstractSweepModel
+public class LabelImgDetectorSweepModel extends AbstractSettingsSweepModel
 {
 
 	private final BooleanParamSweepModel simplifyContourParam;

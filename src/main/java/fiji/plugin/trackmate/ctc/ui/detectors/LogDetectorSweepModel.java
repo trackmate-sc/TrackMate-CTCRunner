@@ -15,7 +15,7 @@ import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.DoubleParamSweepModel;
 import fiji.plugin.trackmate.detection.LogDetectorFactory;
 
-public class LogDetectorSweepModel extends AbstractSweepModel
+public class LogDetectorSweepModel extends AbstractSettingsSweepModel
 {
 
 	final DoubleParamSweepModel estimatedDiameterParam;

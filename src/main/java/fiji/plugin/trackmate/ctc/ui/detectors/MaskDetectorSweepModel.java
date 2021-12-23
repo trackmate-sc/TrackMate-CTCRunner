@@ -8,7 +8,7 @@ import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel;
 import fiji.plugin.trackmate.detection.MaskDetectorFactory;
 
-public class MaskDetectorSweepModel extends AbstractSweepModel
+public class MaskDetectorSweepModel extends AbstractSettingsSweepModel
 {
 
 	private final BooleanParamSweepModel simplifyContourParam;
