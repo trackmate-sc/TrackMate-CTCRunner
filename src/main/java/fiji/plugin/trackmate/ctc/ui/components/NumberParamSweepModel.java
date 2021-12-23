@@ -2,15 +2,8 @@ package fiji.plugin.trackmate.ctc.ui.components;
 
 import java.util.Arrays;
 
-import org.scijava.listeners.Listeners;
-
-public abstract class NumberParamSweepModel
+public abstract class NumberParamSweepModel extends AbstractParamSweepModel< Number >
 {
-
-	public interface ModelListener
-	{
-		public void modelChanged();
-	}
 
 	public enum RangeType
 	{
@@ -30,10 +23,6 @@ public abstract class NumberParamSweepModel
 		}
 	}
 
-	private final transient Listeners.List< ModelListener > modelListeners;
-
-	protected String paramName = "";
-
 	protected String units = "";
 
 	protected RangeType rangeType = RangeType.LIN_RANGE;
@@ -46,22 +35,8 @@ public abstract class NumberParamSweepModel
 
 	protected Number[] manualRange = new Number[] { 1., 2., 3., 4., 5., 6., 7., 8., 9., 10. };
 
-	public NumberParamSweepModel()
-	{
-		this.modelListeners = new Listeners.SynchronizedList<>();
-	}
-
+	@Override
 	public abstract Number[] getRange();
-
-	public NumberParamSweepModel paramName( final String paramName )
-	{
-		if ( this.paramName.equals( paramName ) )
-		{
-			this.paramName = paramName;
-			notifyListeners();
-		}
-		return this;
-	}
 
 	public NumberParamSweepModel units( final String units )
 	{
@@ -132,16 +107,5 @@ public abstract class NumberParamSweepModel
 		default:
 			throw new IllegalArgumentException( "Unknown range type: " + rangeType );
 		}
-	}
-
-	public Listeners.List< ModelListener > listeners()
-	{
-		return modelListeners;
-	}
-
-	protected void notifyListeners()
-	{
-		for ( final ModelListener l : modelListeners.list )
-			l.modelChanged();
 	}
 }

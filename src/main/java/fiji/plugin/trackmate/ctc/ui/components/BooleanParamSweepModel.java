@@ -1,10 +1,6 @@
 package fiji.plugin.trackmate.ctc.ui.components;
 
-import org.scijava.listeners.Listeners;
-
-import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel.ModelListener;
-
-public class BooleanParamSweepModel
+public class BooleanParamSweepModel extends AbstractParamSweepModel< Boolean >
 {
 
 	public enum RangeType
@@ -25,19 +21,11 @@ public class BooleanParamSweepModel
 		}
 	}
 
-	private final transient Listeners.List< ModelListener > modelListeners;
-
-	String paramName = "";
-
 	RangeType rangeType = RangeType.TEST_ALL;
 
 	boolean fixedValue = true;
 
-	public BooleanParamSweepModel()
-	{
-		this.modelListeners = new Listeners.SynchronizedList<>();
-	}
-
+	@Override
 	public Boolean[] getRange()
 	{
 		switch ( rangeType )
@@ -73,14 +61,10 @@ public class BooleanParamSweepModel
 		}
 	}
 
+	@Override
 	public BooleanParamSweepModel paramName( final String paramName )
 	{
-		if ( !this.paramName.equals( paramName ) )
-		{
-			this.paramName = paramName;
-			notifyListeners();
-		}
-		return this;
+		return ( BooleanParamSweepModel ) super.paramName( paramName );
 	}
 
 	public BooleanParamSweepModel rangeType( final RangeType rangeType )
@@ -101,16 +85,5 @@ public class BooleanParamSweepModel
 			notifyListeners();
 		}
 		return this;
-	}
-
-	public Listeners.List< ModelListener > listeners()
-	{
-		return modelListeners;
-	}
-
-	private void notifyListeners()
-	{
-		for ( final ModelListener l : modelListeners.list )
-			l.modelChanged();
 	}
 }
