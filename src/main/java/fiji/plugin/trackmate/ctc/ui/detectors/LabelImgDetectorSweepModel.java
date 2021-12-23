@@ -21,6 +21,7 @@ public class LabelImgDetectorSweepModel extends AbstractSettingsSweepModel
 
 	public LabelImgDetectorSweepModel( final BooleanParamSweepModel simplifyContourParam )
 	{
+		super( LabeImageDetectorFactory.NAME );
 		this.simplifyContourParam = simplifyContourParam;
 		simplifyContourParam.listeners().add( () -> notifyListeners() );
 	}

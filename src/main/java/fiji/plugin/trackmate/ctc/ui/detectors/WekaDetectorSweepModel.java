@@ -7,63 +7,60 @@ import java.util.List;
 import java.util.Map;
 
 import fiji.plugin.trackmate.Settings;
-import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.DoubleParamSweepModel;
-import fiji.plugin.trackmate.detection.ThresholdDetectorFactory;
-import fiji.plugin.trackmate.morpholibj.Connectivity;
-import fiji.plugin.trackmate.morpholibj.MorphoLibJDetectorFactory;
+import fiji.plugin.trackmate.ctc.ui.components.IntParamSweepModel;
+import fiji.plugin.trackmate.ctc.ui.components.StringRangeParamSweepModel;
+import fiji.plugin.trackmate.weka.WekaDetectorFactory;
 
 public class WekaDetectorSweepModel extends AbstractSettingsSweepModel
 {
 
-	final DoubleParamSweepModel toleranceParam;
+	final StringRangeParamSweepModel modelPathParam;
 
-	final BooleanParamSweepModel diagonalConnectivityParam;
+	final DoubleParamSweepModel probaThresholdParam;
 
-	final BooleanParamSweepModel simplifyContourParam;
+	final IntParamSweepModel classIndexParam;
 
 	public WekaDetectorSweepModel()
 	{
-		this( new DoubleParamSweepModel(),
-				new BooleanParamSweepModel(),
-				new BooleanParamSweepModel() );
+		this( new StringRangeParamSweepModel(),
+				new DoubleParamSweepModel(),
+				new IntParamSweepModel() );
 	}
 
 	public WekaDetectorSweepModel(
+			final StringRangeParamSweepModel modelPathParam,
 			final DoubleParamSweepModel toleranceParam,
-			final BooleanParamSweepModel diagonalConnectivityParam,
-			final BooleanParamSweepModel simplifyContourParam )
+			final IntParamSweepModel classIndexParam )
 	{
-		this.toleranceParam = toleranceParam;
-		this.diagonalConnectivityParam = diagonalConnectivityParam;
-		this.simplifyContourParam = simplifyContourParam;
+		super( WekaDetectorFactory.NAME );
+		this.modelPathParam = modelPathParam;
+		this.probaThresholdParam = toleranceParam;
+		this.classIndexParam = classIndexParam;
 		// Pass listeners.
+		modelPathParam.listeners().add( () -> notifyListeners() );
 		toleranceParam.listeners().add( () -> notifyListeners() );
-		diagonalConnectivityParam.listeners().add( () -> notifyListeners() );
-		simplifyContourParam.listeners().add( () -> notifyListeners() );
+		classIndexParam.listeners().add( () -> notifyListeners() );
 	}
 
 	@Override
 	public List< Settings > generateSettings( final Settings base, final int targetChannel )
 	{
 		final List< Settings > list = new ArrayList<>();
-		for ( final Number tolerance : toleranceParam.getRange() )
-			for ( final Boolean diagonalConnectivity : diagonalConnectivityParam.getRange() )
-				for ( final Boolean simplifyContour : simplifyContourParam.getRange() )
-				{
-					final Settings s = base.copyOn( base.imp );
-					s.detectorFactory = new MorphoLibJDetectorFactory<>();
-					final Map< String, Object > ds = s.detectorFactory.getDefaultSettings();
-					ds.put( KEY_TARGET_CHANNEL, targetChannel );
-					ds.put( MorphoLibJDetectorFactory.KEY_TOLERANCE, tolerance.doubleValue() );
-					final Integer connectivity = diagonalConnectivity
-							? Connectivity.DIAGONAL.getConnectivity()
-							: Connectivity.STRAIGHT.getConnectivity();
-					ds.put( MorphoLibJDetectorFactory.KEY_CONNECTIVITY, connectivity );
-					ds.put( ThresholdDetectorFactory.KEY_SIMPLIFY_CONTOURS, simplifyContour );
-					s.detectorSettings = ds;
-					list.add( s );
-				}
+		for ( final String modelPath : modelPathParam.getRange() )
+			for ( final Number tolerance : probaThresholdParam.getRange() )
+				for ( final Number classIndex : classIndexParam.getRange() )
+					{
+						final Settings s = base.copyOn( base.imp );
+						s.detectorFactory = new WekaDetectorFactory<>();
+						final Map< String, Object > ds = s.detectorFactory.getDefaultSettings();
+						ds.put( KEY_TARGET_CHANNEL, targetChannel );
+						ds.put( WekaDetectorFactory.KEY_CLASSIFIER_FILEPATH, modelPath );
+						ds.put( WekaDetectorFactory.KEY_PROBA_THRESHOLD, tolerance.doubleValue() );
+						ds.put( WekaDetectorFactory.KEY_CLASS_INDEX, classIndex.intValue() );
+						s.detectorSettings = ds;
+						list.add( s );
+					}
 
 		return list;
 	}

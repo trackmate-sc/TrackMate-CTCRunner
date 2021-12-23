@@ -34,6 +34,7 @@ public class MorphoLibJDetectorSweepModel extends AbstractSettingsSweepModel
 			final BooleanParamSweepModel diagonalConnectivityParam,
 			final BooleanParamSweepModel simplifyContourParam )
 	{
+		super( MorphoLibJDetectorFactory.NAME );
 		this.toleranceParam = toleranceParam;
 		this.diagonalConnectivityParam = diagonalConnectivityParam;
 		this.simplifyContourParam = simplifyContourParam;

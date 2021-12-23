@@ -20,6 +20,7 @@ public class MaskDetectorSweepModel extends AbstractSettingsSweepModel
 
 	public MaskDetectorSweepModel( final BooleanParamSweepModel simplifyContourParam )
 	{
+		super( MaskDetectorFactory.NAME );
 		this.simplifyContourParam = simplifyContourParam;
 		simplifyContourParam.listeners().add( () -> notifyListeners() );
 	}

@@ -25,6 +25,7 @@ public class ThresholdDetectorSweepModel extends AbstractSettingsSweepModel
 			final DoubleParamSweepModel intensityThresholdParam,
 			final BooleanParamSweepModel simplifyContourParam )
 	{
+		super( ThresholdDetectorFactory.NAME );
 		this.intensityThresholdParam = intensityThresholdParam;
 		this.simplifyContourParam = simplifyContourParam;
 		simplifyContourParam.listeners().add( () -> notifyListeners() );

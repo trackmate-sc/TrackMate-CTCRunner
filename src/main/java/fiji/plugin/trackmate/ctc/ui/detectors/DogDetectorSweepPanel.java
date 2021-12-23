@@ -9,6 +9,4 @@ public class DogDetectorSweepPanel extends LogDetectorSweepPanel
 	{
 		super( model, "Difference of Gaussian detector" );
 	}
-
-
 }

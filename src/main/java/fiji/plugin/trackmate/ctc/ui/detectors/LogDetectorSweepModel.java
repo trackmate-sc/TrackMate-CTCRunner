@@ -34,12 +34,27 @@ public class LogDetectorSweepModel extends AbstractSettingsSweepModel
 				new BooleanParamSweepModel() );
 	}
 
-	public LogDetectorSweepModel(
+	protected LogDetectorSweepModel(
 			final DoubleParamSweepModel estimatedDiameterParam,
 			final DoubleParamSweepModel thresholdParam,
 			final BooleanParamSweepModel subpixelLocalizationParam,
 			final BooleanParamSweepModel useMedianParam )
 	{
+		this( "Laplacian of Gaussian detector",
+				estimatedDiameterParam,
+				thresholdParam,
+				subpixelLocalizationParam,
+				useMedianParam );
+	}
+
+	protected LogDetectorSweepModel(
+			final String name,
+			final DoubleParamSweepModel estimatedDiameterParam,
+			final DoubleParamSweepModel thresholdParam,
+			final BooleanParamSweepModel subpixelLocalizationParam,
+			final BooleanParamSweepModel useMedianParam )
+	{
+		super( name );
 		this.estimatedDiameterParam = estimatedDiameterParam;
 		this.thresholdParam = thresholdParam;
 		this.subpixelLocalizationParam = subpixelLocalizationParam;

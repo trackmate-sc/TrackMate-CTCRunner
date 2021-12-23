@@ -12,7 +12,11 @@ public class DogDetectorSweepModel extends LogDetectorSweepModel
 
 	public DogDetectorSweepModel()
 	{
-		super();
+		this(
+				new DoubleParamSweepModel(),
+				new DoubleParamSweepModel(),
+				new BooleanParamSweepModel(),
+				new BooleanParamSweepModel() );
 	}
 
 	public DogDetectorSweepModel(
@@ -21,9 +25,12 @@ public class DogDetectorSweepModel extends LogDetectorSweepModel
 			final BooleanParamSweepModel subpixelLocalizationParam,
 			final BooleanParamSweepModel useMedianParam )
 	{
-		super( estimatedDiameterParam, thresholdParam, subpixelLocalizationParam, useMedianParam );
+		super( "Difference of Gaussian detector",
+				estimatedDiameterParam,
+				thresholdParam,
+				subpixelLocalizationParam,
+				useMedianParam );
 	}
-
 
 	@Override
 	public List< Settings > generateSettings( final Settings base, final int targetChannel )

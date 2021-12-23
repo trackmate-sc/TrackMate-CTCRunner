@@ -12,10 +12,12 @@ public abstract class AbstractSettingsSweepModel
 
 	protected final transient Listeners.List< ModelListener > modelListeners;
 
+	private final String name;
 
-	public AbstractSettingsSweepModel()
+
+	public AbstractSettingsSweepModel( final String name )
 	{
-		super();
+		this.name = name;
 		this.modelListeners = new Listeners.SynchronizedList<>();
 	}
 
@@ -28,6 +30,11 @@ public abstract class AbstractSettingsSweepModel
 	{
 		for ( final ModelListener l : modelListeners.list )
 			l.modelChanged();
+	}
+
+	public String getName()
+	{
+		return name;
 	}
 
 	public abstract List< Settings > generateSettings( final Settings base, final int targetChannel );
