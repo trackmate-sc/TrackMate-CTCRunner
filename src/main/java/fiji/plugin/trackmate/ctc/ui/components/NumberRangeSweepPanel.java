@@ -9,7 +9,6 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -169,7 +168,7 @@ public class NumberRangeSweepPanel extends JPanel
 		gbc_rdbtnManualRange.gridy = 3;
 		add( rdbtnManualRange, gbc_rdbtnManualRange );
 
-		tfValues = new JTextField( Arrays.toString( val.getRange() ) );
+		tfValues = new JTextField( val.getRange().toString() );
 		tfValues.setHorizontalAlignment( SwingConstants.CENTER );
 		tfValues.setBorder( null );
 		tfValues.setEditable( false );

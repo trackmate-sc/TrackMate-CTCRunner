@@ -37,9 +37,9 @@ public abstract class StringRangeParamSweepModel extends AbstractParamSweepModel
 	}
 
 	@Override
-	public String[] getRange()
+	public List< String > getRange()
 	{
-		return stringList.toArray( new String[] {} );
+		return new ArrayList<>( stringList );
 	}
 
 	@Override

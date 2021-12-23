@@ -1,6 +1,7 @@
 package fiji.plugin.trackmate.ctc.ui.components;
 
 import java.util.Arrays;
+import java.util.List;
 
 public abstract class NumberParamSweepModel extends AbstractParamSweepModel< Number >
 {
@@ -33,10 +34,10 @@ public abstract class NumberParamSweepModel extends AbstractParamSweepModel< Num
 
 	protected int nSteps = 10;
 
-	protected Number[] manualRange = new Number[] { 1., 2., 3., 4., 5., 6., 7., 8., 9., 10. };
+	protected List< Number > manualRange = Arrays.asList( 1., 2., 3., 4., 5., 6., 7., 8., 9., 10. );
 
 	@Override
-	public abstract Number[] getRange();
+	public abstract List< Number > getRange();
 
 	public NumberParamSweepModel units( final String units )
 	{
@@ -95,7 +96,7 @@ public abstract class NumberParamSweepModel extends AbstractParamSweepModel< Num
 					min,
 					max,
 					nSteps,
-					Arrays.toString( getRange() ) );
+					Arrays.toString( getRange().toArray() ) );
 		case MANUAL:
 			return String.format( "%s (%s):\n"
 					+ " - type: %s\n"
@@ -103,7 +104,7 @@ public abstract class NumberParamSweepModel extends AbstractParamSweepModel< Num
 					paramName,
 					units,
 					rangeType,
-					Arrays.toString( getRange() ) );
+					Arrays.toString( getRange().toArray() ) );
 		default:
 			throw new IllegalArgumentException( "Unknown range type: " + rangeType );
 		}

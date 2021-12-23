@@ -1,5 +1,7 @@
 package fiji.plugin.trackmate.ctc.ui.components;
 
+import java.util.List;
+
 import org.scijava.listeners.Listeners;
 
 public abstract class AbstractParamSweepModel< T >
@@ -10,7 +12,7 @@ public abstract class AbstractParamSweepModel< T >
 		public void modelChanged();
 	}
 
-	public abstract T[] getRange();
+	public abstract List< T > getRange();
 
 	private final transient Listeners.List< ModelListener > modelListeners;
 

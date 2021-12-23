@@ -1,24 +1,27 @@
 package fiji.plugin.trackmate.ctc.ui.components;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class DoubleParamSweepModel extends NumberParamSweepModel
 {
 
 	@Override
-	public Number[] getRange()
+	public List< Number > getRange()
 	{
 		switch ( rangeType )
 		{
 		case FIXED:
-			return new Number[] { min };
+			return Collections.singletonList( min );
 		case LIN_RANGE:
 			return linspace( min.doubleValue(), max.doubleValue(), nSteps );
 		case LOG_RANGE:
-			final Double[] e = linspace( Math.log( 1 ), Math.log( 1. - min.doubleValue() + max.doubleValue() ), nSteps );
-			final Double[] out = new Double[ e.length ];
-			for ( int i = 0; i < out.length; i++ )
-				out[ i ] = Math.exp( e[ i ] ) + min.doubleValue() - 1.;
+			final List< Number > e = linspace( Math.log( 1 ), Math.log( 1. - min.doubleValue() + max.doubleValue() ), nSteps );
+			final List< Number > out = new ArrayList<>( e.size() );
+			for ( int i = 0; i < e.size(); i++ )
+				out.add( Math.exp( e.get( i ).doubleValue() ) + min.doubleValue() - 1. );
 			return out;
 		case MANUAL:
 			return manualRange;
@@ -49,9 +52,10 @@ public class DoubleParamSweepModel extends NumberParamSweepModel
 
 	public DoubleParamSweepModel manualRange( final Double... vals )
 	{
-		if ( !Arrays.equals( this.manualRange, vals ) )
+		final List< Number > list = Arrays.asList( vals );
+		if ( !this.manualRange.equals( list ) )
 		{
-			this.manualRange = vals;
+			this.manualRange = list;
 			notifyListeners();
 		}
 		return this;
@@ -81,25 +85,25 @@ public class DoubleParamSweepModel extends NumberParamSweepModel
 		return ( DoubleParamSweepModel ) super.rangeType( rangeType );
 	}
 
-	static final Double[] linspace( final double min, final double max, final int nSteps )
+	static final List< Number > linspace( final double min, final double max, final int nSteps )
 	{
-		final Double[] range = new Double[ nSteps ];
-		for ( int i = 0; i < range.length; i++ )
-			range[ i ] = min + ( max - min ) * i / ( nSteps - 1 );
+		final List< Number > range = new ArrayList<>( nSteps );
+		for ( int i = 0; i < nSteps; i++ )
+			range.add( min + ( max - min ) * i / ( nSteps - 1 ) );
 
 		return range;
 	}
 
-	public static final String str( final Number[] range )
+	public static final String str( final List< Number > range )
 	{
-		if ( range.length == 0 )
+		if ( range.isEmpty() )
 			return "[]";
 
 		final StringBuilder str = new StringBuilder();
 		str.append( "[ " );
-		str.append( String.format( "%s", range[ 0 ] ) );
-		for ( int i = 1; i < range.length; i++ )
-			str.append( String.format( ", %s", range[ i ] ) );
+		str.append( String.format( "%s", range.get( 0 ) ) );
+		for ( int i = 1; i < range.size(); i++ )
+			str.append( String.format( ", %s", range.get( i ) ) );
 
 		str.append( " ]" );
 		return str.toString();

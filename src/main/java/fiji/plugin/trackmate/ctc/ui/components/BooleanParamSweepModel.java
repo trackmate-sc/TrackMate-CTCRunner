@@ -1,5 +1,9 @@
 package fiji.plugin.trackmate.ctc.ui.components;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class BooleanParamSweepModel extends AbstractParamSweepModel< Boolean >
 {
 
@@ -26,14 +30,14 @@ public class BooleanParamSweepModel extends AbstractParamSweepModel< Boolean >
 	boolean fixedValue = true;
 
 	@Override
-	public Boolean[] getRange()
+	public List< Boolean > getRange()
 	{
 		switch ( rangeType )
 		{
 		case FIXED:
-			return new Boolean[] { fixedValue };
+			return Collections.singletonList( fixedValue );
 		case TEST_ALL:
-			return new Boolean[] { false, true };
+			return Arrays.asList( false, true );
 		default:
 			throw new IllegalArgumentException( "Unknown range type: " + rangeType );
 		}
