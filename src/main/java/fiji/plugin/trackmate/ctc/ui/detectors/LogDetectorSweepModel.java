@@ -10,18 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.scijava.listeners.Listeners;
-
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.DoubleParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel.ModelListener;
 import fiji.plugin.trackmate.detection.LogDetectorFactory;
 
-public class LogDetectorSweepModel
+public class LogDetectorSweepModel extends AbstractSweepModel
 {
-
-	private final transient Listeners.List< ModelListener > modelListeners;
 
 	final DoubleParamSweepModel estimatedDiameterParam;
 
@@ -49,8 +44,6 @@ public class LogDetectorSweepModel
 		this.thresholdParam = thresholdParam;
 		this.subpixelLocalizationParam = subpixelLocalizationParam;
 		this.useMedianParam = useMedianParam;
-		this.modelListeners = new Listeners.SynchronizedList<>();
-
 		// Pass listeners.
 		estimatedDiameterParam.listeners().add( () -> notifyListeners() );
 		thresholdParam.listeners().add( () -> notifyListeners() );
@@ -58,18 +51,13 @@ public class LogDetectorSweepModel
 		useMedianParam.listeners().add( () -> notifyListeners() );
 	}
 
-	public Listeners.List< ModelListener > listeners()
+	@Override
+	public List< Settings > generateSettings( final Settings base, final int targetChannel )
 	{
-		return modelListeners;
+		return generateSettings( base, new LogDetectorFactory<>(), targetChannel );
 	}
 
-	protected void notifyListeners()
-	{
-		for ( final ModelListener l : modelListeners.list )
-			l.modelChanged();
-	}
-
-	public List< Settings > generateSettings( final Settings base, final LogDetectorFactory< ? > factory, final int targetChannel )
+	protected List< Settings > generateSettings( final Settings base, final LogDetectorFactory< ? > factory, final int targetChannel )
 	{
 		final List< Settings > list = new ArrayList<>();
 		for ( final Number diameter : estimatedDiameterParam.getRange() )

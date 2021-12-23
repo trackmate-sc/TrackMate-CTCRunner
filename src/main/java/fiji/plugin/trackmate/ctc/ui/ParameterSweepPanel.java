@@ -31,6 +31,8 @@ import com.itextpdf.text.Font;
 
 import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.ctc.ui.components.FilterConfigPanel;
+import fiji.plugin.trackmate.ctc.ui.detectors.DogDetectorSweepModel;
+import fiji.plugin.trackmate.ctc.ui.detectors.DogDetectorSweepPanel;
 import fiji.plugin.trackmate.ctc.ui.detectors.LogDetectorSweepModel;
 import fiji.plugin.trackmate.ctc.ui.detectors.LogDetectorSweepPanel;
 import fiji.plugin.trackmate.detection.DetectionUtils;
@@ -529,14 +531,14 @@ public class ParameterSweepPanel extends JPanel
 		 */
 		
 		final LogDetectorSweepModel logDetectorModel = new LogDetectorSweepModel();
-		final LogDetectorSweepModel dogDetectorModel = new LogDetectorSweepModel();
+		final DogDetectorSweepModel dogDetectorModel = new DogDetectorSweepModel();
 		
 		/*
 		 * The detector panels.
 		 */
 		
 		final LogDetectorSweepPanel logDetectorSweepPanel = new LogDetectorSweepPanel( logDetectorModel  );
-		final LogDetectorSweepPanel dogDetectorSweepPanel = new LogDetectorSweepPanel( dogDetectorModel, "Difference of Gaussian detector"  );
+		final DogDetectorSweepPanel dogDetectorSweepPanel = new DogDetectorSweepPanel( dogDetectorModel );
 		
 		/*
 		 * Wire some listeners.

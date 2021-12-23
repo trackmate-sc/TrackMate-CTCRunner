@@ -19,7 +19,6 @@ import javax.swing.border.EmptyBorder;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.ctc.ui.components.BooleanRangeSweepPanel;
 import fiji.plugin.trackmate.ctc.ui.components.NumberRangeSweepPanel;
-import fiji.plugin.trackmate.detection.LogDetectorFactory;
 
 public class LogDetectorSweepPanel extends JPanel
 {
@@ -28,14 +27,14 @@ public class LogDetectorSweepPanel extends JPanel
 
 	private final JLabel lblLog;
 
-	private final LogDetectorSweepModel model;
+	private final AbstractSweepModel model;
 
 	public LogDetectorSweepPanel( final LogDetectorSweepModel model )
 	{
 		this( model, "Laplacian of Gaussian detector" );
 	}
 
-	public LogDetectorSweepPanel( final LogDetectorSweepModel model, final String title )
+	protected LogDetectorSweepPanel( final LogDetectorSweepModel model, final String title )
 	{
 		this.model = model;
 		model.listeners().add( () -> update() );
@@ -141,6 +140,6 @@ public class LogDetectorSweepPanel extends JPanel
 	private void update()
 	{
 		lblLog.setText( String.format( "Testing %d parameter sets.",
-				model.generateSettings( new Settings(), new LogDetectorFactory<>(), 1 ).size() ) );
+				model.generateSettings( new Settings(), 1 ).size() ) );
 	}
 }
