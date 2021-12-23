@@ -3,7 +3,7 @@ package fiji.plugin.trackmate.ctc.ui.components;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class StringRangeParamSweepModel extends AbstractParamSweepModel< String >
+public class StringRangeParamSweepModel extends AbstractParamSweepModel< String >
 {
 
 	protected final List< String > stringList = new ArrayList<>();
