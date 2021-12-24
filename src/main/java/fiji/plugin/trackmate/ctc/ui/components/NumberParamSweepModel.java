@@ -41,7 +41,7 @@ public abstract class NumberParamSweepModel extends AbstractParamSweepModel< Num
 
 	public NumberParamSweepModel units( final String units )
 	{
-		if ( this.units.equals( units ) )
+		if ( !this.units.equals( units ) )
 		{
 			this.units = units;
 			notifyListeners();

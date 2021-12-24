@@ -16,7 +16,7 @@ public abstract class AbstractParamSweepModel< T >
 
 	private final transient Listeners.List< ModelListener > modelListeners;
 
-	protected String paramName = "";
+	protected String paramName = " ";
 
 	public AbstractParamSweepModel()
 	{
@@ -25,7 +25,7 @@ public abstract class AbstractParamSweepModel< T >
 
 	public AbstractParamSweepModel< T > paramName( final String paramName )
 	{
-		if ( this.paramName.equals( paramName ) )
+		if ( !this.paramName.equals( paramName ) )
 		{
 			this.paramName = paramName;
 			notifyListeners();
