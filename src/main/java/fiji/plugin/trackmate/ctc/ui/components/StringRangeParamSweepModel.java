@@ -23,11 +23,6 @@ public class StringRangeParamSweepModel extends AbstractParamSweepModel< String 
 		return this;
 	}
 
-	public StringRangeParamSweepModel removeLast()
-	{
-		return remove( stringList.size() - 1 );
-	}
-
 	public StringRangeParamSweepModel remove( final int index )
 	{
 		if ( stringList.size() < 2 || index < 0 || index >= stringList.size() )
@@ -35,6 +30,16 @@ public class StringRangeParamSweepModel extends AbstractParamSweepModel< String 
 
 		stringList.remove( index );
 		notifyListeners();
+		return this;
+	}
+
+	public StringRangeParamSweepModel set( final int id, final String text )
+	{
+		if ( !stringList.get( id ).equals( text ) )
+		{
+			stringList.set( id, text );
+			notifyListeners();
+		}
 		return this;
 	}
 
@@ -69,4 +74,5 @@ public class StringRangeParamSweepModel extends AbstractParamSweepModel< String 
 	{
 		return isFile;
 	}
+
 }
