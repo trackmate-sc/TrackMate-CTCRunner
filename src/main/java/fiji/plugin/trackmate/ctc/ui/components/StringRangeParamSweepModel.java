@@ -8,6 +8,8 @@ public class StringRangeParamSweepModel extends AbstractParamSweepModel< String 
 
 	protected final List< String > stringList = new ArrayList<>();
 
+	private boolean isFile;
+
 	@Override
 	public StringRangeParamSweepModel paramName( final String paramName )
 	{
@@ -36,6 +38,16 @@ public class StringRangeParamSweepModel extends AbstractParamSweepModel< String 
 		return this;
 	}
 
+	public StringRangeParamSweepModel isFile( final boolean isFile )
+	{
+		if ( this.isFile != isFile )
+		{
+			this.isFile = isFile;
+			notifyListeners();
+		}
+		return this;
+	}
+
 	@Override
 	public List< String > getRange()
 	{
@@ -51,5 +63,10 @@ public class StringRangeParamSweepModel extends AbstractParamSweepModel< String 
 		for ( final String string : stringList )
 			str.append( String.format( " - %2d: %s\n", index++, string ) );
 		return str.toString();
+	}
+
+	public boolean isFile()
+	{
+		return isFile;
 	}
 }

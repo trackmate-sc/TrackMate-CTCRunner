@@ -46,10 +46,10 @@ public class StringRangeParamSweepPanel extends JPanel
 	 * CONSTRUCTOR
 	 */
 
-	public StringRangeParamSweepPanel( final StringRangeParamSweepModel val, final boolean showBrowse )
+	public StringRangeParamSweepPanel( final StringRangeParamSweepModel val )
 	{
 		this.values = val;
-		this.showBrowse = showBrowse;
+		this.showBrowse = val.isFile();
 		this.enabler = new EverythingDisablerAndReenabler( this, new Class[] { JLabel.class } );
 
 		this.setLayout( new BorderLayout() );
