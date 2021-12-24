@@ -16,6 +16,8 @@ import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel.ModelListener;
 import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.BooleanRangeSweepPanel;
+import fiji.plugin.trackmate.ctc.ui.components.EnumParamSweepModel;
+import fiji.plugin.trackmate.ctc.ui.components.EnumRangeSweepPanel;
 import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.NumberRangeSweepPanel;
 import fiji.plugin.trackmate.ctc.ui.components.StringRangeParamSweepModel;
@@ -71,6 +73,7 @@ public class DetectorSweepPanel extends JPanel
 		final JScrollPane scrollPane = new JScrollPane( mainPanel );
 		scrollPane.setHorizontalScrollBarPolicy( JScrollPane.HORIZONTAL_SCROLLBAR_NEVER );
 		scrollPane.setVerticalScrollBarPolicy( JScrollPane.VERTICAL_SCROLLBAR_ALWAYS );
+		scrollPane.getVerticalScrollBar().setUnitIncrement( 16 );
 
 		add( scrollPane, BorderLayout.CENTER );
 
@@ -89,6 +92,8 @@ public class DetectorSweepPanel extends JPanel
 			return new NumberRangeSweepPanel( ( NumberParamSweepModel ) cm );
 		else if ( cm instanceof StringRangeParamSweepModel )
 			return new StringRangeParamSweepPanel( ( StringRangeParamSweepModel ) cm );
+		else if (cm instanceof EnumParamSweepModel< ? > )
+			return new EnumRangeSweepPanel<>( ( EnumParamSweepModel< ? > ) cm );
 		else
 			throw new IllegalArgumentException( "Do not know how to create a panel for model: " + cm );
 	}
