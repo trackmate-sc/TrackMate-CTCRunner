@@ -14,6 +14,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -31,6 +32,9 @@ import com.itextpdf.text.Font;
 
 import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.ctc.ui.components.FilterConfigPanel;
+import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModel;
+import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModels;
+import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepPanel;
 import fiji.plugin.trackmate.detection.DetectionUtils;
 import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.features.track.TrackBranchingAnalyzer;
@@ -525,13 +529,65 @@ public class ParameterSweepPanel extends JPanel
 		/*
 		 * The detector models.
 		 */
-		// TODO
+
+		final String units = imp.getCalibration().getUnits();
+		final DetectorSweepModel logDetectorModel = DetectorSweepModels.logDetectorModel( units );
+		final DetectorSweepModel dogDetectorModel = DetectorSweepModels.dogDetectorModel( units );
+		final DetectorSweepModel maskDetectorModel = DetectorSweepModels.maskDetectorModel();
+		final DetectorSweepModel thresholdDetectorModel = DetectorSweepModels.thresholdDetectorModel();
+		final DetectorSweepModel labelImgDetectorModel = DetectorSweepModels.labelImgDetectorModel();
+		final DetectorSweepModel morphoLibJDetectorModel = DetectorSweepModels.morphoLibJDetectorModel();
+		final DetectorSweepModel wekaDetectorModel = DetectorSweepModels.wekaDetectorModel();
+		final List< DetectorSweepModel > detectorModels = Arrays.asList(
+				logDetectorModel, dogDetectorModel,
+				maskDetectorModel, thresholdDetectorModel, labelImgDetectorModel,
+				morphoLibJDetectorModel,
+				wekaDetectorModel );
 		
 		/*
 		 * The detector panels.
 		 */
-		// TODO
 		
+		final DetectorSweepPanel logPanel = new DetectorSweepPanel( logDetectorModel );
+		final DetectorSweepPanel dogPanel = new DetectorSweepPanel( dogDetectorModel );
+		final DetectorSweepPanel maskPanel = new DetectorSweepPanel( maskDetectorModel );
+		final DetectorSweepPanel thresholdPanel = new DetectorSweepPanel( thresholdDetectorModel );
+		final DetectorSweepPanel labelImgPanel = new DetectorSweepPanel( labelImgDetectorModel );
+		final DetectorSweepPanel morphoLibJPanel = new DetectorSweepPanel( morphoLibJDetectorModel );
+		final DetectorSweepPanel wekaPanel = new DetectorSweepPanel( wekaDetectorModel );
+		final List< DetectorSweepPanel > detectorPanels = Arrays.asList(
+				logPanel, dogPanel,
+				maskPanel, thresholdPanel, labelImgPanel,
+				morphoLibJPanel,
+				wekaPanel );
+
+		/*
+		 * The checkboxes.
+		 */
+
+		final List< JCheckBox > detectorCheckBoxes = Arrays.asList(
+				chckbxLoGDetector, chckbxDoGDetector,
+				chckbxMaskDetector, chckbxThresholdDetector, chckbxLabelImgDetector,
+				chckbxMorphoLibJDetector,
+				chckbxWekaDetector );
+
+		/*
+		 * Wire the tabbed panes.
+		 */
+
+		for ( int i = 0; i < detectorPanels.size(); i++ )
+		{
+			final String name = detectorModels.get( i ).getName();
+			final DetectorSweepPanel panel = detectorPanels.get( i );
+			final JCheckBox chkbox = detectorCheckBoxes.get( i );
+			chkbox.addActionListener( l -> {
+				if ( chkbox.isSelected() )
+					tabbedPane.addTab( name, null, panel, null );
+				else
+					tabbedPane.remove( panel );
+			} );
+		}
+
 		/*
 		 * Wire some listeners.
 		 */
