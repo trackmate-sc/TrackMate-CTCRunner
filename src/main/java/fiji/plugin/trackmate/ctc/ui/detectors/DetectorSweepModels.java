@@ -26,6 +26,7 @@ public class DetectorSweepModels
 	{
 		final StringRangeParamSweepModel classifierPath = new StringRangeParamSweepModel()
 				.paramName( "Weka classifier path" )
+				.isFile( true )
 				.add( System.getProperty( "user.home" ) );
 		final DoubleParamSweepModel probaThreshold = new DoubleParamSweepModel()
 				.paramName( "Probability threshold" )
@@ -73,8 +74,8 @@ public class DetectorSweepModels
 				.nSteps( 3 );
 
 		return DetectorSweepModel.create()
-				.name( MaskDetectorFactory.NAME )
-				.factory( new MaskDetectorFactory<>() )
+				.name( ThresholdDetectorFactory.NAME )
+				.factory( new ThresholdDetectorFactory<>() )
 				.add( ThresholdDetectorFactory.KEY_INTENSITY_THRESHOLD, intensityThreshold )
 				.add( ThresholdDetectorFactory.KEY_SIMPLIFY_CONTOURS, simplifyContours )
 				.get();
