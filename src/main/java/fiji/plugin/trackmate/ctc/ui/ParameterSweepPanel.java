@@ -538,13 +538,16 @@ public class ParameterSweepPanel extends JPanel
 		final DetectorSweepModel labelImgDetectorModel = DetectorSweepModels.labelImgDetectorModel();
 		final DetectorSweepModel morphoLibJDetectorModel = DetectorSweepModels.morphoLibJDetectorModel();
 		final DetectorSweepModel wekaDetectorModel = DetectorSweepModels.wekaDetectorModel();
+		final DetectorSweepModel ilastikDetectorModel = DetectorSweepModels.ilastikDetectorModel();
 		final DetectorSweepModel cellposeDetectorModel = DetectorSweepModels.cellposeDetectorModel( units );
+		final DetectorSweepModel stardistDetectorModel = DetectorSweepModels.stardistDetectorModel();
+		final DetectorSweepModel stardistCustomDetectorModel = DetectorSweepModels.stardistCustomDetectorModel();
 		final List< DetectorSweepModel > detectorModels = Arrays.asList(
 				logDetectorModel, dogDetectorModel,
 				maskDetectorModel, thresholdDetectorModel, labelImgDetectorModel,
 				morphoLibJDetectorModel,
-				wekaDetectorModel,
-				cellposeDetectorModel );
+				wekaDetectorModel, ilastikDetectorModel,
+				cellposeDetectorModel, stardistDetectorModel, stardistCustomDetectorModel );
 		
 		/*
 		 * The detector panels.
@@ -557,13 +560,16 @@ public class ParameterSweepPanel extends JPanel
 		final DetectorSweepPanel labelImgPanel = new DetectorSweepPanel( labelImgDetectorModel );
 		final DetectorSweepPanel morphoLibJPanel = new DetectorSweepPanel( morphoLibJDetectorModel );
 		final DetectorSweepPanel wekaPanel = new DetectorSweepPanel( wekaDetectorModel );
+		final DetectorSweepPanel ilastikPanel = new DetectorSweepPanel( ilastikDetectorModel );
 		final DetectorSweepPanel cellposePanel = new DetectorSweepPanel( cellposeDetectorModel );
+		final DetectorSweepPanel stardistPanel = new DetectorSweepPanel( stardistDetectorModel );
+		final DetectorSweepPanel stardistCustomPanel = new DetectorSweepPanel( stardistCustomDetectorModel );
 		final List< DetectorSweepPanel > detectorPanels = Arrays.asList(
 				logPanel, dogPanel,
 				maskPanel, thresholdPanel, labelImgPanel,
 				morphoLibJPanel,
-				wekaPanel,
-				cellposePanel );
+				wekaPanel, ilastikPanel,
+				cellposePanel, stardistPanel, stardistCustomPanel );
 
 		/*
 		 * The checkboxes.
@@ -573,8 +579,8 @@ public class ParameterSweepPanel extends JPanel
 				chckbxLoGDetector, chckbxDoGDetector,
 				chckbxMaskDetector, chckbxThresholdDetector, chckbxLabelImgDetector,
 				chckbxMorphoLibJDetector,
-				chckbxWekaDetector,
-				chckbxCellposeDetector );
+				chckbxWekaDetector, chckbxIlastikDetector,
+				chckbxCellposeDetector, chckbxStarDistDetector, chckbxStarDistCustom );
 
 		/*
 		 * Wire the tabbed panes.

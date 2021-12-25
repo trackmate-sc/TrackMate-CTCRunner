@@ -66,8 +66,9 @@ public class DetectorSweepPanel extends JPanel
 			c.gridy++;
 		}
 
-		gridBagLayout.rowWeights = new double[ c.gridy ];
-		gridBagLayout.rowWeights[ c.gridy - 1 ] = Double.MIN_VALUE;
+		final int n = c.gridy == 0 ? 1 : c.gridy;
+		gridBagLayout.rowWeights = new double[ n ];
+		gridBagLayout.rowWeights[ n - 1 ] = Double.MIN_VALUE;
 
 		// Scroll pane.
 		final JScrollPane scrollPane = new JScrollPane( mainPanel );
@@ -77,9 +78,13 @@ public class DetectorSweepPanel extends JPanel
 
 		add( scrollPane, BorderLayout.CENTER );
 
-		final ModelListener infoListener = () -> lblInfo.setText(
-				String.format( "Sweep over %d different settings for this detector.",
-						model.generateSettings( new Settings(), 1 ).size() ) );
+		final ModelListener infoListener = () -> {
+			final int ns = model.generateSettings( new Settings(), 1 ).size();
+			final String str = ( ns == 1 )
+					? "Sweep over one setting for this detector."
+					: String.format( "Sweep over %d different settings for this detector.", ns );
+			lblInfo.setText( str );
+		};
 		model.listeners().add( infoListener );
 		infoListener.modelChanged();
 	}
@@ -92,7 +97,7 @@ public class DetectorSweepPanel extends JPanel
 			return new NumberRangeSweepPanel( ( NumberParamSweepModel ) cm );
 		else if ( cm instanceof StringRangeParamSweepModel )
 			return new StringRangeParamSweepPanel( ( StringRangeParamSweepModel ) cm );
-		else if (cm instanceof EnumParamSweepModel< ? > )
+		else if ( cm instanceof EnumParamSweepModel< ? > )
 			return new EnumRangeSweepPanel<>( ( EnumParamSweepModel< ? > ) cm );
 		else
 			throw new IllegalArgumentException( "Do not know how to create a panel for model: " + cm );
