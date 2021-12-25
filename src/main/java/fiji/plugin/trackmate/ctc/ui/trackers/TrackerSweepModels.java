@@ -156,7 +156,7 @@ public class TrackerSweepModels
 				.units( units )
 				.min( 15. )
 				.max( 25. )
-				.nSteps( 1 )
+				.nSteps( 3 )
 				.rangeType( RangeType.FIXED );
 
 		final BooleanParamSweepModel allowTrackMergingParam = new BooleanParamSweepModel()
@@ -168,7 +168,7 @@ public class TrackerSweepModels
 				.units( units )
 				.min( 15. )
 				.max( 25. )
-				.nSteps( 1 )
+				.nSteps( 3 )
 				.rangeType( RangeType.FIXED );
 
 		return TrackerSweepModel.create()

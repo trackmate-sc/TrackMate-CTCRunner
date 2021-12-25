@@ -1,4 +1,4 @@
-package fiji.plugin.trackmate.ctc.ui.detectors;
+package fiji.plugin.trackmate.ctc.ui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -24,12 +24,12 @@ import fiji.plugin.trackmate.ctc.ui.components.StringRangeParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.StringRangeParamSweepPanel;
 import fiji.plugin.trackmate.gui.Fonts;
 
-public class DetectorSweepPanel extends JPanel
+public class SweepPanel extends JPanel
 {
 
 	private static final long serialVersionUID = 1L;
 
-	public DetectorSweepPanel( final DetectorSweepModel model )
+	public SweepPanel( final AbstractSweepModel< ? > model )
 	{
 		setBorder( BorderFactory.createEmptyBorder( 5, 5, 5, 5 ) );
 		setLayout( new BorderLayout() );

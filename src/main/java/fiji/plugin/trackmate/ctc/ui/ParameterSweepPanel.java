@@ -34,7 +34,8 @@ import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.ctc.ui.components.FilterConfigPanel;
 import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModel;
 import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModels;
-import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepPanel;
+import fiji.plugin.trackmate.ctc.ui.trackers.TrackerSweepModel;
+import fiji.plugin.trackmate.ctc.ui.trackers.TrackerSweepModels;
 import fiji.plugin.trackmate.detection.DetectionUtils;
 import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.features.track.TrackBranchingAnalyzer;
@@ -527,7 +528,7 @@ public class ParameterSweepPanel extends JPanel
 		panelSweepConfig.add( lblParamSweep, gbcLblParamSweep );
 
 		/*
-		 * The detector models.
+		 * The detector and tracker models.
 		 */
 
 		final String units = imp.getCalibration().getUnits();
@@ -542,34 +543,54 @@ public class ParameterSweepPanel extends JPanel
 		final DetectorSweepModel cellposeDetectorModel = DetectorSweepModels.cellposeDetectorModel( units );
 		final DetectorSweepModel stardistDetectorModel = DetectorSweepModels.stardistDetectorModel();
 		final DetectorSweepModel stardistCustomDetectorModel = DetectorSweepModels.stardistCustomDetectorModel();
-		final List< DetectorSweepModel > detectorModels = Arrays.asList(
+		final TrackerSweepModel simpleLAPTrackerModel = TrackerSweepModels.simpleLAPTrackerModel( units );
+		final TrackerSweepModel lapTrackerModel = TrackerSweepModels.lapTrackerModel( units );
+		final TrackerSweepModel kalmanTrackerModel = TrackerSweepModels.kalmanTrackerModel( units );
+		final TrackerSweepModel overlapTrackerModel = TrackerSweepModels.overlapTrackerModel();
+		final TrackerSweepModel nearestNeighborTrackerModel = TrackerSweepModels.nearestNeighborTrackerModel( units );
+		
+		final List< AbstractSweepModel<?> > detectorModels = Arrays.asList(
 				logDetectorModel, dogDetectorModel,
 				maskDetectorModel, thresholdDetectorModel, labelImgDetectorModel,
 				morphoLibJDetectorModel,
 				wekaDetectorModel, ilastikDetectorModel,
-				cellposeDetectorModel, stardistDetectorModel, stardistCustomDetectorModel );
+				cellposeDetectorModel, stardistDetectorModel, stardistCustomDetectorModel,
+				simpleLAPTrackerModel, lapTrackerModel,
+				kalmanTrackerModel,
+				overlapTrackerModel,
+				nearestNeighborTrackerModel );
 		
 		/*
-		 * The detector panels.
+		 * The detector and tracker panels.
 		 */
 		
-		final DetectorSweepPanel logPanel = new DetectorSweepPanel( logDetectorModel );
-		final DetectorSweepPanel dogPanel = new DetectorSweepPanel( dogDetectorModel );
-		final DetectorSweepPanel maskPanel = new DetectorSweepPanel( maskDetectorModel );
-		final DetectorSweepPanel thresholdPanel = new DetectorSweepPanel( thresholdDetectorModel );
-		final DetectorSweepPanel labelImgPanel = new DetectorSweepPanel( labelImgDetectorModel );
-		final DetectorSweepPanel morphoLibJPanel = new DetectorSweepPanel( morphoLibJDetectorModel );
-		final DetectorSweepPanel wekaPanel = new DetectorSweepPanel( wekaDetectorModel );
-		final DetectorSweepPanel ilastikPanel = new DetectorSweepPanel( ilastikDetectorModel );
-		final DetectorSweepPanel cellposePanel = new DetectorSweepPanel( cellposeDetectorModel );
-		final DetectorSweepPanel stardistPanel = new DetectorSweepPanel( stardistDetectorModel );
-		final DetectorSweepPanel stardistCustomPanel = new DetectorSweepPanel( stardistCustomDetectorModel );
-		final List< DetectorSweepPanel > detectorPanels = Arrays.asList(
+		final SweepPanel logPanel = new SweepPanel( logDetectorModel );
+		final SweepPanel dogPanel = new SweepPanel( dogDetectorModel );
+		final SweepPanel maskPanel = new SweepPanel( maskDetectorModel );
+		final SweepPanel thresholdPanel = new SweepPanel( thresholdDetectorModel );
+		final SweepPanel labelImgPanel = new SweepPanel( labelImgDetectorModel );
+		final SweepPanel morphoLibJPanel = new SweepPanel( morphoLibJDetectorModel );
+		final SweepPanel wekaPanel = new SweepPanel( wekaDetectorModel );
+		final SweepPanel ilastikPanel = new SweepPanel( ilastikDetectorModel );
+		final SweepPanel cellposePanel = new SweepPanel( cellposeDetectorModel );
+		final SweepPanel stardistPanel = new SweepPanel( stardistDetectorModel );
+		final SweepPanel stardistCustomPanel = new SweepPanel( stardistCustomDetectorModel );
+		final SweepPanel simpleLAPPanel = new SweepPanel( simpleLAPTrackerModel );
+		final SweepPanel lapPanel = new SweepPanel( lapTrackerModel );
+		final SweepPanel kalmanPanel = new SweepPanel( kalmanTrackerModel );
+		final SweepPanel overlapPanel = new SweepPanel( overlapTrackerModel );
+		final SweepPanel nnPanel = new SweepPanel( nearestNeighborTrackerModel );
+		
+		final List< JPanel > detectorPanels = Arrays.asList(
 				logPanel, dogPanel,
 				maskPanel, thresholdPanel, labelImgPanel,
 				morphoLibJPanel,
 				wekaPanel, ilastikPanel,
-				cellposePanel, stardistPanel, stardistCustomPanel );
+				cellposePanel, stardistPanel, stardistCustomPanel,
+				simpleLAPPanel, lapPanel,
+				kalmanPanel,
+				overlapPanel,
+				nnPanel );
 
 		/*
 		 * The checkboxes.
@@ -580,7 +601,11 @@ public class ParameterSweepPanel extends JPanel
 				chckbxMaskDetector, chckbxThresholdDetector, chckbxLabelImgDetector,
 				chckbxMorphoLibJDetector,
 				chckbxWekaDetector, chckbxIlastikDetector,
-				chckbxCellposeDetector, chckbxStarDistDetector, chckbxStarDistCustom );
+				chckbxCellposeDetector, chckbxStarDistDetector, chckbxStarDistCustom,
+				chckbxSimpleLAPTracker, chckbxLAPTracker,
+				chckbxKalmanTracker,
+				chckbxOverlapTracker,
+				chckbxNNTracker );
 
 		/*
 		 * Wire the tabbed panes.
@@ -589,7 +614,7 @@ public class ParameterSweepPanel extends JPanel
 		for ( int i = 0; i < detectorPanels.size(); i++ )
 		{
 			final String name = detectorModels.get( i ).getName();
-			final DetectorSweepPanel panel = detectorPanels.get( i );
+			final JPanel panel = detectorPanels.get( i );
 			final JCheckBox chkbox = detectorCheckBoxes.get( i );
 			chkbox.addActionListener( l -> {
 				if ( chkbox.isSelected() )
