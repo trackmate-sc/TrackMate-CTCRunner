@@ -118,11 +118,9 @@ public class DetectorSweepModel
 		public DetectorSweepModel get()
 		{
 			if ( name == null )
-			{ throw new IllegalArgumentException( "Name is missing." ); }
+				throw new IllegalArgumentException( "Name is missing." );
 			if ( factory == null )
-			{ throw new IllegalArgumentException( "Factory is missing" ); }
-			if ( models.isEmpty() )
-			{ throw new IllegalArgumentException( "List of models is empty." ); }
+				throw new IllegalArgumentException( "Factory is missing" );
 			return new DetectorSweepModel( name, models, factory );
 		}
 	}

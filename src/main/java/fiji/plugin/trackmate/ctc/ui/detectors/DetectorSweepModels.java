@@ -16,10 +16,46 @@ import fiji.plugin.trackmate.detection.MaskDetectorFactory;
 import fiji.plugin.trackmate.detection.SpotDetectorFactory;
 import fiji.plugin.trackmate.detection.ThresholdDetectorFactory;
 import fiji.plugin.trackmate.ilastik.IlastikDetectorFactory;
+import fiji.plugin.trackmate.stardist.StarDistCustomDetectorFactory;
+import fiji.plugin.trackmate.stardist.StarDistDetectorFactory;
 import fiji.plugin.trackmate.weka.WekaDetectorFactory;
 
 public class DetectorSweepModels
 {
+
+	public static DetectorSweepModel stardistDetectorModel()
+	{
+		return DetectorSweepModel.create()
+				.name( StarDistDetectorFactory.NAME )
+				.factory( new StarDistDetectorFactory<>() )
+				.get();
+	}
+
+	public static DetectorSweepModel stardistCustomDetectorModel()
+	{
+		final StringRangeParamSweepModel stardistBunblePath = new StringRangeParamSweepModel()
+				.paramName( "StarDist model bundle path" )
+				.isFile( true )
+				.add( System.getProperty( "user.home" ) );
+		final DoubleParamSweepModel probaThreshold = new DoubleParamSweepModel()
+				.paramName( "Score threshold" )
+				.rangeType( RangeType.LIN_RANGE )
+				.min( 0.2 )
+				.max( 0.8 )
+				.nSteps( 3 );
+		final DoubleParamSweepModel overlapThreshold = new DoubleParamSweepModel()
+				.paramName( "Overlap threshold" )
+				.rangeType( RangeType.FIXED )
+				.min( 0.5 );
+
+		return DetectorSweepModel.create()
+				.name( StarDistCustomDetectorFactory.NAME )
+				.factory( new StarDistCustomDetectorFactory<>() )
+				.add( StarDistCustomDetectorFactory.KEY_MODEL_FILEPATH, stardistBunblePath )
+				.add( StarDistCustomDetectorFactory.KEY_SCORE_THRESHOLD, probaThreshold )
+				.add( StarDistCustomDetectorFactory.KEY_OVERLAP_THRESHOLD, overlapThreshold )
+				.get();
+	}
 
 	public static DetectorSweepModel cellposeDetectorModel( final String units )
 	{
@@ -55,7 +91,7 @@ public class DetectorSweepModels
 				.paramName( "Simplify contours" )
 				.rangeType( fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel.RangeType.FIXED )
 				.fixedValue( true );
-		
+
 		return DetectorSweepModel.create()
 				.name( CellposeDetectorFactory.NAME )
 				.factory( new CellposeDetectorFactory<>() )
