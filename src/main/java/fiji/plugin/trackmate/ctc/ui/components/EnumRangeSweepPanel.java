@@ -130,6 +130,7 @@ public class EnumRangeSweepPanel< T extends Enum< T > > extends JPanel
 		add( rdbtnFixed, gbcRdbtnFixed );
 
 		cmbboxFixedValue = new JComboBox<>( new Vector<>( val.getAllValues() ) );
+		cmbboxFixedValue.setSelectedItem( val.fixedValue );
 		cmbboxFixedValue.setFont( Fonts.SMALL_FONT );
 		cmbboxFixedValue.setPreferredSize( new Dimension( 150, 24 ) );
 		final GridBagConstraints gbcFtfFixedValue = new GridBagConstraints();
