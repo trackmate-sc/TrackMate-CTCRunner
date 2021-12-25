@@ -16,6 +16,8 @@ import fiji.plugin.trackmate.detection.MaskDetectorFactory;
 import fiji.plugin.trackmate.detection.SpotDetectorFactory;
 import fiji.plugin.trackmate.detection.ThresholdDetectorFactory;
 import fiji.plugin.trackmate.ilastik.IlastikDetectorFactory;
+import fiji.plugin.trackmate.morpholibj.Connectivity;
+import fiji.plugin.trackmate.morpholibj.MorphoLibJDetectorFactory;
 import fiji.plugin.trackmate.stardist.StarDistCustomDetectorFactory;
 import fiji.plugin.trackmate.stardist.StarDistDetectorFactory;
 import fiji.plugin.trackmate.weka.WekaDetectorFactory;
@@ -131,11 +133,6 @@ public class DetectorSweepModels
 				.get();
 	}
 
-	public static DetectorSweepModel morphoLibJDetectorModel()
-	{
-		return MorphoLibJDetectorSweepModel.make();
-	}
-
 	public static DetectorSweepModel wekaDetectorModel()
 	{
 		final StringRangeParamSweepModel classifierPath = new StringRangeParamSweepModel()
@@ -159,6 +156,32 @@ public class DetectorSweepModels
 				.add( WekaDetectorFactory.KEY_CLASSIFIER_FILEPATH, classifierPath )
 				.add( WekaDetectorFactory.KEY_CLASS_INDEX, classIndex )
 				.add( WekaDetectorFactory.KEY_PROBA_THRESHOLD, probaThreshold )
+				.get();
+	}
+
+	public static final DetectorSweepModel morphoLibJDetectorModel()
+	{
+		final DoubleParamSweepModel toleranceParam = new DoubleParamSweepModel()
+				.paramName( "Tolerance" )
+				.rangeType( RangeType.LIN_RANGE )
+				.min( 40. )
+				.max( 60. )
+				.nSteps( 3 );
+		final EnumParamSweepModel< Connectivity > connectivityParam = new EnumParamSweepModel<>( Connectivity.class )
+				.paramName( "Connectivity" )
+				.rangeType( fiji.plugin.trackmate.ctc.ui.components.EnumParamSweepModel.RangeType.FIXED )
+				.fixedValue( Connectivity.DIAGONAL );
+		final BooleanParamSweepModel simplifyContourParam = new BooleanParamSweepModel()
+				.paramName( "Simplify contours" )
+				.rangeType( BooleanParamSweepModel.RangeType.FIXED )
+				.fixedValue( true );
+
+		return DetectorSweepModel.create()
+				.name( MorphoLibJDetectorFactory.NAME )
+				.factory( new MorphoLibJDetectorFactory<>() )
+				.add( MorphoLibJDetectorFactory.KEY_TOLERANCE, toleranceParam )
+				.add( MorphoLibJDetectorFactory.KEY_CONNECTIVITY, connectivityParam )
+				.add( ThresholdDetectorFactory.KEY_SIMPLIFY_CONTOURS, simplifyContourParam )
 				.get();
 	}
 
