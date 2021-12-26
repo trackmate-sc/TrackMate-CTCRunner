@@ -37,8 +37,6 @@ public class FilterConfigPanel extends JPanel
 
 	private final Stack< Component > struts = new Stack<>();
 
-	private final List< FeatureFilter > featureFilters = new ArrayList<>();
-
 	private final JPanel allThresholdsPanel;
 
 	private final TrackMateObject target;
@@ -52,12 +50,11 @@ public class FilterConfigPanel extends JPanel
 	 */
 
 	public FilterConfigPanel( 
-			final TrackMateObject target, 
-			final List< FeatureFilter > filters,
+			final TrackMateObject target,
 			final String defaultFeature,
-			final ImagePlus imp )
+			final ImagePlus imp,
+			final List< FeatureFilter > filters )
 	{
-
 		// Config a settings so that we can get all available features.
 		this.settings = new Settings( imp );
 		settings.addAllAnalyzers();
@@ -124,30 +121,22 @@ public class FilterConfigPanel extends JPanel
 		 * Listeners & co.
 		 */
 
-		btnAddFilter.addActionListener( e -> addFilterPanel() );
-		btnRemoveFilter.addActionListener( e -> removeThresholdPanel() );
+		btnAddFilter.addActionListener( e -> addFilter() );
+		btnRemoveFilter.addActionListener( e -> removeFilter() );
 	}
 
-	/**
-	 * Returns the thresholds currently set by this GUI.
-	 */
-	public List< FeatureFilter > getFeatureFilters()
+	private void addFilter()
 	{
-		return featureFilters;
+		addFilter( guessNextFeature() );
 	}
 
-	public void addFilterPanel()
-	{
-		addFilterPanel( guessNextFeature() );
-	}
-
-	public void addFilterPanel( final String feature )
+	private void addFilter( final String feature )
 	{
 		final FeatureFilter filter = new FeatureFilter( feature, 0., true );
-		addFilterPanel( filter );
+		addFilter( filter );
 	}
 
-	public void addFilterPanel( final FeatureFilter filter )
+	private void addFilter( final FeatureFilter filter )
 	{
 		final Map< String, String > featureNames = collectFeatureKeys( target, null, settings );
 		final FilterPanel tp = new FilterPanel( featureNames, filter );
@@ -160,10 +149,6 @@ public class FilterConfigPanel extends JPanel
 		allThresholdsPanel.revalidate();
 	}
 
-	/*
-	 * PRIVATE METHODS
-	 */
-
 	private String guessNextFeature()
 	{
 		final Map< String, String > featureNames = collectFeatureKeys( target, null, settings );
@@ -171,6 +156,7 @@ public class FilterConfigPanel extends JPanel
 		if ( !it.hasNext() )
 			return ""; // It's likely something is not right.
 
+		final List< FeatureFilter > featureFilters = getFeatureFilters();
 		if ( featureFilters.isEmpty() )
 			return ( defaultFeature == null || !featureNames.keySet().contains( defaultFeature ) ) ? it.next() : defaultFeature;
 
@@ -183,7 +169,7 @@ public class FilterConfigPanel extends JPanel
 		return featureNames.keySet().iterator().next();
 	}
 
-	private void removeThresholdPanel()
+	private void removeFilter()
 	{
 		try
 		{
@@ -195,5 +181,12 @@ public class FilterConfigPanel extends JPanel
 		}
 		catch ( final EmptyStackException ese )
 		{}
+	}
+
+	public List< FeatureFilter > getFeatureFilters()
+	{
+		final List< FeatureFilter > list = new ArrayList<>( filterPanels.size() );
+		filterPanels.forEach( fp -> list.add( fp.getFilter() ) );
+		return list;
 	}
 }

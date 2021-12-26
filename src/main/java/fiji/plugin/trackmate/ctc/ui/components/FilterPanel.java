@@ -21,7 +21,6 @@ import javax.swing.JRadioButton;
 import javax.swing.border.EmptyBorder;
 
 import fiji.plugin.trackmate.features.FeatureFilter;
-import ij.ImagePlus;
 
 public class FilterPanel extends JPanel
 {
@@ -87,11 +86,6 @@ public class FilterPanel extends JPanel
 		// Set default values.
 		cmbboxFeatureKeys.setSelectedItem( filter.feature );
 		rdnbtnAbove.setSelected( filter.isAbove );
-	}
-
-	public void refreshFeatures( final ImagePlus imp )
-	{
-		// TODO
 	}
 
 	public FeatureFilter getFilter()

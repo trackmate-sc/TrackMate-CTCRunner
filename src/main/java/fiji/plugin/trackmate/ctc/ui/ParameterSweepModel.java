@@ -1,8 +1,11 @@
 package fiji.plugin.trackmate.ctc.ui;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import fiji.plugin.trackmate.ctc.ui.components.InfoParamSweepModel;
@@ -15,6 +18,7 @@ import fiji.plugin.trackmate.ctc.ui.detectors.optional.StarDistDetector;
 import fiji.plugin.trackmate.ctc.ui.detectors.optional.WekaDetector;
 import fiji.plugin.trackmate.ctc.ui.trackers.TrackerSweepModel;
 import fiji.plugin.trackmate.ctc.ui.trackers.TrackerSweepModels;
+import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.providers.DetectorProvider;
 import ij.ImagePlus;
 
@@ -28,6 +32,10 @@ public class ParameterSweepModel
 	private final Map< String, Boolean > active = new HashMap<>();
 
 	private final ImagePlus imp;
+
+	private final List< FeatureFilter > spotFilters = new ArrayList<>();
+
+	private final List< FeatureFilter > trackFilters = new ArrayList<>();
 
 	public ParameterSweepModel( final ImagePlus imp )
 	{
@@ -173,5 +181,27 @@ public class ParameterSweepModel
 	public ImagePlus getImage()
 	{
 		return imp;
+	}
+
+	public List< FeatureFilter > spotFilters()
+	{
+		return Collections.unmodifiableList( spotFilters );
+	}
+
+	public List< FeatureFilter > trackFilters()
+	{
+		return Collections.unmodifiableList( trackFilters );
+	}
+
+	public void setSpotFilters( final List< FeatureFilter > spotFilters )
+	{
+		this.spotFilters.clear();
+		this.spotFilters.addAll( spotFilters );
+	}
+
+	public void setTrackFilters( final List< FeatureFilter > trackFilters )
+	{
+		this.trackFilters.clear();
+		this.trackFilters.addAll( trackFilters );
 	}
 }
