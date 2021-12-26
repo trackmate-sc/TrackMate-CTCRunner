@@ -22,6 +22,10 @@ public class TrackerSweepModel extends AbstractSweepModel< SpotTrackerFactory >
 	@Override
 	public List< Settings > generateSettings( final Settings base, final int targetChannel )
 	{
+		// Null factory signals not to create any settings.
+		if ( factory == null )
+			return Collections.emptyList();
+
 		final Settings s = base.copyOn( base.imp );
 		final Map< String, Object > ds = factory.getDefaultSettings();
 		s.trackerFactory = factory.copy();
