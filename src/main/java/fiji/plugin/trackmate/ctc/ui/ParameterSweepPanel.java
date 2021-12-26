@@ -439,6 +439,19 @@ public class ParameterSweepPanel extends JPanel
 
 		// Browse buttons.
 		btnBrowseGT.addActionListener( e -> browseGroundTruthPath() );
+		// Count the number of different settings.
+		model.listeners().add( () -> {
+			final int count = model.count();
+			String str = "Parameter sweep configuration  -  ";
+			if ( count == 0 )
+				str += "Please select at least one detector and one tracker.";
+			else if ( count == 1 )
+				str += "One settings to test.";
+			else
+				str += String.format( "Will generate %d different settings to test.", count );
+			lblParamSweep.setText( str );
+		} );
+		model.notifyListeners();
 	}
 
 	void refresh()

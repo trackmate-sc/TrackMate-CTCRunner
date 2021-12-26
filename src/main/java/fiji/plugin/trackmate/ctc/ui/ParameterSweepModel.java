@@ -8,6 +8,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.scijava.listeners.Listeners;
+
+import fiji.plugin.trackmate.Settings;
+import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel.ModelListener;
 import fiji.plugin.trackmate.ctc.ui.components.InfoParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModel;
 import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModels;
@@ -24,6 +28,8 @@ import ij.ImagePlus;
 
 public class ParameterSweepModel
 {
+
+	private final transient Listeners.List< ModelListener > modelListeners = new Listeners.SynchronizedList<>();
 
 	private final Map< String, DetectorSweepModel > detectorModels = new LinkedHashMap<>();
 
@@ -142,6 +148,10 @@ public class ParameterSweepModel
 			active.put( model.name, Boolean.FALSE );
 		for ( final DetectorSweepModel model : detectorModels.values() )
 			active.put( model.name, Boolean.FALSE );
+
+		// Forward component changes to listeners.
+		detectorModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
+		trackerModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
 	}
 
 	private void add( final DetectorSweepModel model )
@@ -175,7 +185,9 @@ public class ParameterSweepModel
 
 	public void setActive( final String name, final boolean active )
 	{
-		this.active.put( name, Boolean.valueOf( active ) );
+		final Boolean previous = this.active.put( name, Boolean.valueOf( active ) );
+		if ( active != previous.booleanValue() )
+			notifyListeners();
 	}
 
 	public ImagePlus getImage()
@@ -203,5 +215,62 @@ public class ParameterSweepModel
 	{
 		this.trackFilters.clear();
 		this.trackFilters.addAll( trackFilters );
+	}
+
+	public List< DetectorSweepModel > getActiveDetectors()
+	{
+		final List< DetectorSweepModel > activeDetectors = new ArrayList<>();
+		for ( final String name : detectorModels.keySet() )
+			if ( isActive( name ) )
+				activeDetectors.add( detectorModels.get( name ) );
+
+		return activeDetectors;
+	}
+
+	public List< TrackerSweepModel > getActiveTracker()
+	{
+		final List< TrackerSweepModel > activeTrackers = new ArrayList<>();
+		for ( final String name : trackerModels.keySet() )
+			if ( isActive( name ) )
+				activeTrackers.add( trackerModels.get( name ) );
+
+		return activeTrackers;
+	}
+
+	/**
+	 * Returns the count of the different settings that will be generated from
+	 * this model.
+	 * 
+	 * @return the count of settings.
+	 */
+	public int count()
+	{
+		final List< Settings > list = new ArrayList<>();
+		final int targetChannel = 1;
+		final Settings base = new Settings( imp );
+		for ( final DetectorSweepModel detectorModel : getActiveDetectors() )
+		{
+			final List< Settings > detectorSettings = detectorModel.generateSettings( base, targetChannel );
+			for ( final Settings ds : detectorSettings )
+			{
+				for ( final TrackerSweepModel trackerModel : getActiveTracker() )
+				{
+					final List< Settings > detectorAndTrackerSettings = trackerModel.generateSettings( ds, targetChannel );
+					list.addAll( detectorAndTrackerSettings );
+				}
+			}
+		}
+		return list.size();
+	}
+
+	public Listeners.List< ModelListener > listeners()
+	{
+		return modelListeners;
+	}
+
+	protected void notifyListeners()
+	{
+		for ( final ModelListener l : modelListeners.list )
+			l.modelChanged();
 	}
 }
