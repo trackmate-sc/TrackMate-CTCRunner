@@ -18,6 +18,8 @@ import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.BooleanRangeSweepPanel;
 import fiji.plugin.trackmate.ctc.ui.components.EnumParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.EnumRangeSweepPanel;
+import fiji.plugin.trackmate.ctc.ui.components.InfoPanel;
+import fiji.plugin.trackmate.ctc.ui.components.InfoParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.NumberRangeSweepPanel;
 import fiji.plugin.trackmate.ctc.ui.components.StringRangeParamSweepModel;
@@ -99,6 +101,8 @@ public class SweepPanel extends JPanel
 			return new StringRangeParamSweepPanel( ( StringRangeParamSweepModel ) cm );
 		else if ( cm instanceof EnumParamSweepModel< ? > )
 			return new EnumRangeSweepPanel<>( ( EnumParamSweepModel< ? > ) cm );
+		else if ( cm instanceof InfoParamSweepModel )
+			return new InfoPanel( ( InfoParamSweepModel ) cm );
 		else
 			throw new IllegalArgumentException( "Do not know how to create a panel for model: " + cm );
 	}
