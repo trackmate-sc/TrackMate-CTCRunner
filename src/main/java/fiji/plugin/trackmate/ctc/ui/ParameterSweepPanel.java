@@ -14,7 +14,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -32,22 +31,12 @@ import com.itextpdf.text.Font;
 
 import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.ctc.ui.components.FilterConfigPanel;
-import fiji.plugin.trackmate.ctc.ui.components.InfoParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModel;
-import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModels;
-import fiji.plugin.trackmate.ctc.ui.detectors.optional.CellposeDetector;
-import fiji.plugin.trackmate.ctc.ui.detectors.optional.IlastikDetector;
-import fiji.plugin.trackmate.ctc.ui.detectors.optional.MorphoLibJDetector;
-import fiji.plugin.trackmate.ctc.ui.detectors.optional.StarDistDetector;
-import fiji.plugin.trackmate.ctc.ui.detectors.optional.WekaDetector;
 import fiji.plugin.trackmate.ctc.ui.trackers.TrackerSweepModel;
-import fiji.plugin.trackmate.ctc.ui.trackers.TrackerSweepModels;
-import fiji.plugin.trackmate.detection.DetectionUtils;
 import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.features.track.TrackBranchingAnalyzer;
 import fiji.plugin.trackmate.gui.components.LogPanel;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings.TrackMateObject;
-import fiji.plugin.trackmate.providers.DetectorProvider;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import fiji.plugin.trackmate.util.FileChooser;
 import fiji.plugin.trackmate.util.FileChooser.DialogType;
@@ -65,8 +54,9 @@ public class ParameterSweepPanel extends JPanel
 
 	private final EverythingDisablerAndReenabler enabler;
 
-	public ParameterSweepPanel( final ImagePlus imp )
+	public ParameterSweepPanel( final ParameterSweepModel model )
 	{
+		final ImagePlus imp = model.getImage();
 		enabler = new EverythingDisablerAndReenabler( this, new Class[] { JLabel.class } );
 
 		setLayout( new BorderLayout( 5, 5 ) );
@@ -168,164 +158,71 @@ public class ParameterSweepPanel extends JPanel
 		gbcLblTrackers.gridy = 0;
 		panelChkboxes.add( lblTrackers, gbcLblTrackers );
 
-		final JCheckBox chckbxLoGDetector = new JCheckBox( "LoG detector" );
-		chckbxLoGDetector.setFont( SMALL_FONT );
-		final GridBagConstraints gbcChckbxLoGDetector = new GridBagConstraints();
-		gbcChckbxLoGDetector.anchor = GridBagConstraints.WEST;
-		gbcChckbxLoGDetector.insets = new Insets( 0, 0, 5, 5 );
-		gbcChckbxLoGDetector.gridx = 0;
-		gbcChckbxLoGDetector.gridy = 1;
-		panelChkboxes.add( chckbxLoGDetector, gbcChckbxLoGDetector );
-
-		final JCheckBox chckbxSimpleLAPTracker = new JCheckBox( "Simple LAP tracker" );
-		chckbxSimpleLAPTracker.setFont( SMALL_FONT );
-		final GridBagConstraints gbcChckbxSimpleLAPTracker = new GridBagConstraints();
-		gbcChckbxSimpleLAPTracker.anchor = GridBagConstraints.WEST;
-		gbcChckbxSimpleLAPTracker.insets = new Insets( 0, 0, 5, 0 );
-		gbcChckbxSimpleLAPTracker.gridx = 1;
-		gbcChckbxSimpleLAPTracker.gridy = 1;
-		panelChkboxes.add( chckbxSimpleLAPTracker, gbcChckbxSimpleLAPTracker );
-
-		final JCheckBox chckbxDoGDetector = new JCheckBox( "DoG  detector" );
-		chckbxDoGDetector.setFont( SMALL_FONT );
-		final GridBagConstraints gbcChckbxDoGDetector = new GridBagConstraints();
-		gbcChckbxDoGDetector.anchor = GridBagConstraints.WEST;
-		gbcChckbxDoGDetector.insets = new Insets( 0, 0, 5, 5 );
-		gbcChckbxDoGDetector.gridx = 0;
-		gbcChckbxDoGDetector.gridy = 2;
-		panelChkboxes.add( chckbxDoGDetector, gbcChckbxDoGDetector );
-
-		final JCheckBox chckbxLAPTracker = new JCheckBox( "LAP tracker" );
-		chckbxLAPTracker.setFont( SMALL_FONT );
-		final GridBagConstraints gbcChckbxLAPTracker = new GridBagConstraints();
-		gbcChckbxLAPTracker.anchor = GridBagConstraints.WEST;
-		gbcChckbxLAPTracker.insets = new Insets( 0, 0, 5, 0 );
-		gbcChckbxLAPTracker.gridx = 1;
-		gbcChckbxLAPTracker.gridy = 2;
-		panelChkboxes.add( chckbxLAPTracker, gbcChckbxLAPTracker );
-
-		final JCheckBox chckbxMaskDetector = new JCheckBox( "Mask detector" );
-		chckbxMaskDetector.setFont( SMALL_FONT );
-		final GridBagConstraints gbcChckbxMaskDetector = new GridBagConstraints();
-		gbcChckbxMaskDetector.anchor = GridBagConstraints.WEST;
-		gbcChckbxMaskDetector.insets = new Insets( 0, 0, 5, 5 );
-		gbcChckbxMaskDetector.gridx = 0;
-		gbcChckbxMaskDetector.gridy = 3;
-		panelChkboxes.add( chckbxMaskDetector, gbcChckbxMaskDetector );
-
-		final JCheckBox chckbxKalmanTracker = new JCheckBox( "Kalman tracker" );
-		chckbxKalmanTracker.setFont( SMALL_FONT );
-		final GridBagConstraints gbcChckbxKalmanTracker = new GridBagConstraints();
-		gbcChckbxKalmanTracker.anchor = GridBagConstraints.WEST;
-		gbcChckbxKalmanTracker.insets = new Insets( 0, 0, 5, 0 );
-		gbcChckbxKalmanTracker.gridx = 1;
-		gbcChckbxKalmanTracker.gridy = 3;
-		panelChkboxes.add( chckbxKalmanTracker, gbcChckbxKalmanTracker );
-
-		final JCheckBox chckbxThresholdDetector = new JCheckBox( "Threshold detector" );
-		chckbxThresholdDetector.setFont( SMALL_FONT );
-		final GridBagConstraints gbcChckbxThresholdDetector = new GridBagConstraints();
-		gbcChckbxThresholdDetector.anchor = GridBagConstraints.WEST;
-		gbcChckbxThresholdDetector.insets = new Insets( 0, 0, 5, 5 );
-		gbcChckbxThresholdDetector.gridx = 0;
-		gbcChckbxThresholdDetector.gridy = 4;
-		panelChkboxes.add( chckbxThresholdDetector, gbcChckbxThresholdDetector );
-
-		final JCheckBox chckbxOverlapTracker = new JCheckBox( "Overlap tracker" );
-		chckbxOverlapTracker.setFont( SMALL_FONT );
-		final GridBagConstraints gbcChckbxOverlapTracker = new GridBagConstraints();
-		gbcChckbxOverlapTracker.anchor = GridBagConstraints.WEST;
-		gbcChckbxOverlapTracker.insets = new Insets( 0, 0, 5, 0 );
-		gbcChckbxOverlapTracker.gridx = 1;
-		gbcChckbxOverlapTracker.gridy = 4;
-		panelChkboxes.add( chckbxOverlapTracker, gbcChckbxOverlapTracker );
-
-		final JCheckBox chckbxLabelImgDetector = new JCheckBox( "Label image detector" );
-		chckbxLabelImgDetector.setFont( SMALL_FONT );
-		final GridBagConstraints gbcChckbxLabelImgDetector = new GridBagConstraints();
-		gbcChckbxLabelImgDetector.anchor = GridBagConstraints.WEST;
-		gbcChckbxLabelImgDetector.insets = new Insets( 0, 0, 5, 5 );
-		gbcChckbxLabelImgDetector.gridx = 0;
-		gbcChckbxLabelImgDetector.gridy = 5;
-		panelChkboxes.add( chckbxLabelImgDetector, gbcChckbxLabelImgDetector );
-
-		final JCheckBox chckbxNNTracker = new JCheckBox( "Nearest-Neighbor tracker" );
-		chckbxNNTracker.setFont( SMALL_FONT );
-		final GridBagConstraints gbcChckbxNNTracker = new GridBagConstraints();
-		gbcChckbxNNTracker.anchor = GridBagConstraints.WEST;
-		gbcChckbxNNTracker.insets = new Insets( 0, 0, 5, 0 );
-		gbcChckbxNNTracker.gridx = 1;
-		gbcChckbxNNTracker.gridy = 5;
-		panelChkboxes.add( chckbxNNTracker, gbcChckbxNNTracker );
-
-		final JCheckBox chckbxMorphoLibJDetector = new JCheckBox( "MorphoLibJ detector" );
-		chckbxMorphoLibJDetector.setFont( SMALL_FONT );
-		final GridBagConstraints gbcChckbxMorphoLibJDetector = new GridBagConstraints();
-		gbcChckbxMorphoLibJDetector.anchor = GridBagConstraints.WEST;
-		gbcChckbxMorphoLibJDetector.insets = new Insets( 0, 0, 5, 5 );
-		gbcChckbxMorphoLibJDetector.gridx = 0;
-		gbcChckbxMorphoLibJDetector.gridy = 6;
-		panelChkboxes.add( chckbxMorphoLibJDetector, gbcChckbxMorphoLibJDetector );
-
-		final GridBagConstraints gbcSeparator6 = new GridBagConstraints();
-		gbcSeparator6.anchor = GridBagConstraints.NORTH;
-		gbcSeparator6.fill = GridBagConstraints.HORIZONTAL;
-		gbcSeparator6.insets = new Insets( 0, 0, 5, 0 );
-		gbcSeparator6.gridx = 1;
-		gbcSeparator6.gridy = 6;
-		panelChkboxes.add( new JSeparator(), gbcSeparator6 );
-
-		final JCheckBox chckbxWekaDetector = new JCheckBox( "Weka detector" );
-		chckbxWekaDetector.setFont( SMALL_FONT );
-		final GridBagConstraints gbcChckbxWekaDetector = new GridBagConstraints();
-		gbcChckbxWekaDetector.anchor = GridBagConstraints.WEST;
-		gbcChckbxWekaDetector.insets = new Insets( 0, 0, 5, 5 );
-		gbcChckbxWekaDetector.gridx = 0;
-		gbcChckbxWekaDetector.gridy = 7;
-		panelChkboxes.add( chckbxWekaDetector, gbcChckbxWekaDetector );
-
-		final JCheckBox chckbxIlastikDetector = new JCheckBox( "Ilastik detector" );
-		chckbxIlastikDetector.setFont( SMALL_FONT );
-		final GridBagConstraints gbcChckbxIlastikDetector = new GridBagConstraints();
-		gbcChckbxIlastikDetector.anchor = GridBagConstraints.WEST;
-		gbcChckbxIlastikDetector.insets = new Insets( 0, 0, 5, 5 );
-		gbcChckbxIlastikDetector.gridx = 0;
-		gbcChckbxIlastikDetector.gridy = 8;
-		panelChkboxes.add( chckbxIlastikDetector, gbcChckbxIlastikDetector );
-
-		final JCheckBox chckbxStarDistDetector = new JCheckBox( "StarDist detector" );
-		chckbxStarDistDetector.setFont( SMALL_FONT );
-		final GridBagConstraints gbcChckbxStarDistDetector = new GridBagConstraints();
-		gbcChckbxStarDistDetector.anchor = GridBagConstraints.WEST;
-		gbcChckbxStarDistDetector.insets = new Insets( 0, 0, 5, 0 );
-		gbcChckbxStarDistDetector.gridx = 1;
-		gbcChckbxStarDistDetector.gridy = 8;
-		panelChkboxes.add( chckbxStarDistDetector, gbcChckbxStarDistDetector );
-
-		final JCheckBox chckbxCellposeDetector = new JCheckBox( "Cellpose detector" );
-		chckbxCellposeDetector.setFont( SMALL_FONT );
-		final GridBagConstraints gbcChckbxCellposeDetector = new GridBagConstraints();
-		gbcChckbxCellposeDetector.anchor = GridBagConstraints.WEST;
-		gbcChckbxCellposeDetector.insets = new Insets( 0, 0, 0, 5 );
-		gbcChckbxCellposeDetector.gridx = 0;
-		gbcChckbxCellposeDetector.gridy = 9;
-		panelChkboxes.add( chckbxCellposeDetector, gbcChckbxCellposeDetector );
-
-		final JCheckBox chckbxStarDistCustom = new JCheckBox( "StarDist custom model" );
-		chckbxStarDistCustom.setFont( SMALL_FONT );
-		final GridBagConstraints gbcChckbxStarDistCustom = new GridBagConstraints();
-		gbcChckbxStarDistCustom.anchor = GridBagConstraints.WEST;
-		gbcChckbxStarDistCustom.gridx = 1;
-		gbcChckbxStarDistCustom.gridy = 9;
-		panelChkboxes.add( chckbxStarDistCustom, gbcChckbxStarDistCustom );
-
-		// Disable some detectors if we don't have a 2D image.
-		if ( !DetectionUtils.is2D( imp ) )
+		// Add detector checkboxes.
+		final GridBagConstraints c1 = new GridBagConstraints();
+		c1.anchor = GridBagConstraints.WEST;
+		c1.insets = new Insets( 0, 0, 5, 5 );
+		c1.gridx = 0;
+		c1.gridy = 1;
+		for ( final DetectorSweepModel dm : model.detectorModels() )
 		{
-			chckbxCellposeDetector.setEnabled( false );
-			chckbxStarDistCustom.setEnabled( false );
-			chckbxStarDistDetector.setEnabled( false );
+			final String name = dm.name;
+			final boolean active = model.isActive( name );
+			final JCheckBox chkbox = new JCheckBox( name, active );
+			chkbox.setFont( SMALL_FONT );
+			final SweepPanel panel = new SweepPanel( dm );
+			chkbox.addActionListener( l -> {
+				if ( chkbox.isSelected() )
+				{
+					tabbedPane.addTab( name, null, panel, null );
+					model.setActive( name, true );
+				}
+				else
+				{
+					tabbedPane.remove( panel );
+					model.setActive( name, false );
+				}
+			} );
+			panelChkboxes.add( chkbox, c1 );
+
+			c1.gridy++;
+			if ( c1.gridy > 9 )
+			{
+				c1.gridy = 8;
+				c1.gridx = 1;
+			}
 		}
+
+		// Add tracker checkboxes.
+		final GridBagConstraints c2 = new GridBagConstraints();
+		c2.anchor = GridBagConstraints.WEST;
+		c2.insets = new Insets( 0, 0, 5, 5 );
+		c2.gridx = 1;
+		c2.gridy = 1;
+		for ( final TrackerSweepModel tm : model.trackerModels() )
+		{
+			final String name = tm.name;
+			final boolean active = model.isActive( name );
+			final JCheckBox chkbox = new JCheckBox( name, active );
+			chkbox.setFont( SMALL_FONT );
+			final SweepPanel panel = new SweepPanel( tm );
+			chkbox.addActionListener( l -> {
+				if ( chkbox.isSelected() )
+				{
+					tabbedPane.addTab( name, null, panel, null );
+					model.setActive( name, true );
+				}
+				else
+				{
+					tabbedPane.remove( panel );
+					model.setActive( name, false );
+				}
+			} );
+			panelChkboxes.add( chkbox, c2 );
+			c2.gridy++;
+		}
+		c2.fill = GridBagConstraints.HORIZONTAL;
+		panelChkboxes.add( new JSeparator(), c2 );
 
 		/*
 		 * Path panel. Set image and ground-truth path, plus other options.
@@ -535,178 +432,11 @@ public class ParameterSweepPanel extends JPanel
 		panelSweepConfig.add( lblParamSweep, gbcLblParamSweep );
 
 		/*
-		 * The detector and tracker models.
-		 */
-
-		final String units = imp.getCalibration().getUnits();
-		final DetectorSweepModel logDetectorModel = DetectorSweepModels.logDetectorModel( units );
-		final DetectorSweepModel dogDetectorModel = DetectorSweepModels.dogDetectorModel( units );
-		final DetectorSweepModel maskDetectorModel = DetectorSweepModels.maskDetectorModel();
-		final DetectorSweepModel thresholdDetectorModel = DetectorSweepModels.thresholdDetectorModel();
-		final DetectorSweepModel labelImgDetectorModel = DetectorSweepModels.labelImgDetectorModel();
-		final TrackerSweepModel simpleLAPTrackerModel = TrackerSweepModels.simpleLAPTrackerModel( units );
-		final TrackerSweepModel lapTrackerModel = TrackerSweepModels.lapTrackerModel( units );
-		final TrackerSweepModel kalmanTrackerModel = TrackerSweepModels.kalmanTrackerModel( units );
-		final TrackerSweepModel overlapTrackerModel = TrackerSweepModels.overlapTrackerModel();
-		final TrackerSweepModel nearestNeighborTrackerModel = TrackerSweepModels.nearestNeighborTrackerModel( units );
-
-		// Optional modules.
-		final DetectorProvider detectorProvider = new DetectorProvider();
-		final DetectorSweepModel cellposeDetectorModel = ( null == detectorProvider.getFactory( "CELLPOSE_DETECTOR" ) )
-				? DetectorSweepModel.create()
-						.name( "Cellpose detector" )
-						.add( "", new InfoParamSweepModel()
-								.info( "The TrackMate-Cellpose module seems to be missing<br>"
-										+ "from your Fiji installation. Please follow the link<br>"
-										+ "below for installation instructions." )
-								.url( "https://imagej.net/plugins/trackmate/trackmate-cellpose" ) )
-						.get()
-				: CellposeDetector.cellposeDetectorModel( units );
-
-		final DetectorSweepModel morphoLibJDetectorModel = ( null == detectorProvider.getFactory( "MORPHOLIBJ_DETECTOR" ) )
-				? DetectorSweepModel.create()
-						.name( "MorphoLibJ detector" )
-						.add( "", new InfoParamSweepModel()
-								.info( "The TrackMate-MorphoLibJ module seems to be missing<br>"
-										+ "from your Fiji installation. Please follow the link<br>"
-										+ "below for installation instructions." )
-								.url( "https://imagej.net/plugins/trackmate/trackmate-morpholibj" ) )
-						.get()
-				: MorphoLibJDetector.morphoLibJDetectorModel();
-
-		final DetectorSweepModel wekaDetectorModel = ( null == detectorProvider.getFactory( "WEKA_DETECTOR" ) )
-				? DetectorSweepModel.create()
-						.name( "Weka detector" )
-						.add( "", new InfoParamSweepModel()
-								.info( "The TrackMate-Weka module seems to be missing<br>"
-										+ "from your Fiji installation. Please follow the link<br>"
-										+ "below for installation instructions." )
-								.url( "https://imagej.net/plugins/trackmate/trackmate-weka" ) )
-						.get()
-				: WekaDetector.wekaDetectorModel();
-
-		final DetectorSweepModel ilastikDetectorModel = ( null == detectorProvider.getFactory( "ILASTIK_DETECTOR" ) )
-				? DetectorSweepModel.create()
-						.name( "Ilastik detector" )
-						.add( "", new InfoParamSweepModel()
-								.info( "The TrackMate-Ilastik module seems to be missing<br>"
-										+ "from your Fiji installation. Please follow the link<br>"
-										+ "below for installation instructions." )
-								.url( "https://imagej.net/plugins/trackmate/trackmate-ilastik" ) )
-						.get()
-				: IlastikDetector.ilastikDetectorModel();
-
-		final DetectorSweepModel stardistDetectorModel;
-		final DetectorSweepModel stardistCustomDetectorModel;
-		if ( null == detectorProvider.getFactory( "STARDIST_DETECTOR" ) )
-		{
-			final DetectorSweepModel infoModel = DetectorSweepModel.create()
-					.name( "StarDist detector" )
-					.add( "", new InfoParamSweepModel()
-							.info( "The TrackMate-StarDist module seems to be missing<br>"
-									+ "from your Fiji installation. Please follow the link<br>"
-									+ "below for installation instructions." )
-							.url( "https://imagej.net/plugins/trackmate/trackmate-stardist" ) )
-					.get();
-
-			stardistDetectorModel = infoModel;
-			stardistCustomDetectorModel = infoModel;
-		}
-		else
-		{
-			stardistDetectorModel = StarDistDetector.stardistDetectorModel();
-			stardistCustomDetectorModel = StarDistDetector.stardistCustomDetectorModel();
-		}
-
-		final List< AbstractSweepModel< ? > > detectorModels = Arrays
-				.asList(
-						logDetectorModel, dogDetectorModel,
-						maskDetectorModel, thresholdDetectorModel, labelImgDetectorModel,
-						morphoLibJDetectorModel,
-						wekaDetectorModel, ilastikDetectorModel,
-						cellposeDetectorModel, stardistDetectorModel, stardistCustomDetectorModel,
-						simpleLAPTrackerModel, lapTrackerModel,
-						kalmanTrackerModel,
-						overlapTrackerModel,
-						nearestNeighborTrackerModel );
-
-		/*
-		 * The detector and tracker panels.
-		 */
-
-		final SweepPanel logPanel = new SweepPanel( logDetectorModel );
-		final SweepPanel dogPanel = new SweepPanel( dogDetectorModel );
-		final SweepPanel maskPanel = new SweepPanel( maskDetectorModel );
-		final SweepPanel thresholdPanel = new SweepPanel( thresholdDetectorModel );
-		final SweepPanel labelImgPanel = new SweepPanel( labelImgDetectorModel );
-		final SweepPanel morphoLibJPanel = new SweepPanel( morphoLibJDetectorModel );
-		final SweepPanel wekaPanel = new SweepPanel( wekaDetectorModel );
-		final SweepPanel ilastikPanel = new SweepPanel( ilastikDetectorModel );
-		final SweepPanel cellposePanel = new SweepPanel( cellposeDetectorModel );
-		final SweepPanel stardistPanel = new SweepPanel( stardistDetectorModel );
-		final SweepPanel stardistCustomPanel = new SweepPanel( stardistCustomDetectorModel );
-		final SweepPanel simpleLAPPanel = new SweepPanel( simpleLAPTrackerModel );
-		final SweepPanel lapPanel = new SweepPanel( lapTrackerModel );
-		final SweepPanel kalmanPanel = new SweepPanel( kalmanTrackerModel );
-		final SweepPanel overlapPanel = new SweepPanel( overlapTrackerModel );
-		final SweepPanel nnPanel = new SweepPanel( nearestNeighborTrackerModel );
-
-		final List< JPanel > detectorPanels = Arrays.asList(
-				logPanel, dogPanel,
-				maskPanel, thresholdPanel, labelImgPanel,
-				morphoLibJPanel,
-				wekaPanel, ilastikPanel,
-				cellposePanel, stardistPanel, stardistCustomPanel,
-				simpleLAPPanel, lapPanel,
-				kalmanPanel,
-				overlapPanel,
-				nnPanel );
-
-		/*
-		 * The checkboxes.
-		 */
-
-		final List< JCheckBox > detectorCheckBoxes = Arrays.asList(
-				chckbxLoGDetector, chckbxDoGDetector,
-				chckbxMaskDetector, chckbxThresholdDetector, chckbxLabelImgDetector,
-				chckbxMorphoLibJDetector,
-				chckbxWekaDetector, chckbxIlastikDetector,
-				chckbxCellposeDetector, chckbxStarDistDetector, chckbxStarDistCustom,
-				chckbxSimpleLAPTracker, chckbxLAPTracker,
-				chckbxKalmanTracker,
-				chckbxOverlapTracker,
-				chckbxNNTracker );
-
-		/*
-		 * Wire the tabbed panes.
-		 */
-
-		for ( int i = 0; i < detectorPanels.size(); i++ )
-		{
-			final String name = detectorModels.get( i ).getName();
-			final JPanel panel = detectorPanels.get( i );
-			final JCheckBox chkbox = detectorCheckBoxes.get( i );
-			chkbox.addActionListener( l -> {
-				if ( chkbox.isSelected() )
-					tabbedPane.addTab( name, null, panel, null );
-				else
-					tabbedPane.remove( panel );
-			} );
-		}
-
-		/*
 		 * Wire some listeners.
 		 */
 
 		// Browse buttons.
 		btnBrowseGT.addActionListener( e -> browseGroundTruthPath() );
-		// TODO
-
-		/*
-		 * Default values.
-		 */
-
-		// TODO
 	}
 
 	private void browseGroundTruthPath()

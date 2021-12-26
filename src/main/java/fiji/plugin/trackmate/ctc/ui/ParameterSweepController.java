@@ -12,9 +12,13 @@ public class ParameterSweepController
 
 	private final JFrame frame;
 
+	private final ParameterSweepModel model;
+
 	public ParameterSweepController( final ImagePlus imp )
 	{
-		gui = new ParameterSweepPanel( imp );
+		model = new ParameterSweepModel( imp );
+		gui = new ParameterSweepPanel( model );
+
 		frame = new JFrame( "TrackMate parameter sweep" );
 		frame.setIconImage( Icons.TRACKMATE_ICON.getImage() );
 		frame.getContentPane().add( gui );
