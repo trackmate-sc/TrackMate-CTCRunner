@@ -27,6 +27,7 @@ import javax.swing.border.EmptyBorder;
 
 import com.itextpdf.text.Font;
 
+import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.ctc.ui.components.FilterConfigPanel;
 import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModel;
@@ -45,17 +46,27 @@ public class ParameterSweepPanel extends JPanel
 
 	private static final long serialVersionUID = 1L;
 
-	private final JTextField tfGroundTruth;
+	final JTextField tfGroundTruth;
 
 	private final JTabbedPane tabbedPane;
 
-	private final EverythingDisablerAndReenabler enabler;
+	final EverythingDisablerAndReenabler enabler;
 
 	private final FilterConfigPanel panelSpotFilters;
 
 	private final FilterConfigPanel panelTrackFilters;
 
 	private final ParameterSweepModel model;
+
+	final JButton btnRun;
+
+	final JButton btnStop;
+
+	final JSlider sliderChannel;
+
+	final JCheckBox chckbxSaveTrackMateFile;
+
+	final Logger logger;
 
 	public ParameterSweepPanel( final ParameterSweepModel model )
 	{
@@ -74,6 +85,7 @@ public class ParameterSweepPanel extends JPanel
 		add( tabbedPane, BorderLayout.CENTER );
 
 		final LogPanel panelLog = new LogPanel();
+		this.logger = panelLog.getLogger();
 		tabbedPane.addTab( "Log", null, panelLog, null );
 
 		panelSpotFilters = new FilterConfigPanel( TrackMateObject.SPOTS, Spot.QUALITY, imp, model.spotFilters() );
@@ -278,7 +290,7 @@ public class ParameterSweepPanel extends JPanel
 		gbc_panelChannel.gridy = 3;
 		panelPath.add( panelChannel, gbc_panelChannel );
 
-		final JSlider sliderChannel = new JSlider();
+		sliderChannel = new JSlider();
 		panelChannel.add( sliderChannel );
 		sliderChannel.setMaximum( 60 );
 		sliderChannel.setMaximum( imp.getNChannels() );
@@ -333,7 +345,7 @@ public class ParameterSweepPanel extends JPanel
 		gbcSeparator2.gridy = 7;
 		panelPath.add( new JSeparator(), gbcSeparator2 );
 
-		final JCheckBox chckbxSaveTrackMateFile = new JCheckBox( "Save TrackMate file for every test" );
+		chckbxSaveTrackMateFile = new JCheckBox( "Save TrackMate file for every test" );
 		chckbxSaveTrackMateFile.setFont( SMALL_FONT );
 		final GridBagConstraints gbcChckbxSaveTrackMateFile = new GridBagConstraints();
 		gbcChckbxSaveTrackMateFile.insets = new Insets( 0, 0, 5, 0 );
@@ -362,12 +374,12 @@ public class ParameterSweepPanel extends JPanel
 		gbcPanelButtons.gridy = 10;
 		panelPath.add( panelButtons, gbcPanelButtons );
 
-		final JButton btnStop = new JButton( "Stop" );
+		btnStop = new JButton( "Stop" );
 		btnStop.setFont( SMALL_FONT );
 		btnStop.setIcon( CANCEL_ICON );
 		panelButtons.add( btnStop );
 
-		final JButton btnRun = new JButton( "Run" );
+		btnRun = new JButton( "Run" );
 		btnRun.setFont( SMALL_FONT );
 		btnRun.setIcon( EXECUTE_ICON );
 
