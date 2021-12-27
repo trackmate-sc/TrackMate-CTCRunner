@@ -1,6 +1,5 @@
 package fiji.plugin.trackmate.ctc;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -22,14 +21,11 @@ import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
 
 import fiji.plugin.trackmate.Logger;
-import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.action.CTCExporter;
 import fiji.plugin.trackmate.action.CTCExporter.ExportType;
 import fiji.plugin.trackmate.ctc.CTCMetricsProcessor.CTCMetrics;
-import fiji.plugin.trackmate.io.TmXmlReader;
-import fiji.plugin.trackmate.io.TmXmlWriter;
 import ij.ImagePlus;
 import net.imglib2.util.ValuePair;
 
@@ -86,95 +82,12 @@ public class CTCMetricsRunner2
 				|| !trackmate.computeSpotFeatures( true )
 				|| !trackmate.execSpotFiltering( true ) )
 		{
-			System.err.println( "Error in the detection step:\n" + trackmate.getErrorMessage() );
+			batchLogger.error( "Error in the detection step:\n" + trackmate.getErrorMessage() );
 			return null;
 		}
 		final long end = System.currentTimeMillis();
 		final double detectionTiming = ( end - start ) / 1000.;
 
-		return new ValuePair<>( trackmate, detectionTiming );
-	}
-
-	public ValuePair< TrackMate, Double > getOrExecDetection( final Settings settings )
-	{
-		// For timing.
-		double detectionTiming = Double.NaN;
-
-		// Did we have already an existing detection file?
-		final File trackmateFile = new File( resultsRootPath.toFile(), "TrackMate_" + settings.detectorFactory.getKey() + ".xml" );
-		final File timingFile = new File( resultsRootPath.toFile(), "TrackMate_" + settings.detectorFactory.getKey() + "_timing.txt" );
-		final TrackMate trackmate;
-		if ( trackmateFile.exists() )
-		{
-			batchLogger.log( "Reading detection from " + trackmateFile + '\n' );
-			final TmXmlReader reader = new TmXmlReader( trackmateFile );
-			if ( !reader.isReadingOk() )
-			{
-				batchLogger.error( reader.getErrorMessage() );
-				return null;
-			}
-			final Model model = reader.getModel();
-			trackmate = new TrackMate( model, settings );
-			trackmate.getModel().setLogger( trackmateLogger );
-
-			// Read timing.
-			batchLogger.log( "Reading timing from " + timingFile + '\n' );
-			try (BufferedReader timingReader = new BufferedReader( new FileReader( timingFile ) ))
-			{
-				final String line = timingReader.readLine();
-				detectionTiming = Double.parseDouble( line );
-			}
-			catch ( final IOException e )
-			{
-				batchLogger.error( "Could not read timing file:\n" + e.getMessage() + '\n' );
-				e.printStackTrace();
-			}
-
-			batchLogger.log( "Reading done. Timing = " + detectionTiming + " s.\n" );
-		}
-		else
-		{
-			final long start = System.currentTimeMillis();
-			trackmate = new TrackMate( settings );
-			trackmate.getModel().setLogger( trackmateLogger );
-			if ( !trackmate.execDetection()
-					|| !trackmate.execInitialSpotFiltering()
-					|| !trackmate.computeSpotFeatures( true )
-					|| !trackmate.execSpotFiltering( true ) )
-			{
-				System.err.println( "Error in the detection step:\n" + trackmate.getErrorMessage() );
-				return null;
-			}
-			final long end = System.currentTimeMillis();
-			detectionTiming = ( end - start ) / 1000.;
-
-			// Write tmp file so that we don't have to redo the tracking.
-			batchLogger.log( "Saving detection to file " + trackmateFile + '\n' );
-			final TmXmlWriter writer = new TmXmlWriter( trackmateFile, trackmateLogger );
-			writer.appendLog( batchLogger.toString() );
-			writer.appendModel( trackmate.getModel() );
-			writer.appendSettings( trackmate.getSettings() );
-			try
-			{
-				writer.writeToFile();
-			}
-			catch ( final IOException e )
-			{
-				batchLogger.error( "Could not write TrackMate file:\n" + e.getMessage() + '\n' );
-				e.printStackTrace();
-			}
-
-			// Write timing.
-			try (FileWriter timingWriter = new FileWriter( timingFile ))
-			{
-				timingWriter.write( "" + detectionTiming );
-			}
-			catch ( final IOException e )
-			{
-				batchLogger.error( "Could not write timing file:\n" + e.getMessage() + '\n' );
-				e.printStackTrace();
-			}
-		}
 		return new ValuePair<>( trackmate, detectionTiming );
 	}
 
