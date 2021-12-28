@@ -1,5 +1,7 @@
 package fiji.plugin.trackmate.ctc.ui;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -13,6 +15,7 @@ import fiji.plugin.trackmate.ctc.CTCMetricsRunner2;
 import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModel;
 import fiji.plugin.trackmate.ctc.ui.trackers.TrackerSweepModel;
 import fiji.plugin.trackmate.gui.Icons;
+import fiji.plugin.trackmate.io.TmXmlWriter;
 import fiji.plugin.trackmate.util.TMUtils;
 import ij.ImagePlus;
 import net.imglib2.util.ValuePair;
@@ -53,6 +56,7 @@ public class ParameterSweepController implements Cancelable
 		gui.btnStop.setVisible( true );
 		gui.logger.setProgress( 0. );
 		final int count = model.count();
+		final boolean saveEachTime = gui.chckbxSaveTrackMateFile.isSelected();
 		new Thread( "TrackMate CTC runner thread" )
 		{
 			@Override
@@ -101,6 +105,37 @@ public class ParameterSweepController implements Cancelable
 									// Perform and save CTC metrics measurements.
 									runner.performCTCMetricsMeasurements( trackmate, detectionTiming, trackingTiming );
 
+									// Save TrackMate file if required.
+									if ( saveEachTime )
+									{
+										final String nameGen = "TrackMate_%s_%s_%3d.xml";
+										int i = 1;
+										File trackmateFile;
+										do
+										{
+											trackmateFile = new File( new File( gtPath ).getParent(),
+													String.format( nameGen,
+															settings.detectorFactory.getKey(),
+															settings.trackerFactory.getKey(),
+															i++ ) );
+										}
+										while ( trackmateFile.exists() );
+
+										final TmXmlWriter writer = new TmXmlWriter( trackmateFile, gui.logger );
+										writer.appendModel( trackmate.getModel() );
+										writer.appendSettings( trackmate.getSettings() );
+										writer.appendGUIState( "ConfigureViews" );
+										try
+										{
+											writer.writeToFile();
+										}
+										catch ( final IOException e )
+										{
+											gui.logger.error( e.getMessage() );
+											e.printStackTrace();
+										}
+									}
+
 									gui.logger.setProgress( ( double ) ++progress / count );
 								}
 							}
@@ -115,7 +150,6 @@ public class ParameterSweepController implements Cancelable
 				}
 			}
 		}.start();
-
 	}
 
 	public void show()
