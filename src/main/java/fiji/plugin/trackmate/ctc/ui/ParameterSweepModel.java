@@ -11,10 +11,8 @@ import java.util.Map;
 import org.scijava.listeners.Listeners;
 
 import fiji.plugin.trackmate.Settings;
-import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel.ModelListener;
 import fiji.plugin.trackmate.ctc.ui.components.InfoParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModel;
 import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModels;
 import fiji.plugin.trackmate.ctc.ui.detectors.optional.CellposeDetector;
@@ -211,20 +209,6 @@ public class ParameterSweepModel
 	public void setImage( final ImagePlus imp )
 	{
 		this.imp = imp;
-		// Update units.
-		final String units = imp.getCalibration().getUnits();
-		for ( final DetectorSweepModel dm : detectorModels() )
-		{
-			for ( final AbstractParamSweepModel< ? > am : dm.models.values() )
-				if ( am instanceof NumberParamSweepModel )
-					( ( NumberParamSweepModel ) am ).units( units );
-		}
-		for ( final TrackerSweepModel tm : trackerModels() )
-		{
-			for ( final AbstractParamSweepModel< ? > am : tm.models.values() )
-				if ( am instanceof NumberParamSweepModel )
-					( ( NumberParamSweepModel ) am ).units( units );
-		}
 	}
 
 	public List< FeatureFilter > spotFilters()
