@@ -9,6 +9,8 @@ import ij.plugin.PlugIn;
 public class TrackMateParameterSweepPlugin implements PlugIn
 {
 
+	private ParameterSweepController controller;
+
 	@Override
 	public void run( final String arg )
 	{
@@ -23,7 +25,12 @@ public class TrackMateParameterSweepPlugin implements PlugIn
 			imp.show();
 		}
 
-		final ParameterSweepController controller = new ParameterSweepController( imp );
+		controller = new ParameterSweepController( imp );
 		controller.show();
+	}
+
+	public ParameterSweepController getController()
+	{
+		return controller;
 	}
 }

@@ -51,7 +51,7 @@ public class ParameterSweepController implements Cancelable
 		frame = new JFrame( "TrackMate parameter sweep" );
 		frame.setIconImage( Icons.TRACKMATE_ICON.getImage() );
 		frame.getContentPane().add( gui );
-		frame.pack();
+		frame.setSize( 600, 700 );
 		frame.setLocationRelativeTo( null );
 	}
 
@@ -63,6 +63,7 @@ public class ParameterSweepController implements Cancelable
 		gui.enabler.disable();
 		gui.btnRun.setVisible( false );
 		gui.btnStop.setVisible( true );
+		gui.btnStop.setEnabled( true );
 		gui.logger.setProgress( 0. );
 		final int count = model.count();
 		final boolean saveEachTime = gui.chckbxSaveTrackMateFile.isSelected();
@@ -182,5 +183,10 @@ public class ParameterSweepController implements Cancelable
 	public boolean isCanceled()
 	{
 		return cancelReason != null;
+	}
+
+	public void setGroundTruthPath( final String groundTruthPath )
+	{
+		gui.tfGroundTruth.setText( groundTruthPath );
 	}
 }
