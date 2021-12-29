@@ -143,10 +143,9 @@ public class CTCMetricsRunner2
 			// Delete CTC export folder.
 			deleteFolder( resultsFolder );
 		}
-		catch ( final IOException e )
+		catch ( final IOException | IllegalArgumentException e )
 		{
 			batchLogger.error( "Could not export tracking data to CTC files:\n" + e.getMessage() + '\n' );
-			e.printStackTrace();
 		}
 	}
 
