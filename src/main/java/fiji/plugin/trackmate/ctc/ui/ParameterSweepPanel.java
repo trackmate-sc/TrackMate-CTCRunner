@@ -73,7 +73,7 @@ public class ParameterSweepPanel extends JPanel
 	{
 		this.model = model;
 		final ImagePlus imp = model.getImage();
-		enabler = new EverythingDisablerAndReenabler( this, new Class[] { JLabel.class } );
+		enabler = new EverythingDisablerAndReenabler( this, new Class[] { JLabel.class, JTabbedPane.class, LogPanel.class } );
 
 		setLayout( new BorderLayout( 5, 5 ) );
 
