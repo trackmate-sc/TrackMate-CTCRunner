@@ -14,7 +14,7 @@ public class DoubleParamSweepModel extends NumberParamSweepModel
 		switch ( rangeType )
 		{
 		case FIXED:
-			return Collections.singletonList( min );
+			return Collections.singletonList( min.doubleValue() );
 		case LIN_RANGE:
 			return linspace( min.doubleValue(), max.doubleValue(), nSteps );
 		case LOG_RANGE:

@@ -15,7 +15,7 @@ public class IntParamSweepModel extends NumberParamSweepModel
 		switch ( rangeType )
 		{
 		case FIXED:
-			return Collections.singletonList( min );
+			return Collections.singletonList( min.intValue() );
 		case LIN_RANGE:
 			return unique( linspace( min.intValue(), max.intValue(), nSteps ) );
 		case LOG_RANGE:
