@@ -12,6 +12,7 @@ import org.scijava.Context;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.ctc.CTCMetricsRunner2;
+import fiji.plugin.trackmate.ctc.ui.components.ParameterSweepModelIO;
 import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModel;
 import fiji.plugin.trackmate.ctc.ui.trackers.TrackerSweepModel;
 import fiji.plugin.trackmate.gui.Icons;
@@ -33,11 +34,19 @@ public class ParameterSweepController implements Cancelable
 
 	public ParameterSweepController( final ImagePlus imp )
 	{
-		model = new ParameterSweepModel( imp );
+		model = ParameterSweepModelIO.readFromDefault( imp );
+
 		gui = new ParameterSweepPanel( model );
 		gui.btnRun.addActionListener( e -> run() );
 		gui.btnStop.addActionListener( e -> cancel( "User pressed the stop button." ) );
 		gui.btnStop.setVisible( false );
+
+		// Save on model modification.
+		model.listeners().add( () -> 
+		{
+			gui.refresh();
+			ParameterSweepModelIO.saveToDefault( model );
+		} );
 
 		frame = new JFrame( "TrackMate parameter sweep" );
 		frame.setIconImage( Icons.TRACKMATE_ICON.getImage() );

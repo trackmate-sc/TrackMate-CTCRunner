@@ -87,7 +87,6 @@ public class SweepPanel extends JPanel
 					: String.format( "Sweep over %d different settings for this detector.", ns );
 			lblInfo.setText( str );
 		};
-		model.listeners().add( infoListener );
 		infoListener.modelChanged();
 	}
 

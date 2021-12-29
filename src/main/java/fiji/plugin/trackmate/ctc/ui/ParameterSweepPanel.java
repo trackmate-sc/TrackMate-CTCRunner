@@ -12,6 +12,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.JButton;
@@ -185,7 +186,7 @@ public class ParameterSweepPanel extends JPanel
 			final JCheckBox chkbox = new JCheckBox( name, active );
 			chkbox.setFont( SMALL_FONT );
 			final SweepPanel panel = new SweepPanel( dm );
-			chkbox.addActionListener( l -> {
+			final ActionListener al = l -> {
 				if ( chkbox.isSelected() )
 				{
 					tabbedPane.addTab( name, null, panel, null );
@@ -196,7 +197,9 @@ public class ParameterSweepPanel extends JPanel
 					tabbedPane.remove( panel );
 					model.setActive( name, false );
 				}
-			} );
+			};
+			chkbox.addActionListener( al );
+			al.actionPerformed( null );
 			panelChkboxes.add( chkbox, c1 );
 
 			c1.gridy++;
@@ -220,7 +223,7 @@ public class ParameterSweepPanel extends JPanel
 			final JCheckBox chkbox = new JCheckBox( name, active );
 			chkbox.setFont( SMALL_FONT );
 			final SweepPanel panel = new SweepPanel( tm );
-			chkbox.addActionListener( l -> {
+			final ActionListener al = e -> {
 				if ( chkbox.isSelected() )
 				{
 					tabbedPane.addTab( name, null, panel, null );
@@ -231,7 +234,9 @@ public class ParameterSweepPanel extends JPanel
 					tabbedPane.remove( panel );
 					model.setActive( name, false );
 				}
-			} );
+			};
+			chkbox.addActionListener( al );
+			al.actionPerformed( null );
 			panelChkboxes.add( chkbox, c2 );
 			c2.gridy++;
 		}

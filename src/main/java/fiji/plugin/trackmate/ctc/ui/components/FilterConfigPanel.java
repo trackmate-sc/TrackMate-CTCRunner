@@ -118,6 +118,13 @@ public class FilterConfigPanel extends JPanel
 		buttonsPanel.add( Box.createHorizontalStrut( 5 ) );
 		
 		/*
+		 * Default values.
+		 */
+
+		for ( final FeatureFilter filter : filters )
+			addFilter( filter );
+
+		/*
 		 * Listeners & co.
 		 */
 

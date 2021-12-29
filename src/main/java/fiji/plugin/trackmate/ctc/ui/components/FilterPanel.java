@@ -78,7 +78,6 @@ public class FilterPanel extends JPanel
 		rdbtnBelow.setFont( SMALL_FONT );
 		add( rdbtnBelow );
 	
-		
 		final ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add( rdbtnBelow );
 		buttonGroup.add( rdnbtnAbove );
@@ -86,6 +85,7 @@ public class FilterPanel extends JPanel
 		// Set default values.
 		cmbboxFeatureKeys.setSelectedItem( filter.feature );
 		rdnbtnAbove.setSelected( filter.isAbove );
+		rdbtnBelow.setSelected( !filter.isAbove );
 	}
 
 	public FeatureFilter getFilter()

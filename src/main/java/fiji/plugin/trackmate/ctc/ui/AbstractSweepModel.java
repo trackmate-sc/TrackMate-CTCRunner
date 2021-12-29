@@ -14,7 +14,7 @@ import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel.ModelList
 public abstract class AbstractSweepModel< F extends TrackMateModule >
 {
 
-	protected final transient Listeners.List< ModelListener > modelListeners;
+	protected transient Listeners.List< ModelListener > modelListeners;
 
 	public abstract List< Settings > generateSettings( final Settings base, final int targetChannel );
 
@@ -23,20 +23,26 @@ public abstract class AbstractSweepModel< F extends TrackMateModule >
 	protected final Map< String, AbstractParamSweepModel< ? > > models;
 
 	protected final F factory;
-
+	
 	protected AbstractSweepModel( final String name, final Map< String, AbstractParamSweepModel< ? > > models, final F factory )
 	{
 		this.name = name;
 		this.models = models;
 		this.factory = factory;
-		this.modelListeners = new Listeners.SynchronizedList<>();
-
-		for ( final AbstractParamSweepModel< ? > model : models.values() )
-			model.listeners().add( () -> notifyListeners() );
 	}
 
 	public Listeners.List< ModelListener > listeners()
 	{
+		if ( modelListeners == null )
+		{
+			/*
+			 * Work around the listeners field being null after deserialization.
+			 * We also need to register again the sub-models.
+			 */
+			this.modelListeners = new Listeners.SynchronizedList<>();
+			for ( final AbstractParamSweepModel< ? > model : models.values() )
+				model.listeners().add( () -> notifyListeners() );
+		}
 		return modelListeners;
 	}
 

@@ -11,8 +11,10 @@ import java.util.Map;
 import org.scijava.listeners.Listeners;
 
 import fiji.plugin.trackmate.Settings;
+import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel.ModelListener;
 import fiji.plugin.trackmate.ctc.ui.components.InfoParamSweepModel;
+import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModel;
 import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModels;
 import fiji.plugin.trackmate.ctc.ui.detectors.optional.CellposeDetector;
@@ -29,7 +31,7 @@ import ij.ImagePlus;
 public class ParameterSweepModel
 {
 
-	private final transient Listeners.List< ModelListener > modelListeners = new Listeners.SynchronizedList<>();
+	private final transient Listeners.List< ModelListener > modelListeners;
 
 	private final Map< String, DetectorSweepModel > detectorModels = new LinkedHashMap<>();
 
@@ -37,14 +39,20 @@ public class ParameterSweepModel
 
 	private final Map< String, Boolean > active = new HashMap<>();
 
-	private final ImagePlus imp;
+	private transient ImagePlus imp;
 
 	private final List< FeatureFilter > spotFilters = new ArrayList<>();
 
 	private final List< FeatureFilter > trackFilters = new ArrayList<>();
 
+	private ParameterSweepModel()
+	{
+		modelListeners = new Listeners.SynchronizedList<>();
+	}
+
 	public ParameterSweepModel( final ImagePlus imp )
 	{
+		this();
 		this.imp = imp;
 		final String units = imp.getCalibration().getUnits();
 
@@ -149,6 +157,11 @@ public class ParameterSweepModel
 		for ( final DetectorSweepModel model : detectorModels.values() )
 			active.put( model.name, Boolean.FALSE );
 
+		registerListeners();
+	}
+
+	public void registerListeners()
+	{
 		// Forward component changes to listeners.
 		detectorModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
 		trackerModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
@@ -193,6 +206,25 @@ public class ParameterSweepModel
 	public ImagePlus getImage()
 	{
 		return imp;
+	}
+
+	public void setImage( final ImagePlus imp )
+	{
+		this.imp = imp;
+		// Update units.
+		final String units = imp.getCalibration().getUnits();
+		for ( final DetectorSweepModel dm : detectorModels() )
+		{
+			for ( final AbstractParamSweepModel< ? > am : dm.models.values() )
+				if ( am instanceof NumberParamSweepModel )
+					( ( NumberParamSweepModel ) am ).units( units );
+		}
+		for ( final TrackerSweepModel tm : trackerModels() )
+		{
+			for ( final AbstractParamSweepModel< ? > am : tm.models.values() )
+				if ( am instanceof NumberParamSweepModel )
+					( ( NumberParamSweepModel ) am ).units( units );
+		}
 	}
 
 	public List< FeatureFilter > spotFilters()
