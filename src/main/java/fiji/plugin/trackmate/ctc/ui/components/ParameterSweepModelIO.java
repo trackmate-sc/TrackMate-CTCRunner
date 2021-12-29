@@ -247,7 +247,5 @@ public class ParameterSweepModelIO
 			
 			return obj;
 		}
-
 	}
-
 }
