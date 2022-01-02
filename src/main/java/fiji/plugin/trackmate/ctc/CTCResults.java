@@ -42,69 +42,93 @@ public class CTCResults
 	@Override
 	public String toString()
 	{
-		final int nspace = 1;
-		final char[] spaceCh = new char[ nspace ];
-		Arrays.fill( spaceCh, ' ' );
-		final String space = String.valueOf( spaceCh );
+		final int nspace = 2;
+
+		int id = 0;
 
 		// CTC cols.
 		final CTCMetricsDescription[] descs = CTCMetricsDescription.values();
-		final int[] colWidths = new int[ descs.length + 2 + detectorParams.size() + trackerParams.size() ];
+		final int[] colWidths =
+				new int[ descs.length
+				+ 2
+				+ detectorParams.get( 0 ).size()
+				+ trackerParams.get( 0 ).size() ];
 		for ( int i = 0; i < descs.length; i++ )
-			colWidths[ i ] = descs[ i ].ctcName().length() + nspace;
+			colWidths[ id++ ] = Math.max( 5, descs[ i ].ctcName().length() );
 
 		// Detector col.
-		final int maxLengthDetector = detectors.stream()
-				.mapToInt( d -> d.length() + nspace )
+		colWidths[ id++ ] = detectors.stream()
+				.mapToInt( d -> d.length() )
 				.max()
 				.getAsInt();
-		int id = descs.length;
-		colWidths[ id++ ] = maxLengthDetector;
 
 		// Detector param cols.
 		final Set< String > detectorKeys = detectorParams.get( 0 ).keySet();
 		for ( final String dk : detectorKeys )
-			colWidths[id++] = dk.length();
-		
+			colWidths[ id++ ] = dk.length();
+
 		// Tracker col.
-		final int maxLengthTracker = trackers.stream()
-				.mapToInt( d -> d.length() + nspace )
+		colWidths[ id++ ] = trackers.stream()
+				.mapToInt( d -> d.length() )
 				.max()
 				.getAsInt();
-		colWidths[ id++ ] = maxLengthTracker;
 
 		// Tracker param cols.
 		final Set< String > trackerKeys = trackerParams.get( 0 ).keySet();
 		for ( final String dk : trackerKeys )
 			colWidths[ id++ ] = dk.length();
 
-		final StringBuilder str = new StringBuilder();
-		id = 0;
+		// Add space.
+		for ( int i = 0; i < colWidths.length; i++ )
+			colWidths[ i ] += nspace;
 
 		/*
 		 * Header.
 		 */
 
-		for ( final CTCMetricsDescription desc : descs )
-			str.append( String.format( "%-" + colWidths[ id++ ] + "s" + space, desc.ctcName() ) );
-		
-		str.append( String.format( "%-" + colWidths[ id++ ] + "s" + space, "DETECTOR" ) );
-		
-		for ( final String dk : detectorKeys )
-			str.append( String.format( "%-" + colWidths[ id++ ] + "s" + space, dk ) );
+		final StringBuilder str = new StringBuilder();
+		id = 0;
 
-		str.append( String.format( "%-" + colWidths[ id++ ] + "s" + space, "TRACKER" ) );
+		for ( final CTCMetricsDescription desc : descs )
+			str.append( String.format( "%" + colWidths[ id++ ] + "s", desc.ctcName() ) );
+
+		str.append( String.format( "%" + colWidths[ id++ ] + "s", "DETECTOR" ) );
+
+		for ( final String dk : detectorKeys )
+			str.append( String.format( "%" + colWidths[ id++ ] + "s", dk ) );
+
+		str.append( String.format( "%" + colWidths[ id++ ] + "s", "TRACKER" ) );
 
 		for ( final String tk : trackerKeys )
-			str.append( String.format( "%-" + colWidths[ id++ ] + "s" + space, tk ) );
+			str.append( String.format( "%" + colWidths[ id++ ] + "s", tk ) );
 
 		str.append( '\n' );
-		
+
 		/*
 		 * Content.
 		 */
 
-		// TODO
+		for ( int i = 0; i < size(); i++ )
+		{
+			id = 0;
+			final double[] cm = ctcMetrics.get( i ).toArray();
+			for ( int j = 0; j < cm.length; j++ )
+				str.append( String.format( "%" + colWidths[ id++ ] + ".3f", cm[ j ] ) );
+
+			str.append( String.format( "%" + colWidths[ id++ ] + "s", detectors.get( i ) ) );
+
+			final Map< String, String > dp = detectorParams.get( i );
+			for ( final String dk : detectorKeys )
+				str.append( String.format( "%" + colWidths[ id++ ] + "s", dp.get( dk ) ) );
+
+			str.append( String.format( "%" + colWidths[ id++ ] + "s", trackers.get( i ) ) );
+
+			final Map< String, String > tp = trackerParams.get( i );
+			for ( final String tk : trackerKeys )
+				str.append( String.format( "%" + colWidths[ id++ ] + "s", tp.get( tk ) ) );
+
+			str.append( '\n' );
+		}
 
 		return str.toString();
 	}
@@ -158,18 +182,17 @@ public class CTCResults
 			trackers.add( line[ trackerCol ] );
 
 			// Parameters.
+			final Map< String, String > dp = new HashMap<>();
 			for ( int col = detectorCol + 1; col < trackerCol; col++ )
-			{
-				final Map< String, String > dp = new HashMap<>();
 				dp.put( header[ col ], line[ col ] );
-				detectorParams.add( dp );
-			}
+
+			detectorParams.add( dp );
+
+			final Map< String, String > tp = new HashMap<>();
 			for ( int col = trackerCol + 1; col < line.length; col++ )
-			{
-				final Map< String, String > tp = new HashMap<>();
 				tp.put( header[ col ], line[ col ] );
-				trackerParams.add( tp );
-			}
+
+			trackerParams.add( tp );
 
 			return this;
 		}
