@@ -49,7 +49,7 @@ public class ParameterSweepPanel extends JPanel
 
 	final JTextField tfGroundTruth;
 
-	private final JTabbedPane tabbedPane;
+	final JTabbedPane tabbedPane;
 
 	final EverythingDisablerAndReenabler enabler;
 

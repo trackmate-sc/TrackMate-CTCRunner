@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
+import java.util.IntSummaryStatistics;
 import java.util.function.BiFunction;
 
 import org.scijava.Context;
@@ -23,8 +24,10 @@ import com.opencsv.exceptions.CsvValidationException;
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
+import fiji.plugin.trackmate.TrackModel;
 import fiji.plugin.trackmate.action.CTCExporter;
 import fiji.plugin.trackmate.action.CTCExporter.ExportType;
+import fiji.plugin.trackmate.util.TMUtils;
 import ij.ImagePlus;
 import net.imglib2.util.ValuePair;
 
@@ -73,6 +76,12 @@ public class CTCMetricsRunner2
 
 	public ValuePair< TrackMate, Double > execDetection( final Settings settings )
 	{
+		batchLogger.log( "Executing detection.\n" );
+		batchLogger.log( "Configured detector: " );
+		batchLogger.log( settings.detectorFactory.getName(), Logger.BLUE_COLOR );
+		batchLogger.log( " with settings:\n" );
+		batchLogger.log( TMUtils.echoMap( settings.detectorSettings, 2 ) );
+
 		final long start = System.currentTimeMillis();
 		final TrackMate trackmate = new TrackMate( settings );
 		trackmate.getModel().setLogger( trackmateLogger );
@@ -87,11 +96,20 @@ public class CTCMetricsRunner2
 		final long end = System.currentTimeMillis();
 		final double detectionTiming = ( end - start ) / 1000.;
 
+		batchLogger.log( String.format( "Detection done in %.1f s.\n", ( end - start ) / 1e3f ) );
+		batchLogger.log( String.format( "Found %d spots.\n", trackmate.getModel().getSpots().getNSpots( false ) ) );
+
 		return new ValuePair<>( trackmate, detectionTiming );
 	}
 
 	public double execTracking( final TrackMate trackmate )
 	{
+		batchLogger.log( "Executing tracking.\n" );
+		batchLogger.log( "Configured tracker: " );
+		batchLogger.log( trackmate.getSettings().trackerFactory.getName(), Logger.BLUE_COLOR );
+		batchLogger.log( " with settings:\n" );
+		batchLogger.log( TMUtils.echoMap( trackmate.getSettings().trackerSettings, 2 ) );
+
 		final long start = System.currentTimeMillis();
 		if ( !trackmate.checkInput()
 				|| !trackmate.execTracking()
@@ -104,14 +122,24 @@ public class CTCMetricsRunner2
 		}
 		final long end = System.currentTimeMillis();
 		final double trackingTiming = ( end - start ) / 1000.;
-		batchLogger.log( String.format( "Tracking time: %.1f s\n", trackingTiming ) );
+
+		batchLogger.log( String.format( "Tracking done in %.1f s.\n", trackingTiming ) );
+		final TrackModel trackModel = trackmate.getModel().getTrackModel();
+		final int nTracks = trackModel.nTracks( false );
+		final IntSummaryStatistics stats = trackModel.unsortedTrackIDs( false ).stream()
+				.mapToInt( id -> trackModel.trackSpots( id ).size() )
+				.summaryStatistics();
+		batchLogger.log( "Found " + nTracks + " tracks.\n" );
+		batchLogger.log( String.format( "  - avg size: %.1f spots.\n", stats.getAverage() ) );
+		batchLogger.log( String.format( "  - min size: %d spots.\n", stats.getMin() ) );
+		batchLogger.log( String.format( "  - max size: %d spots.\n", stats.getMax() ) );
 
 		return trackingTiming;
 	}
 
 	public void performCTCMetricsMeasurements( final TrackMate trackmate, final double detectionTiming, final double trackingTiming )
 	{
-		trackmateLogger.log( "Exporting as CTC results.\n" );
+		batchLogger.log( "Exporting as CTC results.\n" );
 		final Settings settings = trackmate.getSettings();
 		final File csvFile = findSuitableCSVFile( settings );
 		final String[] csvHeader1 = toCSVHeader( settings );
@@ -123,6 +151,7 @@ public class CTCMetricsRunner2
 			final String resultsFolder = CTCExporter.exportTrackingData( resultsRootPath.toString(), id, ExportType.RESULTS, trackmate, trackmateLogger );
 
 			// Perform CTC measurements.
+			batchLogger.log( "Performing CTC metrics measurements.\n" );
 			final CTCMetrics m = ctc.process( gtPath, resultsFolder );
 			// Add timing measurements.
 			final CTCMetrics metrics = m.copyEdit()
@@ -130,6 +159,7 @@ public class CTCMetricsRunner2
 					.trackingTime( trackingTiming )
 					.tim( detectionTiming + trackingTiming )
 					.get();
+			batchLogger.log( "CTC metrics:\n" );
 			batchLogger.log( metrics.toString() + '\n' );
 
 			// Write to CSV.

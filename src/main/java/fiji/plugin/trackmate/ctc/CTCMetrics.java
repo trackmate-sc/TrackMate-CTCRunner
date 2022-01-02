@@ -54,10 +54,10 @@ public class CTCMetrics
 		final double[] arr = toArray();
 		final CTCMetricsDescription[] desc = CTCMetricsDescription.values();
 		for ( int i = 0; i < 7; i++ )
-			str.append( String.format( " - %3s: %.3f\n", desc[ i ].ctcName(), arr[ i ] ) );
-		str.append( String.format( " - %3s: %.1f s\n", desc[ 7 ].ctcName(), arr[ 7 ] ) );
-		str.append( String.format( " - %14s: %.1f s\n", desc[ 8 ].ctcName(), arr[ 8 ] ) );
-		str.append( String.format( " - %14s: %.1f s\n", desc[ 9 ].ctcName(), arr[ 9 ] ) );
+			str.append( String.format( " - %-3s: %.3f\n", desc[ i ].ctcName(), arr[ i ] ) );
+		str.append( String.format( " - %-3s: %.1f s\n", desc[ 7 ].ctcName(), arr[ 7 ] ) );
+		str.append( String.format( " - %-14s: %.1f s\n", desc[ 8 ].ctcName(), arr[ 8 ] ) );
+		str.append( String.format( " - %-14s: %.1f s", desc[ 9 ].ctcName(), arr[ 9 ] ) );
 		return str.toString();
 	}
 

@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import org.scijava.Cancelable;
 import org.scijava.Context;
 
+import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.ctc.CTCMetricsRunner2;
@@ -65,6 +66,7 @@ public class ParameterSweepController implements Cancelable
 		gui.btnStop.setVisible( true );
 		gui.btnStop.setEnabled( true );
 		gui.logger.setProgress( 0. );
+		gui.tabbedPane.setSelectedIndex( 0 );
 		final int count = model.count();
 		final boolean saveEachTime = gui.chckbxSaveTrackMateFile.isSelected();
 		new Thread( "TrackMate CTC runner thread" )
@@ -90,6 +92,8 @@ public class ParameterSweepController implements Cancelable
 							if ( isCanceled() )
 								return;
 
+							gui.logger.log( "\n________________________________________\n" );
+							gui.logger.log( TMUtils.getCurrentTimeString() + "\n" );
 							gui.logger.setStatus( ds.detectorFactory.getName() );
 							final ValuePair< TrackMate, Double > detectionResult = runner.execDetection( ds );
 							final TrackMate trackmate = detectionResult.getA();
@@ -118,7 +122,7 @@ public class ParameterSweepController implements Cancelable
 									// Save TrackMate file if required.
 									if ( saveEachTime )
 									{
-										final String nameGen = "TrackMate_%s_%s_%3d.xml";
+										final String nameGen = "TrackMate_%s_%s_%03d.xml";
 										int i = 1;
 										File trackmateFile;
 										do
@@ -131,13 +135,14 @@ public class ParameterSweepController implements Cancelable
 										}
 										while ( trackmateFile.exists() );
 
-										final TmXmlWriter writer = new TmXmlWriter( trackmateFile, gui.logger );
+										final TmXmlWriter writer = new TmXmlWriter( trackmateFile, Logger.VOID_LOGGER );
 										writer.appendModel( trackmate.getModel() );
 										writer.appendSettings( trackmate.getSettings() );
 										writer.appendGUIState( "ConfigureViews" );
 										try
 										{
 											writer.writeToFile();
+											gui.logger.log( "Saved results to TrackMate file: " + trackmateFile + "\n" );
 										}
 										catch ( final IOException e )
 										{
@@ -170,6 +175,8 @@ public class ParameterSweepController implements Cancelable
 	@Override
 	public void cancel( final String cancelReason )
 	{
+		gui.btnStop.setEnabled( false );
+		gui.logger.log( TMUtils.getCurrentTimeString() + " - " + cancelReason + '\n' );
 		this.cancelReason = cancelReason;
 	}
 
