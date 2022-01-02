@@ -46,12 +46,12 @@ public class CTCResults
 	public String printLine( final int i )
 	{
 		final StringBuilder str = new StringBuilder();
-		str.append( "At line " + i + ":\n" );
-		str.append( ctcMetrics.get( i ).toString() );
-		str.append( "\nFor detector: " + detectors.get( i ) + " with settings:" );
+		str.append( "For detector: " + detectors.get( i ) + " with settings:" );
 		str.append( "\n" + TMUtils.echoMap( ( Map ) detectorParams.get( i ), 2 ) );
 		str.append( "And tracker: " + trackers.get( i ) + " with settings:" );
 		str.append( "\n" + TMUtils.echoMap( ( Map ) trackerParams.get( i ), 2 ) );
+		str.append( "CTC metrics:\n" );
+		str.append( ctcMetrics.get( i ).toString() );
 		return str.toString();
 	}
 
@@ -86,6 +86,21 @@ public class CTCResults
 			}
 		}
 		return bestLine;
+	}
+
+	public CTCMetrics getMetrics( final int line )
+	{
+		return ctcMetrics.get( line );
+	}
+
+	public String getDetector( final int line )
+	{
+		return detectors.get( line );
+	}
+
+	public String getTracker( final int line )
+	{
+		return trackers.get( line );
 	}
 
 	@Override
