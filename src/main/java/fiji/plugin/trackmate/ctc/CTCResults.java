@@ -2,15 +2,15 @@ package fiji.plugin.trackmate.ctc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class CTCResults
 {
 
-	private final List< EnumMap< CTCMetricsDescription, Double > > ctcMetrics;
+	private final List< CTCMetrics > ctcMetrics;
 
 	private final List< String > detectors;
 
@@ -21,7 +21,7 @@ public class CTCResults
 	private final List< Map< String, String > > trackerParams;
 
 	public CTCResults(
-			final List< EnumMap< CTCMetricsDescription, Double > > ctcMetrics,
+			final List< CTCMetrics > ctcMetrics,
 			final List< String > detectors,
 			final List< String > trackers,
 			final List< Map< String, String > > detectorParams,
@@ -34,6 +34,81 @@ public class CTCResults
 		this.trackerParams = trackerParams;
 	}
 
+	public int size()
+	{
+		return ctcMetrics.size();
+	}
+
+	@Override
+	public String toString()
+	{
+		final int nspace = 1;
+		final char[] spaceCh = new char[ nspace ];
+		Arrays.fill( spaceCh, ' ' );
+		final String space = String.valueOf( spaceCh );
+
+		// CTC cols.
+		final CTCMetricsDescription[] descs = CTCMetricsDescription.values();
+		final int[] colWidths = new int[ descs.length + 2 + detectorParams.size() + trackerParams.size() ];
+		for ( int i = 0; i < descs.length; i++ )
+			colWidths[ i ] = descs[ i ].ctcName().length() + nspace;
+
+		// Detector col.
+		final int maxLengthDetector = detectors.stream()
+				.mapToInt( d -> d.length() + nspace )
+				.max()
+				.getAsInt();
+		int id = descs.length;
+		colWidths[ id++ ] = maxLengthDetector;
+
+		// Detector param cols.
+		final Set< String > detectorKeys = detectorParams.get( 0 ).keySet();
+		for ( final String dk : detectorKeys )
+			colWidths[id++] = dk.length();
+		
+		// Tracker col.
+		final int maxLengthTracker = trackers.stream()
+				.mapToInt( d -> d.length() + nspace )
+				.max()
+				.getAsInt();
+		colWidths[ id++ ] = maxLengthTracker;
+
+		// Tracker param cols.
+		final Set< String > trackerKeys = trackerParams.get( 0 ).keySet();
+		for ( final String dk : trackerKeys )
+			colWidths[ id++ ] = dk.length();
+
+		final StringBuilder str = new StringBuilder();
+		id = 0;
+
+		/*
+		 * Header.
+		 */
+
+		for ( final CTCMetricsDescription desc : descs )
+			str.append( String.format( "%-" + colWidths[ id++ ] + "s" + space, desc.ctcName() ) );
+		
+		str.append( String.format( "%-" + colWidths[ id++ ] + "s" + space, "DETECTOR" ) );
+		
+		for ( final String dk : detectorKeys )
+			str.append( String.format( "%-" + colWidths[ id++ ] + "s" + space, dk ) );
+
+		str.append( String.format( "%-" + colWidths[ id++ ] + "s" + space, "TRACKER" ) );
+
+		for ( final String tk : trackerKeys )
+			str.append( String.format( "%-" + colWidths[ id++ ] + "s" + space, tk ) );
+
+		str.append( '\n' );
+		
+		/*
+		 * Content.
+		 */
+
+		// TODO
+
+		return str.toString();
+	}
+
 	public static final Builder create()
 	{
 		return new Builder();
@@ -44,7 +119,7 @@ public class CTCResults
 
 		private String[] header;
 
-		private final List< EnumMap< CTCMetricsDescription, Double > > ctcMetrics = new ArrayList<>();
+		private final List< CTCMetrics > ctcMetrics = new ArrayList<>();
 
 		private final List< String > detectors = new ArrayList<>();
 
@@ -75,11 +150,8 @@ public class CTCResults
 				throw new IllegalArgumentException( "CSV header is not set yet." );
 
 			// Parse the 10 CTC metrics first.
-			final EnumMap< CTCMetricsDescription, Double > ctcMap = new EnumMap<>( CTCMetricsDescription.class );
-			final CTCMetricsDescription[] vals = CTCMetricsDescription.values();
-			for ( int i = 0; i < vals.length; i++ )
-				ctcMap.put( vals[ i ], Double.valueOf( line[ i ] ) );
-			ctcMetrics.add( ctcMap );
+			final CTCMetrics metrics = CTCMetrics.fromCSVLine( line );
+			ctcMetrics.add( metrics );
 
 			// Detector and Tracker.
 			detectors.add( line[ detectorCol ] );
@@ -112,6 +184,7 @@ public class CTCResults
 
 	public static final boolean isCTCHeader( final String[] header )
 	{
+		// Order is important.
 		final String[] ctcHeader = CTCMetricsDescription.toHeader();
 		for ( int i = 0; i < ctcHeader.length; i++ )
 		{
