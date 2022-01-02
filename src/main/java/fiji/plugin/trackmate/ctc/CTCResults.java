@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
+
+import fiji.plugin.trackmate.util.TMUtils;
 
 public class CTCResults
 {
@@ -37,6 +40,52 @@ public class CTCResults
 	public int size()
 	{
 		return ctcMetrics.size();
+	}
+
+	@SuppressWarnings( { "unchecked", "rawtypes" } )
+	public String printLine( final int i )
+	{
+		final StringBuilder str = new StringBuilder();
+		str.append( "At line " + i + ":\n" );
+		str.append( ctcMetrics.get( i ).toString() );
+		str.append( "\nFor detector: " + detectors.get( i ) + " with settings:" );
+		str.append( "\n" + TMUtils.echoMap( ( Map ) detectorParams.get( i ), 2 ) );
+		str.append( "And tracker: " + trackers.get( i ) + " with settings:" );
+		str.append( "\n" + TMUtils.echoMap( ( Map ) trackerParams.get( i ), 2 ) );
+		return str.toString();
+	}
+
+	public int bestFor( final CTCMetricsDescription desc )
+	{
+		final BiFunction<Double, Double, Boolean> betterThan;
+		double best;
+		if (desc == CTCMetricsDescription.TIM 
+				|| desc == CTCMetricsDescription.DETECTION_TIME 
+				|| desc == CTCMetricsDescription.TRACKING_TIME)
+		{
+			// Faster is better.
+			betterThan = ( val, b ) -> val < b;
+			best = Double.POSITIVE_INFINITY;
+		}
+		else
+		{
+			// Higher score is better.
+			betterThan = ( val, b ) -> val > b;
+			best = Double.NEGATIVE_INFINITY;
+		}
+		
+		int bestLine = -1;
+		for ( int i = 0; i < ctcMetrics.size(); i++ )
+		{
+			final CTCMetrics c = ctcMetrics.get( i );
+			final double val = c.get( desc );
+			if ( betterThan.apply( val, best ) )
+			{
+				best = val;
+				bestLine = i;
+			}
+		}
+		return bestLine;
 	}
 
 	@Override
