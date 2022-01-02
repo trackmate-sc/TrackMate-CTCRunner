@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,14 +21,19 @@ import fiji.plugin.trackmate.ctc.CTCResults.Builder;
 public class CTCResultsCrawler
 {
 
-	private final String resultsFolder;
-
 	private final Logger batchLogger;
 
-	public CTCResultsCrawler( final String resultsFolder, final Logger batchLogger )
+	private final Map< String, CTCResults > tables;
+
+	public CTCResultsCrawler( final Logger batchLogger )
 	{
-		this.resultsFolder = resultsFolder;
 		this.batchLogger = batchLogger;
+		this.tables = new HashMap<>();
+	}
+
+	public void reset()
+	{
+		tables.clear();
 	}
 
 	public final void crawl( final String resultsFolder ) throws IOException
@@ -50,7 +57,7 @@ public class CTCResultsCrawler
 					builder.addFromCSV( line );
 
 				final CTCResults results = builder.get();
-
+				tables.put( csvFile, results );
 			}
 			catch ( final IOException | CsvValidationException e )
 			{
@@ -75,5 +82,12 @@ public class CTCResultsCrawler
 					.filter( f -> f.endsWith( fileExtension ) )
 					.collect( Collectors.toList() );
 		}
+	}
+
+	public static void main( final String[] args ) throws IOException
+	{
+		final String resultsFolder = "/Users/tinevez/Projects/JYTinevez/TrackMate-StarDist/CellMigration/";
+		final CTCResultsCrawler crawler = new CTCResultsCrawler( Logger.DEFAULT_LOGGER );
+		crawler.crawl( resultsFolder );
 	}
 }
