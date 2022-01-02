@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,6 +18,7 @@ import com.opencsv.exceptions.CsvValidationException;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.ctc.CTCResults.Builder;
+import net.imglib2.util.ValuePair;
 
 public class CTCResultsCrawler
 {
@@ -34,6 +36,75 @@ public class CTCResultsCrawler
 	public void reset()
 	{
 		tables.clear();
+	}
+
+	public String printReport()
+	{
+		final StringBuilder str = new StringBuilder();
+		for ( final CTCMetricsDescription desc : CTCMetricsDescription.values() )
+		{
+			final ValuePair< String, Integer > pair = bestFor( desc );
+			final CTCResults results = get( pair.getA() );
+			if ( results == null )
+			{
+				str.append( "There is no good configuration for " + desc.description() );
+			}
+			else
+			{
+				final String s = results.printLine( pair.getB() );
+				str.append( String.format( "Best configuration for %s with a score of %.3f\n",
+						desc.description(), 
+						results.getMetrics( pair.getB() ).get( desc ) ) );
+				str.append( s );
+			}
+			str.append( "\n________________________________\n" );
+		}
+
+		return str.toString();
+	}
+
+	public ValuePair< String, Integer > bestFor( final CTCMetricsDescription desc )
+	{
+		final BiFunction< Double, Double, Boolean > betterThan;
+		double best;
+		int bestLine = -1;
+		String bestCSVFile = null;
+		if ( desc == CTCMetricsDescription.TIM
+				|| desc == CTCMetricsDescription.DETECTION_TIME
+				|| desc == CTCMetricsDescription.TRACKING_TIME )
+		{
+			// Faster is better.
+			betterThan = ( val, b ) -> val < b;
+			best = Double.POSITIVE_INFINITY;
+		}
+		else
+		{
+			// Higher score is better.
+			betterThan = ( val, b ) -> val > b;
+			best = Double.NEGATIVE_INFINITY;
+		}
+
+		for ( final String csvFile : tables.keySet() )
+		{
+			final CTCResults results = tables.get( csvFile );
+			final int line = results.bestFor( desc );
+			if ( line < 0 )
+				continue;
+			final CTCMetrics m = results.getMetrics( line );
+			final double val = m.get( desc );
+			if ( betterThan.apply( val, best ) )
+			{
+				best = val;
+				bestLine = line;
+				bestCSVFile = csvFile;
+			}
+		}
+		return new ValuePair<>( bestCSVFile, bestLine );
+	}
+
+	public CTCResults get( final String csvFile )
+	{
+		return tables.get( csvFile );
 	}
 
 	public final void crawl( final String resultsFolder ) throws IOException
@@ -82,12 +153,5 @@ public class CTCResultsCrawler
 					.filter( f -> f.endsWith( fileExtension ) )
 					.collect( Collectors.toList() );
 		}
-	}
-
-	public static void main( final String[] args ) throws IOException
-	{
-		final String resultsFolder = "/Users/tinevez/Projects/JYTinevez/TrackMate-StarDist/CellMigration/";
-		final CTCResultsCrawler crawler = new CTCResultsCrawler( Logger.DEFAULT_LOGGER );
-		crawler.crawl( resultsFolder );
 	}
 }
