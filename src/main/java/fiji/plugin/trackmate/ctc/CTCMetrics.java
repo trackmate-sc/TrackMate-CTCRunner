@@ -1,27 +1,22 @@
 package fiji.plugin.trackmate.ctc;
 
+import static fiji.plugin.trackmate.ctc.CTCMetricsDescription.BC;
+import static fiji.plugin.trackmate.ctc.CTCMetricsDescription.CCA;
+import static fiji.plugin.trackmate.ctc.CTCMetricsDescription.CT;
+import static fiji.plugin.trackmate.ctc.CTCMetricsDescription.DET;
+import static fiji.plugin.trackmate.ctc.CTCMetricsDescription.DETECTION_TIME;
+import static fiji.plugin.trackmate.ctc.CTCMetricsDescription.SEG;
+import static fiji.plugin.trackmate.ctc.CTCMetricsDescription.TF;
+import static fiji.plugin.trackmate.ctc.CTCMetricsDescription.TIM;
+import static fiji.plugin.trackmate.ctc.CTCMetricsDescription.TRA;
+import static fiji.plugin.trackmate.ctc.CTCMetricsDescription.TRACKING_TIME;
+
+import java.util.EnumMap;
+
 public class CTCMetrics
 {
 
-	public final double seg;
-
-	public final double tra;
-
-	public final double det;
-
-	public final double ct;
-
-	public final double tf;
-
-	public final double bci;
-
-	public final double cca;
-
-	public final double tim;
-
-	public final double detectionTime;
-
-	public final double trackingTime;
+	private final EnumMap< CTCMetricsDescription, Double > values = new EnumMap<>( CTCMetricsDescription.class );
 
 	private CTCMetrics(
 			final double seg,
@@ -35,16 +30,29 @@ public class CTCMetrics
 			final double detectionTime,
 			final double trackingTime )
 	{
-		this.seg = seg;
-		this.tra = tra;
-		this.det = det;
-		this.ct = ct;
-		this.tf = tf;
-		this.bci = bci;
-		this.cca = cca;
-		this.tim = tim;
-		this.detectionTime = detectionTime;
-		this.trackingTime = trackingTime;
+		values.put( SEG, Double.valueOf( seg ) );
+		values.put( TRA, Double.valueOf( tra ) );
+		values.put( DET, Double.valueOf( det ) );
+		values.put( CT, Double.valueOf( ct ) );
+		values.put( TF, Double.valueOf( tf ) );
+		values.put( BC, Double.valueOf( bci ) );
+		values.put( CCA, Double.valueOf( cca ) );
+		values.put( TIM, Double.valueOf( tim ) );
+		values.put( DETECTION_TIME, Double.valueOf( detectionTime ) );
+		values.put( TRACKING_TIME, Double.valueOf( trackingTime ) );
+	}
+
+	public static final CTCMetrics fromCSVLine( final String[] line )
+	{
+		final CTCMetrics out = new CTCMetrics( Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+				Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN );
+
+		final CTCMetricsDescription[] vals = CTCMetricsDescription.values();
+		// Order is important but is validated with header elsewhere.
+		for ( int i = 0; i < vals.length; i++ )
+			out.values.put( vals[ i ], Double.valueOf( line[ i ] ) );
+
+		return out;
 	}
 
 	@Override
@@ -63,22 +71,31 @@ public class CTCMetrics
 
 	public double[] toArray()
 	{
-		return new double[] { seg, tra, det, ct, tf, cca, bci, tim, detectionTime, trackingTime };
+		return new double[] { values.get( SEG ),
+				values.get( TRA ),
+				values.get( DET ),
+				values.get( CT ),
+				values.get( TF ),
+				values.get( CCA ),
+				values.get( BC ),
+				values.get( TIM ),
+				values.get( DETECTION_TIME ),
+				values.get( TRACKING_TIME ) };
 	}
 
 	public Builder copyEdit()
 	{
 		final Builder builder = create();
-		builder.seg = this.seg;
-		builder.tra = this.tra;
-		builder.det = this.det;
-		builder.ct = this.ct;
-		builder.tf = this.tf;
-		builder.cca = this.cca;
-		builder.bci = this.bci;
-		builder.tim = this.tim;
-		builder.detectionTime = this.detectionTime;
-		builder.trackingTime = this.trackingTime;
+		builder.seg = values.get( SEG );
+		builder.tra = values.get( TRA );
+		builder.det = values.get( DET );
+		builder.ct = values.get( CT );
+		builder.tf = values.get( TF );
+		builder.cca = values.get( CCA );
+		builder.bci = values.get( BC );
+		builder.tim = values.get( TIM );
+		builder.detectionTime = values.get( DETECTION_TIME );
+		builder.trackingTime = values.get( TRACKING_TIME );
 		return builder;
 	}
 
