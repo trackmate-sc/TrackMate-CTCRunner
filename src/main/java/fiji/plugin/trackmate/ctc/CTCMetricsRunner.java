@@ -28,7 +28,6 @@ import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.action.CTCExporter;
 import fiji.plugin.trackmate.action.CTCExporter.ExportType;
-import fiji.plugin.trackmate.ctc.CTCMetricsProcessor.CTCMetrics;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.io.TmXmlReader;
@@ -239,12 +238,18 @@ public class CTCMetricsRunner
 			final String resultsFolder = CTCExporter.exportTrackingData( resultsRootPath.toString(), id, ExportType.RESULTS, trackmate, trackmateLogger );
 
 			// Perform CTC measurements.
-			final CTCMetrics metrics = ctc.process( gtPath, resultsFolder );
+			final CTCMetrics m = ctc.process( gtPath, resultsFolder );
+			// Add timing measurements.
+			final CTCMetrics metrics = m.copyEdit()
+					.detectionTime( detectionTiming )
+					.trackingTime( trackingTiming )
+					.tim( detectionTiming + trackingTiming )
+					.get();
 			batchLogger.log( metrics.toString() + '\n' );
 
 			// Write to CSV.
 			final String[] line1 = toCSVLine( settings, csvHeader1 );
-			final String[] line = metrics.concatWithCSVLine( line1, detectionTiming, trackingTiming );
+			final String[] line = metrics.concatWithCSVLine( line1 );
 
 			try (CSVWriter csvWriter = new CSVWriter( new FileWriter( csvFile, true ),
 					CSVWriter.DEFAULT_SEPARATOR,

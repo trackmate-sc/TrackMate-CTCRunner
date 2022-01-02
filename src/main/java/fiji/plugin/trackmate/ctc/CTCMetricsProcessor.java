@@ -80,99 +80,14 @@ public class CTCMetricsProcessor
 			ccaValue = Double.NaN;
 		}
 		final double bciValue = bci.calculate( groundTruthPath, resultsFolder, sharedCache );
-		return new CTCMetrics( segValue, traValue, detValue, ctValue, tfValue, bciValue, ccaValue );
-	}
-
-	public static class CTCMetrics
-	{
-
-		public final double seg;
-
-		public final double tra;
-
-		public final double det;
-
-		public final double ct;
-
-		public final double tf;
-
-		public final double bci;
-
-		public final double cca;
-
-		private CTCMetrics(
-				final double seg,
-				final double tra,
-				final double det,
-				final double ct,
-				final double tf,
-				final double bci,
-				final double cca )
-		{
-			this.seg = seg;
-			this.tra = tra;
-			this.det = det;
-			this.ct = ct;
-			this.tf = tf;
-			this.bci = bci;
-			this.cca = cca;
-		}
-
-		@Override
-		public String toString()
-		{
-			return "SEG: " + seg
-					+ "\nTRA: " + tra
-					+ "\nDET: " + det
-					+ "\nCT: " + ct
-					+ "\nTF: " + tf
-					+ "\nCCA: " + cca
-					+ "\nBCi: " + bci;
-		}
-
-		/**
-		 * Prepend the specified header with the CTC metrics header.
-		 * 
-		 * @param header
-		 *            the header to preprint.
-		 * @return a new String array.
-		 */
-		public static String[] concatWithCSVHeader( final String[] header )
-		{
-			final String[] out = new String[ header.length + 10 ];
-			out[ 0 ] = "SEG";
-			out[ 1 ] = "TRA";
-			out[ 2 ] = "DET";
-			out[ 3 ] = "CT";
-			out[ 4 ] = "TF";
-			out[ 5 ] = "CCA";
-			out[ 6 ] = "BC";
-			out[ 7 ] = "TIM";
-			out[ 8 ] = "DETECTION_TIME";
-			out[ 9 ] = "TRACKING_TIME";
-			for ( int i = 0; i < header.length; i++ )
-				out[ 10 + i ] = header[ i ];
-
-			return out;
-		}
-
-		public String[] concatWithCSVLine( final String[] content, final double detectionTime, final double trackingTime )
-		{
-			final String[] out = new String[ content.length + 10 ];
-			out[ 0 ] = "" + seg;
-			out[ 1 ] = "" + tra;
-			out[ 2 ] = "" + det;
-			out[ 3 ] = "" + ct;
-			out[ 4 ] = "" + tf;
-			out[ 5 ] = "" + cca;
-			out[ 6 ] = "" + bci;
-			out[ 7 ] = "" + ( detectionTime + trackingTime );
-			out[ 8 ] = "" + detectionTime;
-			out[ 9 ] = "" + trackingTime;
-			for ( int i = 0; i < content.length; i++ )
-				out[ 10 + i ] = content[ i ];
-
-			return out;
-		}
+		return CTCMetrics.create()
+				.seg( segValue )
+				.tra( traValue )
+				.det( detValue )
+				.ct( ctValue )
+				.tf( tfValue )
+				.bci( bciValue )
+				.cca( ccaValue )
+				.get();
 	}
 }
