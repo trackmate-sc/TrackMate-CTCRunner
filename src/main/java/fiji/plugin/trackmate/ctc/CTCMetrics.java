@@ -91,38 +91,26 @@ public class CTCMetrics
 	 */
 	public static String[] concatWithCSVHeader( final String[] header )
 	{
-		final String[] out = new String[ header.length + 10 ];
-		out[ 0 ] = "SEG";
-		out[ 1 ] = "TRA";
-		out[ 2 ] = "DET";
-		out[ 3 ] = "CT";
-		out[ 4 ] = "TF";
-		out[ 5 ] = "CCA";
-		out[ 6 ] = "BC";
-		out[ 7 ] = "TIM";
-		out[ 8 ] = "DETECTION_TIME";
-		out[ 9 ] = "TRACKING_TIME";
+		final CTCMetricsDescription[] vals = CTCMetricsDescription.values();
+		final String[] out = new String[ header.length + vals.length ];
+		for ( int i = 0; i < vals.length; i++ )
+			out[ i ] = vals[ i ].ctcName();
+
 		for ( int i = 0; i < header.length; i++ )
-			out[ 10 + i ] = header[ i ];
+			out[ vals.length + i ] = header[ i ];
 
 		return out;
 	}
 
 	public String[] concatWithCSVLine( final String[] content )
 	{
-		final String[] out = new String[ content.length + 10 ];
-		out[ 0 ] = "" + seg;
-		out[ 1 ] = "" + tra;
-		out[ 2 ] = "" + det;
-		out[ 3 ] = "" + ct;
-		out[ 4 ] = "" + tf;
-		out[ 5 ] = "" + cca;
-		out[ 6 ] = "" + bci;
-		out[ 7 ] = "" + ( detectionTime + trackingTime );
-		out[ 8 ] = "" + detectionTime;
-		out[ 9 ] = "" + trackingTime;
+		final double[] arr = toArray();
+		final String[] out = new String[ content.length + arr.length ];
+		for ( int i = 0; i < arr.length; i++ )
+			out[ i ] = Double.toString( arr[ i ] );
+
 		for ( int i = 0; i < content.length; i++ )
-			out[ 10 + i ] = content[ i ];
+			out[ arr.length + i ] = content[ i ];
 
 		return out;
 	}
