@@ -42,6 +42,11 @@ public class CTCMetrics
 		values.put( TRACKING_TIME, Double.valueOf( trackingTime ) );
 	}
 
+	public double get( final CTCMetricsDescription desc )
+	{
+		return values.get( desc );
+	}
+
 	public static final CTCMetrics fromCSVLine( final String[] line )
 	{
 		final CTCMetrics out = new CTCMetrics( Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
@@ -225,4 +230,5 @@ public class CTCMetrics
 			return new CTCMetrics( seg, tra, det, ct, tf, bci, cca, tim, detectionTime, trackingTime );
 		}
 	}
+
 }
