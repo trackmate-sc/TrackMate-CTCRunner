@@ -145,10 +145,11 @@ public class CTCMetricsRunner2
 		final String[] csvHeader1 = toCSVHeader( settings );
 
 		final int id = CTCExporter.getAvailableDatasetID( resultsRootPath.toString() );
+		final String resultsFolder = CTCExporter.getExportTrackingDataPath( resultsRootPath.toString(), id, ExportType.RESULTS, trackmate );
 		try
 		{
 			// Export to CTC files.
-			final String resultsFolder = CTCExporter.exportTrackingData( resultsRootPath.toString(), id, ExportType.RESULTS, trackmate, trackmateLogger );
+			CTCExporter.exportTrackingData( resultsRootPath.toString(), id, ExportType.RESULTS, trackmate, trackmateLogger );
 
 			// Perform CTC measurements.
 			batchLogger.log( "Performing CTC metrics measurements.\n" );
@@ -175,12 +176,43 @@ public class CTCMetricsRunner2
 				csvWriter.writeNext( line );
 			}
 
-			// Delete CTC export folder.
-			deleteFolder( resultsFolder );
 		}
 		catch ( final IOException | IllegalArgumentException e )
 		{
 			batchLogger.error( "Could not export tracking data to CTC files:\n" + e.getMessage() + '\n' );
+			// Write default values to CSV.
+			final String[] line1 = toCSVLine( settings, csvHeader1 );
+			final CTCMetrics metrics = CTCMetrics.create()
+					.seg( Double.NaN )
+					.tra( Double.NaN )
+					.det( Double.NaN )
+					.ct( Double.NaN )
+					.tf( Double.NaN )
+					.bci( Double.NaN )
+					.cca( Double.NaN )
+					.tim( Double.NaN )
+					.detectionTime( Double.NaN )
+					.trackingTime( Double.NaN )
+					.get();
+			final String[] line = metrics.concatWithCSVLine( line1 );
+			try (CSVWriter csvWriter = new CSVWriter( new FileWriter( csvFile, true ),
+					CSVWriter.DEFAULT_SEPARATOR,
+					CSVWriter.NO_QUOTE_CHARACTER,
+					CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+					CSVWriter.DEFAULT_LINE_END ))
+			{
+				csvWriter.writeNext( line );
+			}
+			catch ( final IOException e1 )
+			{
+				batchLogger.error( "Could not write failed results to CSV file:\n" + e1.getMessage() + '\n' );
+				e1.printStackTrace();
+			}
+		}
+		finally
+		{
+			// Delete CTC export folder.
+			deleteFolder( resultsFolder );
 		}
 	}
 
