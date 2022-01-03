@@ -14,6 +14,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -30,6 +31,7 @@ import com.itextpdf.text.Font;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Spot;
+import fiji.plugin.trackmate.ctc.CTCResultsCrawler;
 import fiji.plugin.trackmate.ctc.ui.components.FilterConfigPanel;
 import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModel;
 import fiji.plugin.trackmate.ctc.ui.trackers.TrackerSweepModel;
@@ -47,7 +49,7 @@ public class ParameterSweepPanel extends JPanel
 
 	private static final long serialVersionUID = 1L;
 
-	final JTextField tfGroundTruth;
+	private final JTextField tfGroundTruth;
 
 	final JTabbedPane tabbedPane;
 
@@ -67,11 +69,16 @@ public class ParameterSweepPanel extends JPanel
 
 	final JCheckBox chckbxSaveTrackMateFile;
 
+	final BestParamsPanel bestParamsPanel;
+
 	final Logger logger;
 
-	public ParameterSweepPanel( final ParameterSweepModel model )
+	final CTCResultsCrawler crawler;
+
+	public ParameterSweepPanel( final ParameterSweepModel model, final CTCResultsCrawler crawler )
 	{
 		this.model = model;
+		this.crawler = crawler;
 		final ImagePlus imp = model.getImage();
 		enabler = new EverythingDisablerAndReenabler( this, new Class[] { JLabel.class, JTabbedPane.class, LogPanel.class } );
 
@@ -88,6 +95,9 @@ public class ParameterSweepPanel extends JPanel
 		final LogPanel panelLog = new LogPanel();
 		this.logger = panelLog.getLogger();
 		tabbedPane.addTab( "Log", null, panelLog, null );
+
+		bestParamsPanel = new BestParamsPanel( crawler );
+		tabbedPane.addTab( "Best params", null, bestParamsPanel, null );
 
 		panelSpotFilters = new FilterConfigPanel( TrackMateObject.SPOTS, Spot.QUALITY, imp, model.spotFilters() );
 		tabbedPane.addTab( "Spot filters", null, panelSpotFilters, null );
@@ -491,11 +501,34 @@ public class ParameterSweepPanel extends JPanel
 					DialogType.LOAD,
 					SelectionMode.DIRECTORIES_ONLY );
 			if ( file != null )
-				tfGroundTruth.setText( file.getAbsolutePath() );
+				setGroundTruthPath( file );
 		}
 		finally
 		{
 			enabler.reenable();
 		}
+	}
+
+	public void setGroundTruthPath( final File file )
+	{
+		tfGroundTruth.setText( file.getAbsolutePath() );
+		model.setGroundTruthPath( file.getParent() );
+		crawler.reset();
+		try
+		{
+			crawler.crawl( file.getParent() );
+			bestParamsPanel.update();
+		}
+		catch ( final IOException e )
+		{
+			logger.error( "Error while crawling the folder " + file.getParent() + " for CSV results file:\n" );
+			logger.error( e.getMessage() );
+			e.printStackTrace();
+		}
+	}
+
+	public String getGroundThruthPath()
+	{
+		return tfGroundTruth.getText();
 	}
 }

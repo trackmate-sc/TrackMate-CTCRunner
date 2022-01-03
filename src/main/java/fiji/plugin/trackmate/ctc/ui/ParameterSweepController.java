@@ -13,6 +13,7 @@ import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.ctc.CTCMetricsRunner2;
+import fiji.plugin.trackmate.ctc.CTCResultsCrawler;
 import fiji.plugin.trackmate.ctc.ui.components.ParameterSweepModelIO;
 import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModel;
 import fiji.plugin.trackmate.ctc.ui.trackers.TrackerSweepModel;
@@ -33,11 +34,14 @@ public class ParameterSweepController implements Cancelable
 
 	private String cancelReason;
 
+	private final CTCResultsCrawler crawler;
+
 	public ParameterSweepController( final ImagePlus imp )
 	{
 		model = ParameterSweepModelIO.readFromDefault( imp );
+		crawler = new CTCResultsCrawler( Logger.DEFAULT_LOGGER );
 
-		gui = new ParameterSweepPanel( model );
+		gui = new ParameterSweepPanel( model, crawler );
 		gui.btnRun.addActionListener( e -> run() );
 		gui.btnStop.addActionListener( e -> cancel( "User pressed the stop button." ) );
 		gui.btnStop.setVisible( false );
@@ -76,7 +80,7 @@ public class ParameterSweepController implements Cancelable
 			{
 				try
 				{
-					final String gtPath = gui.tfGroundTruth.getText();
+					final String gtPath = gui.getGroundThruthPath();
 					final int targetChannel = gui.sliderChannel.getValue();
 					final Context context = TMUtils.getContext();
 					final CTCMetricsRunner2 runner = new CTCMetricsRunner2( model.getImage(), gtPath, context );
@@ -108,6 +112,17 @@ public class ParameterSweepController implements Cancelable
 									if ( isCanceled() )
 										return;
 
+									if ( crawler.isSettingsPresent( dts ) )
+									{
+										gui.logger.log( "Settings for detector " + dts.detectorFactory.getKey() + " with parameters:\n" );
+										gui.logger.log( TMUtils.echoMap( dts.detectorSettings, 2 ) );
+										gui.logger.log( "and tracker " + dts.trackerFactory.getKey() + " with parameters:\n" );
+										gui.logger.log( TMUtils.echoMap( dts.trackerSettings, 2 ) );
+										gui.logger.log( "were already tested. Skipping." );
+										gui.logger.log( "\n________________________________________\n" );
+										continue;
+									}
+
 									final Settings settings = trackmate.getSettings();
 									settings.trackerFactory = dts.trackerFactory;
 									settings.trackerSettings = dts.trackerSettings;
@@ -118,6 +133,9 @@ public class ParameterSweepController implements Cancelable
 
 									// Perform and save CTC metrics measurements.
 									runner.performCTCMetricsMeasurements( trackmate, detectionTiming, trackingTiming );
+
+									// Update best results.
+									ParameterSweepController.this.setGroundTruthPath( gtPath );
 
 									// Save TrackMate file if required.
 									if ( saveEachTime )
@@ -194,6 +212,6 @@ public class ParameterSweepController implements Cancelable
 
 	public void setGroundTruthPath( final String groundTruthPath )
 	{
-		gui.tfGroundTruth.setText( groundTruthPath );
+		gui.setGroundTruthPath( new File( groundTruthPath ) );
 	}
 }
