@@ -17,6 +17,7 @@ import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
 
 import fiji.plugin.trackmate.Logger;
+import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.ctc.CTCResults.Builder;
 import net.imglib2.util.ValuePair;
 
@@ -153,5 +154,51 @@ public class CTCResultsCrawler
 					.filter( f -> f.endsWith( fileExtension ) )
 					.collect( Collectors.toList() );
 		}
+	}
+
+	public boolean isSettingsPresent( final Settings settings )
+	{
+		for ( final CTCResults results : tables.values() )
+		{
+			// Test detector.
+			final int ntests = results.size();
+			for ( int i = 0; i < ntests; i++ )
+			{
+				final String detectorKey = results.getDetector( i );
+				if ( !detectorKey.equals( settings.detectorFactory.getKey() ) )
+					continue;
+				// Detectors are equal.
+
+				final Map< String, Object > ds = settings.detectorSettings;
+				final Map< String, String > dp = results.getDetectorParams( i );
+				for ( final String key : ds.keySet() )
+				{
+					final Object o1 = ds.get( key );
+					final String o2 = dp.get( key );
+					if ( !o1.toString().equals( o2 ) )
+						continue;
+				}
+				// Detector params are equal.
+
+				final String trackerKey = results.getTracker( i );
+				if ( !trackerKey.equals( settings.trackerFactory.getKey() ) )
+					continue;
+				// Tracker are equal.
+
+				final Map< String, Object > ts = settings.trackerSettings;
+				final Map< String, String > tp = results.getTrackerParams( i );
+				for ( final String key : ts.keySet() )
+				{
+					final Object o1 = ts.get( key );
+					final String o2 = tp.get( key );
+					if ( !o1.toString().equals( o2 ) )
+						continue;
+				}
+				// Tracker params are equal.
+
+				return true;
+			}
+		}
+		return false;
 	}
 }
