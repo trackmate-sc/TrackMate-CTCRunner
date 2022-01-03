@@ -45,7 +45,7 @@ public class TrackerSweepModel extends AbstractSweepModel< SpotTrackerFactory >
 			for ( final Object val : model.getRange() )
 			{
 				final Settings copy = s.copyOn( s.imp );
-				copy.detectorSettings.put( key, val );
+				copy.trackerSettings.put( key, val );
 				out.add( copy );
 			}
 
