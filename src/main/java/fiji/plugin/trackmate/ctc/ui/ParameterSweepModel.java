@@ -43,6 +43,8 @@ public class ParameterSweepModel
 
 	private final List< FeatureFilter > trackFilters = new ArrayList<>();
 
+	private String groundTruthPath;
+
 	private ParameterSweepModel()
 	{
 		modelListeners = new Listeners.SynchronizedList<>();
@@ -209,6 +211,16 @@ public class ParameterSweepModel
 	public void setImage( final ImagePlus imp )
 	{
 		this.imp = imp;
+	}
+
+	public void setGroundTruthPath( final String groundTruthPath )
+	{
+		this.groundTruthPath = groundTruthPath;
+	}
+
+	public String getGroundTruthPath()
+	{
+		return groundTruthPath;
 	}
 
 	public List< FeatureFilter > spotFilters()
