@@ -88,6 +88,7 @@ public class SweepPanel extends JPanel
 			lblInfo.setText( str );
 		};
 		infoListener.modelChanged();
+		model.listeners().add( infoListener );
 	}
 
 	private static final JPanel createPanelFor( final AbstractParamSweepModel< ? > cm )
