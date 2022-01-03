@@ -33,57 +33,78 @@ import ij.ImagePlus;
 public class ParameterSweepModelIO
 {
 
+	private static File defaultSaveFile = new File( new File( System.getProperty( "user.home" ), ".trackmate" ), "ctcrunnersettings.json" );
 
+	/**
+	 * Makes a file object that will save settings in the folder containing the
+	 * specified ground-truth folder.
+	 * 
+	 * @param groundTruthPath
+	 *            the ground-truth folder.
+	 * @return a {@link File}.
+	 */
+	public static File makeSettingsFileForGTPath( final String groundTruthPath )
+	{
+		return new File( new File( groundTruthPath ).getParent(), "ctcrunnersettings.json" );
+	}
 
-	private static File saveFile = new File( new File( System.getProperty( "user.home" ), ".trackmate" ), "ctcrunnersettings.json" );
-
-	public static void saveToDefault( final ParameterSweepModel model )
+	public static void saveTo( final File modelFile, final ParameterSweepModel model )
 	{
 		final String str = toJson( model );
 
-		if ( !saveFile.exists() )
-			saveFile.getParentFile().mkdirs();
+		if ( !modelFile.exists() )
+			modelFile.getParentFile().mkdirs();
 
-		try (FileWriter writer = new FileWriter( saveFile ))
+		try (FileWriter writer = new FileWriter( modelFile ))
 		{
 			writer.append( str );
 		}
 		catch ( final IOException e )
 		{
-			System.err.println( "Could not write the default settings to " + saveFile );
+			System.err.println( "Could not write the settings to " + modelFile );
 			e.printStackTrace();
 		}
 	}
 
-	public static ParameterSweepModel readFromDefault( final ImagePlus imp )
+	public static void saveToDefault( final ParameterSweepModel model )
 	{
-		if ( !saveFile.exists() )
+		saveTo( defaultSaveFile, model );
+	}
+
+	public static ParameterSweepModel readFrom( final File modelFile, final ImagePlus imp )
+	{
+		if ( !modelFile.exists() )
 		{
 			final ParameterSweepModel model = new ParameterSweepModel( imp );
 			saveToDefault( model );
 			return model;
 		}
 
-		try (FileReader reader = new FileReader( saveFile ))
+		try (FileReader reader = new FileReader( modelFile ))
 		{
-			final String str = Files.lines( Paths.get( saveFile.getAbsolutePath() ) )
+			final String str = Files.lines( Paths.get( modelFile.getAbsolutePath() ) )
 					.collect( Collectors.joining( System.lineSeparator() ) );
 
 			return fromJson( str, imp );
 		}
 		catch ( final FileNotFoundException e )
 		{
-			System.err.println( "Could not find the user default settings file: " + saveFile
+			System.err.println( "Could not find the settings file: " + modelFile
 					+ ". Using built-in default setting." );
 			e.printStackTrace();
 		}
 		catch ( final IOException e )
 		{
-			System.err.println( "Could not read the user default settings file: " + saveFile
+			System.err.println( "Could not read the settings file: " + modelFile
 					+ ". Using built-in default setting." );
 			e.printStackTrace();
 		}
 		return new ParameterSweepModel( imp );
+	}
+
+	public static ParameterSweepModel readFromDefault( final ImagePlus imp )
+	{
+		return readFrom( defaultSaveFile, imp );
 	}
 
 	private static Gson getGson()
