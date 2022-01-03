@@ -20,11 +20,16 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.JViewport;
 import javax.swing.border.EmptyBorder;
 
 import com.itextpdf.text.Font;
@@ -80,7 +85,15 @@ public class ParameterSweepPanel extends JPanel
 		this.model = model;
 		this.crawler = crawler;
 		final ImagePlus imp = model.getImage();
-		enabler = new EverythingDisablerAndReenabler( this, new Class[] { JLabel.class, JTabbedPane.class, LogPanel.class } );
+		enabler = new EverythingDisablerAndReenabler( this, new Class[] {
+				JLabel.class,
+				JTabbedPane.class,
+				LogPanel.class,
+				JTextArea.class,
+				JTextPane.class,
+				JScrollPane.class,
+				JScrollBar.class,
+				JViewport.class } );
 
 		setLayout( new BorderLayout( 5, 5 ) );
 
