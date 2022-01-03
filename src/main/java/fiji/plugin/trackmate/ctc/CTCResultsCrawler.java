@@ -162,7 +162,7 @@ public class CTCResultsCrawler
 		{
 			// Test detector.
 			final int ntests = results.size();
-			for ( int i = 0; i < ntests; i++ )
+			LINE: for ( int i = 0; i < ntests; i++ )
 			{
 				final String detectorKey = results.getDetector( i );
 				if ( !detectorKey.equals( settings.detectorFactory.getKey() ) )
@@ -176,7 +176,7 @@ public class CTCResultsCrawler
 					final Object o1 = ds.get( key );
 					final String o2 = dp.get( key );
 					if ( !o1.toString().equals( o2 ) )
-						continue;
+						continue LINE;
 				}
 				// Detector params are equal.
 
@@ -192,7 +192,7 @@ public class CTCResultsCrawler
 					final Object o1 = ts.get( key );
 					final String o2 = tp.get( key );
 					if ( !o1.toString().equals( o2 ) )
-						continue;
+						continue LINE;
 				}
 				// Tracker params are equal.
 
