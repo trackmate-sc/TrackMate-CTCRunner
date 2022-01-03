@@ -103,6 +103,16 @@ public class CTCResults
 		return trackers.get( line );
 	}
 
+	public Map< String, String > getDetectorParams( final int line )
+	{
+		return detectorParams.get( line );
+	}
+
+	public Map< String, String > getTrackerParams( final int line )
+	{
+		return trackerParams.get( line );
+	}
+
 	@Override
 	public String toString()
 	{
@@ -289,4 +299,5 @@ public class CTCResults
 
 		return true;
 	}
+
 }
