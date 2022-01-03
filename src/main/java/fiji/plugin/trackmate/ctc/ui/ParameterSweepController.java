@@ -112,21 +112,23 @@ public class ParameterSweepController implements Cancelable
 									if ( isCanceled() )
 										return;
 
+									gui.logger.setProgress( ( double ) ++progress / count );
+									gui.logger.log( "________________________________________\n" );
+
 									if ( crawler.isSettingsPresent( dts ) )
 									{
 										gui.logger.log( "Settings for detector " + dts.detectorFactory.getKey() + " with parameters:\n" );
 										gui.logger.log( TMUtils.echoMap( dts.detectorSettings, 2 ) );
 										gui.logger.log( "and tracker " + dts.trackerFactory.getKey() + " with parameters:\n" );
 										gui.logger.log( TMUtils.echoMap( dts.trackerSettings, 2 ) );
-										gui.logger.log( "were already tested. Skipping." );
-										gui.logger.log( "\n________________________________________\n" );
+										gui.logger.log( "were already tested. Skipping.\n" );
 										continue;
 									}
 
 									final Settings settings = trackmate.getSettings();
 									settings.trackerFactory = dts.trackerFactory;
 									settings.trackerSettings = dts.trackerSettings;
-									gui.logger.setStatus( dts.trackerFactory.getName() );
+									gui.logger.setStatus( settings.detectorFactory.getName() + " + " + settings.trackerFactory.getName() );
 
 									// Exec tracking.
 									final double trackingTiming = runner.execTracking( trackmate );
@@ -168,8 +170,6 @@ public class ParameterSweepController implements Cancelable
 											e.printStackTrace();
 										}
 									}
-
-									gui.logger.setProgress( ( double ) ++progress / count );
 								}
 							}
 						}
