@@ -6,8 +6,15 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import fiji.plugin.trackmate.Dimension;
+
 public class IntParamSweepModel extends NumberParamSweepModel
 {
+
+	public IntParamSweepModel()
+	{
+		manualRange.addAll( Arrays.asList( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ) );
+	}
 
 	@Override
 	public List< Number > getRange()
@@ -62,6 +69,12 @@ public class IntParamSweepModel extends NumberParamSweepModel
 	}
 
 	@Override
+	public IntParamSweepModel dimension( final Dimension dimension )
+	{
+		return ( IntParamSweepModel ) super.dimension( dimension );
+	}
+
+	@Override
 	public IntParamSweepModel rangeType( final RangeType rangeType )
 	{
 		return ( IntParamSweepModel ) super.rangeType( rangeType );
@@ -72,7 +85,8 @@ public class IntParamSweepModel extends NumberParamSweepModel
 		final List< Number > list = Arrays.asList( vals );
 		if ( !this.manualRange.equals( list ) )
 		{
-			this.manualRange = list;
+			this.manualRange.clear();
+			this.manualRange.addAll( list );
 			notifyListeners();
 		}
 		return this;

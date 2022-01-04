@@ -31,7 +31,7 @@ public class SweepPanel extends JPanel
 
 	private static final long serialVersionUID = 1L;
 
-	public SweepPanel( final AbstractSweepModel< ? > model )
+	public SweepPanel( final AbstractSweepModel< ? > model, final String spaceUnits, final String timeUnits )
 	{
 		setBorder( BorderFactory.createEmptyBorder( 5, 5, 5, 5 ) );
 		setLayout( new BorderLayout() );
@@ -60,7 +60,7 @@ public class SweepPanel extends JPanel
 		// Model components.
 		for ( final AbstractParamSweepModel< ? > cm : model.models.values() )
 		{
-			final JPanel p = createPanelFor( cm );
+			final JPanel p = createPanelFor( cm, spaceUnits, timeUnits );
 			mainPanel.add( p, c );
 			c.gridy++;
 
@@ -91,12 +91,12 @@ public class SweepPanel extends JPanel
 		model.listeners().add( infoListener );
 	}
 
-	private static final JPanel createPanelFor( final AbstractParamSweepModel< ? > cm )
+	private static final JPanel createPanelFor( final AbstractParamSweepModel< ? > cm, final String spaceUnits, final String timeUnits )
 	{
 		if ( cm instanceof BooleanParamSweepModel )
 			return new BooleanRangeSweepPanel( ( BooleanParamSweepModel ) cm );
 		else if ( cm instanceof NumberParamSweepModel )
-			return new NumberRangeSweepPanel( ( NumberParamSweepModel ) cm );
+			return new NumberRangeSweepPanel( ( NumberParamSweepModel ) cm, spaceUnits, timeUnits );
 		else if ( cm instanceof StringRangeParamSweepModel )
 			return new StringRangeParamSweepPanel( ( StringRangeParamSweepModel ) cm );
 		else if ( cm instanceof EnumParamSweepModel< ? > )

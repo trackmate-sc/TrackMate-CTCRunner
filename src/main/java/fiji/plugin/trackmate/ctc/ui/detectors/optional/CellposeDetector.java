@@ -1,5 +1,6 @@
 package fiji.plugin.trackmate.ctc.ui.detectors.optional;
 
+import fiji.plugin.trackmate.Dimension;
 import fiji.plugin.trackmate.cellpose.CellposeDetectorFactory;
 import fiji.plugin.trackmate.cellpose.CellposeSettings.PretrainedModel;
 import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel;
@@ -14,7 +15,7 @@ import fiji.plugin.trackmate.detection.ThresholdDetectorFactory;
 
 public class CellposeDetector
 {
-	public static DetectorSweepModel cellposeDetectorModel( final String units )
+	public static DetectorSweepModel cellposeDetectorModel()
 	{
 		final StringRangeParamSweepModel cellposePath = new StringRangeParamSweepModel()
 				.paramName( "Cellpose Python path" )
@@ -36,7 +37,7 @@ public class CellposeDetector
 				.max( 4 );
 		final DoubleParamSweepModel cellDiameter = new DoubleParamSweepModel()
 				.paramName( "Cell diameter" )
-				.units( units )
+				.dimension( Dimension.LENGTH )
 				.rangeType( RangeType.FIXED )
 				.min( 0. )
 				.max( 50. );

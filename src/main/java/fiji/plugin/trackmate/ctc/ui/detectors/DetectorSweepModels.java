@@ -1,5 +1,6 @@
 package fiji.plugin.trackmate.ctc.ui.detectors;
 
+import fiji.plugin.trackmate.Dimension;
 import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.DoubleParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel.RangeType;
@@ -63,21 +64,21 @@ public class DetectorSweepModels
 				.get();
 	}
 
-	public static DetectorSweepModel logDetectorModel( final String spaceUnits )
+	public static DetectorSweepModel logDetectorModel()
 	{
-		return dlogDetectorModel( new LogDetectorFactory<>(), spaceUnits );
+		return dlogDetectorModel( new LogDetectorFactory<>() );
 	}
 
-	public static DetectorSweepModel dogDetectorModel( final String spaceUnits )
+	public static DetectorSweepModel dogDetectorModel()
 	{
-		return dlogDetectorModel( new DogDetectorFactory<>(), spaceUnits );
+		return dlogDetectorModel( new DogDetectorFactory<>() );
 	}
 
-	private static DetectorSweepModel dlogDetectorModel( final SpotDetectorFactory< ? > factory, final String spaceUnits )
+	private static DetectorSweepModel dlogDetectorModel( final SpotDetectorFactory< ? > factory )
 	{
 		final DoubleParamSweepModel estimatedRadius = new DoubleParamSweepModel()
 				.paramName( "Estimated radius" )
-				.units( spaceUnits )
+				.dimension( Dimension.LENGTH )
 				.rangeType( RangeType.FIXED )
 				.min( 5. );
 		final DoubleParamSweepModel threshold = new DoubleParamSweepModel()

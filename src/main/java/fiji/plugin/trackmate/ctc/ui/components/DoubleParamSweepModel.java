@@ -5,8 +5,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import fiji.plugin.trackmate.Dimension;
+
 public class DoubleParamSweepModel extends NumberParamSweepModel
 {
+
+	public DoubleParamSweepModel()
+	{
+		manualRange.addAll( Arrays.asList( 1., 2., 3., 4., 5., 6., 7., 8., 9., 10. ) );
+	}
 
 	@Override
 	public List< Number > getRange()
@@ -55,7 +62,8 @@ public class DoubleParamSweepModel extends NumberParamSweepModel
 		final List< Number > list = Arrays.asList( vals );
 		if ( !this.manualRange.equals( list ) )
 		{
-			this.manualRange = list;
+			this.manualRange.clear();
+			this.manualRange.addAll( list );
 			notifyListeners();
 		}
 		return this;
@@ -68,9 +76,9 @@ public class DoubleParamSweepModel extends NumberParamSweepModel
 	}
 
 	@Override
-	public DoubleParamSweepModel units( final String units )
+	public DoubleParamSweepModel dimension( final Dimension dimension )
 	{
-		return ( DoubleParamSweepModel ) super.units( units );
+		return ( DoubleParamSweepModel ) super.dimension( dimension );
 	}
 
 	@Override

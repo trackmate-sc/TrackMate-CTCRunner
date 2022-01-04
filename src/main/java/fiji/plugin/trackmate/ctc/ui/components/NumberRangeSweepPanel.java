@@ -30,6 +30,7 @@ import javax.swing.event.ChangeListener;
 
 import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel.RangeType;
 import fiji.plugin.trackmate.gui.Fonts;
+import fiji.plugin.trackmate.util.TMUtils;
 
 public class NumberRangeSweepPanel extends JPanel
 {
@@ -56,9 +57,11 @@ public class NumberRangeSweepPanel extends JPanel
 
 	private final JSpinner spinnerNSteps;
 
-	public NumberRangeSweepPanel( final NumberParamSweepModel val )
+	public NumberRangeSweepPanel( final NumberParamSweepModel val, final String spaceUnits, final String timeUnits )
 	{
 		this.values = val;
+		final String units = TMUtils.getUnitsFor( val.dimension, spaceUnits, timeUnits );
+
 		setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
 		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 80, 0, 0, 80, 0, 0, 0, 0, 0 };
@@ -114,7 +117,7 @@ public class NumberRangeSweepPanel extends JPanel
 		gbcLblUnit1.insets = new Insets( 0, 0, 5, 5 );
 		gbcLblUnit1.gridx = 2;
 		gbcLblUnit1.gridy = 2;
-		add( new JLabel( val.units ), gbcLblUnit1 );
+		add( new JLabel( units ), gbcLblUnit1 );
 
 		final GridBagConstraints gbcLblTo = new GridBagConstraints();
 		gbcLblTo.anchor = GridBagConstraints.EAST;
@@ -137,7 +140,7 @@ public class NumberRangeSweepPanel extends JPanel
 		gbcLblUnit2.insets = new Insets( 0, 0, 5, 5 );
 		gbcLblUnit2.gridx = 5;
 		gbcLblUnit2.gridy = 2;
-		add( new JLabel( val.units ), gbcLblUnit2 );
+		add( new JLabel( units ), gbcLblUnit2 );
 
 		final GridBagConstraints gbcLblIn = new GridBagConstraints();
 		gbcLblIn.insets = new Insets( 0, 0, 5, 5 );
@@ -204,7 +207,7 @@ public class NumberRangeSweepPanel extends JPanel
 		gbcLblUnit3.insets = new Insets( 0, 0, 0, 5 );
 		gbcLblUnit3.gridx = 5;
 		gbcLblUnit3.gridy = 5;
-		add( new JLabel( val.units ), gbcLblUnit3 );
+		add( new JLabel( units ), gbcLblUnit3 );
 
 		// Fonts.
 		GuiUtils.changeFont( this, Fonts.SMALL_FONT );
@@ -367,7 +370,7 @@ public class NumberRangeSweepPanel extends JPanel
 		model1.listeners().add( () -> System.out.println( model1 ) );
 
 		final JFrame frame1 = new JFrame();
-		frame1.getContentPane().add( new NumberRangeSweepPanel( model1 ) );
+		frame1.getContentPane().add( new NumberRangeSweepPanel( model1, "um", "s" ) );
 		frame1.pack();
 		frame1.setLocationRelativeTo( null );
 		frame1.setVisible( true );
@@ -376,7 +379,7 @@ public class NumberRangeSweepPanel extends JPanel
 		model2.listeners().add( () -> System.out.println( model2 ) );
 
 		final JFrame frame2 = new JFrame();
-		frame2.getContentPane().add( new NumberRangeSweepPanel( model2 ) );
+		frame2.getContentPane().add( new NumberRangeSweepPanel( model2, "km", "hour" ) );
 		frame2.pack();
 		frame2.setLocationRelativeTo( null );
 		frame2.setVisible( true );

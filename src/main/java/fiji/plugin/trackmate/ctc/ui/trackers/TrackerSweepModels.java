@@ -1,5 +1,6 @@
 package fiji.plugin.trackmate.ctc.ui.trackers;
 
+import fiji.plugin.trackmate.Dimension;
 import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.DoubleParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.EnumParamSweepModel;
@@ -44,11 +45,11 @@ public class TrackerSweepModels
 				.get();
 	}
 
-	public static final TrackerSweepModel nearestNeighborTrackerModel( final String units )
+	public static final TrackerSweepModel nearestNeighborTrackerModel()
 	{
 		final DoubleParamSweepModel initSearchParam = new DoubleParamSweepModel()
 				.paramName( "Max linking distance" )
-				.units( units )
+				.dimension( Dimension.LENGTH )
 				.min( 10. )
 				.max( 20. )
 				.nSteps( 3 )
@@ -61,18 +62,18 @@ public class TrackerSweepModels
 				.get();
 	}
 
-	public static final TrackerSweepModel kalmanTrackerModel( final String units )
+	public static final TrackerSweepModel kalmanTrackerModel()
 	{
 		final DoubleParamSweepModel initSearchParam = new DoubleParamSweepModel()
 				.paramName( "Initial search radius" )
-				.units( units )
+				.dimension( Dimension.LENGTH )
 				.min( 10. )
 				.max( 20. )
 				.nSteps( 3 )
 				.rangeType( RangeType.LIN_RANGE );
 		final DoubleParamSweepModel searchRadiusParam = new DoubleParamSweepModel()
 				.paramName( "Search radius" )
-				.units( units )
+				.dimension( Dimension.LENGTH )
 				.min( 15. )
 				.max( 25. )
 				.nSteps( 3 )
@@ -91,18 +92,18 @@ public class TrackerSweepModels
 				.get();
 	}
 
-	public static final TrackerSweepModel simpleLAPTrackerModel( final String units )
+	public static final TrackerSweepModel simpleLAPTrackerModel()
 	{
 		final DoubleParamSweepModel maxLinkingDistanceParam = new DoubleParamSweepModel()
 				.paramName( "Max linking distance" )
-				.units( units )
+				.dimension( Dimension.LENGTH )
 				.min( 10. )
 				.max( 20. )
 				.nSteps( 3 )
 				.rangeType( RangeType.LIN_RANGE );
 		final DoubleParamSweepModel gapClosingDistanceParam = new DoubleParamSweepModel()
 				.paramName( "Gap-closing distance" )
-				.units( units )
+				.dimension( Dimension.LENGTH )
 				.min( 15. )
 				.max( 25. )
 				.nSteps( 3 )
@@ -121,11 +122,11 @@ public class TrackerSweepModels
 				.get();
 	}
 
-	public static final TrackerSweepModel lapTrackerModel( final String units )
+	public static final TrackerSweepModel lapTrackerModel()
 	{
 		final DoubleParamSweepModel maxLinkingDistanceParam = new DoubleParamSweepModel()
 				.paramName( "Max linking distance" )
-				.units( units )
+				.dimension( Dimension.LENGTH )
 				.min( 10. )
 				.max( 20. )
 				.nSteps( 3 )
@@ -137,7 +138,7 @@ public class TrackerSweepModels
 				.rangeType( fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel.RangeType.FIXED );
 		final DoubleParamSweepModel gapClosingDistanceParam = new DoubleParamSweepModel()
 				.paramName( "Gap-closing distance" )
-				.units( units )
+				.dimension( Dimension.LENGTH )
 				.min( 15. )
 				.max( 25. )
 				.nSteps( 3 )
@@ -153,7 +154,7 @@ public class TrackerSweepModels
 				.rangeType( fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel.RangeType.FIXED );
 		final DoubleParamSweepModel splittingMaxDistanceParam = new DoubleParamSweepModel()
 				.paramName( "Splitting max distance" )
-				.units( units )
+				.dimension( Dimension.LENGTH )
 				.min( 15. )
 				.max( 25. )
 				.nSteps( 3 )
@@ -165,7 +166,7 @@ public class TrackerSweepModels
 				.rangeType( fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel.RangeType.FIXED );
 		final DoubleParamSweepModel mergingMaxDistanceParam = new DoubleParamSweepModel()
 				.paramName( "Merging max distance" )
-				.units( units )
+				.dimension( Dimension.LENGTH )
 				.min( 15. )
 				.max( 25. )
 				.nSteps( 3 )

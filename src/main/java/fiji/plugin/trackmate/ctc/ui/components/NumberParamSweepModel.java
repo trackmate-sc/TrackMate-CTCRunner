@@ -1,7 +1,10 @@
 package fiji.plugin.trackmate.ctc.ui.components;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import fiji.plugin.trackmate.Dimension;
 
 public abstract class NumberParamSweepModel extends AbstractParamSweepModel< Number >
 {
@@ -24,7 +27,7 @@ public abstract class NumberParamSweepModel extends AbstractParamSweepModel< Num
 		}
 	}
 
-	protected String units = "";
+	protected Dimension dimension = Dimension.NONE;
 
 	protected RangeType rangeType = RangeType.LIN_RANGE;
 
@@ -34,16 +37,16 @@ public abstract class NumberParamSweepModel extends AbstractParamSweepModel< Num
 
 	protected int nSteps = 10;
 
-	protected List< Number > manualRange = Arrays.asList( 1., 2., 3., 4., 5., 6., 7., 8., 9., 10. );
+	protected final List< Number > manualRange = new ArrayList<>();
 
 	@Override
 	public abstract List< Number > getRange();
 
-	public NumberParamSweepModel units( final String units )
+	public NumberParamSweepModel dimension( final Dimension dimension )
 	{
-		if ( !this.units.equals( units ) )
+		if ( !this.dimension.equals( dimension ) )
 		{
-			this.units = units;
+			this.dimension = dimension;
 			notifyListeners();
 		}
 		return this;
@@ -79,7 +82,7 @@ public abstract class NumberParamSweepModel extends AbstractParamSweepModel< Num
 					+ " - type: %s\n"
 					+ " - value: %s",
 					paramName,
-					units,
+					dimension.toString(),
 					rangeType,
 					min );
 		case LIN_RANGE:
@@ -91,7 +94,7 @@ public abstract class NumberParamSweepModel extends AbstractParamSweepModel< Num
 					+ " - nSteps: %d\n"
 					+ " - values: %s",
 					paramName,
-					units,
+					dimension.toString(),
 					rangeType,
 					min,
 					max,
@@ -102,7 +105,7 @@ public abstract class NumberParamSweepModel extends AbstractParamSweepModel< Num
 					+ " - type: %s\n"
 					+ " - values: %s",
 					paramName,
-					units,
+					dimension.toString(),
 					rangeType,
 					Arrays.toString( getRange().toArray() ) );
 		default:
