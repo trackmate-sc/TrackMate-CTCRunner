@@ -75,7 +75,7 @@ public class ParameterSweepModelIO
 		if ( !modelFile.exists() )
 		{
 			final ParameterSweepModel model = new ParameterSweepModel();
-			saveToDefault( model );
+			saveTo( modelFile, model );
 			return model;
 		}
 
@@ -231,7 +231,7 @@ public class ParameterSweepModelIO
 			{
 				@SuppressWarnings( "unchecked" )
 				final Class< T > enumClass = ( Class< T > ) Class.forName( enumClassStr );
-				final EnumParamSweepModel< T > model = new EnumParamSweepModel< >( enumClass );
+				final EnumParamSweepModel< T > model = new EnumParamSweepModel<>( enumClass );
 				model.paramName( obj.get( "paramName" ).getAsString() );
 				model.fixedValue( Enum.valueOf( enumClass, obj.get( "fixedValue" ).getAsString() ) );
 				model.rangeType( Enum.valueOf( RangeType.class, obj.get( "rangeType" ).getAsString() ) );
@@ -263,7 +263,7 @@ public class ParameterSweepModelIO
 					src.fixedValue.getClass(),
 					src.fixedValue.getClass(),
 					context ) );
-			
+
 			return obj;
 		}
 	}
