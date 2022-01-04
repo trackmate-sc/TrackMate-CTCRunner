@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
+import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -234,11 +235,23 @@ public class NumberRangeSweepPanel extends JPanel
 		ftfFixedValue.addPropertyChangeListener( "value", pcl );
 		final ChangeListener cl = e -> update();
 		spinnerNumberModel.addChangeListener( cl );
-		final ItemListener il = e -> update();
+
+		final ItemListener il = new ItemListener()
+		{
+
+			@Override
+			public void itemStateChanged( final ItemEvent e )
+			{
+				// Only fire once for the one who gets selected.
+				if ( e.getStateChange() == ItemEvent.SELECTED )
+					update();
+			}
+		};
 		rdbtnFixed.addItemListener( il );
 		rdbtnRane.addItemListener( il );
 		rdbtnManualRange.addItemListener( il );
-		chckbxLog.addItemListener( il );
+		chckbxLog.addItemListener( e -> update() );
+
 		final ActionListener al = e -> update();
 		tfValues.addActionListener( al );
 		final FocusAdapter fa = new FocusAdapter()

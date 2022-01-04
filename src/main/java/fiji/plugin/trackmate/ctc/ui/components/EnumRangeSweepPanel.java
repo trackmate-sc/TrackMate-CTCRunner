@@ -6,6 +6,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.List;
 import java.util.Vector;
@@ -155,7 +156,17 @@ public class EnumRangeSweepPanel< T extends Enum< T > > extends JPanel
 		// Listeners.
 		btnAdd.addActionListener( e -> addEnum() );
 		btnRemove.addActionListener( e -> removeEnum() );
-		final ItemListener il = e -> update();
+		final ItemListener il = new ItemListener()
+		{
+
+			@Override
+			public void itemStateChanged( final ItemEvent e )
+			{
+				// Only fire once for the one who gets selected.
+				if ( e.getStateChange() == ItemEvent.SELECTED )
+					update();
+			}
+		};
 		rdbtnFixed.addItemListener( il );
 		rdbtnTestAll.addItemListener( il );
 		rdbtnListValues.addItemListener( il );

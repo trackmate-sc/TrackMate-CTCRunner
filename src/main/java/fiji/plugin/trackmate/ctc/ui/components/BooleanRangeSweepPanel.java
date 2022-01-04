@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 import javax.swing.ButtonGroup;
@@ -98,7 +99,17 @@ public class BooleanRangeSweepPanel extends JPanel
 		update();
 
 		// Listeners.
-		final ItemListener il = e -> update();
+		final ItemListener il = new ItemListener()
+		{
+
+			@Override
+			public void itemStateChanged( final ItemEvent e )
+			{
+				// Only fire once for the one who gets selected.
+				if ( e.getStateChange() == ItemEvent.SELECTED )
+					update();
+			}
+		};
 		rdbtnFixed.addItemListener( il );
 		rdbtnTestAll.addItemListener( il );
 		rdbtnFalse.addItemListener( il );
