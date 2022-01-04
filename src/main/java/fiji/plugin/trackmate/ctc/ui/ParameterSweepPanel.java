@@ -68,8 +68,6 @@ public class ParameterSweepPanel extends JPanel
 
 	final JCheckBox chckbxSaveTrackMateFile;
 
-	final BestParamsPanel bestParamsPanel;
-
 	final Logger logger;
 
 	final CTCResultsCrawler crawler;
@@ -107,7 +105,7 @@ public class ParameterSweepPanel extends JPanel
 		this.logger = panelLog.getLogger();
 		tabbedPane.addTab( "Log", null, panelLog, null );
 
-		bestParamsPanel = new BestParamsPanel( crawler );
+		final CrawlerResultsPanel bestParamsPanel = new CrawlerResultsPanel( crawler );
 		tabbedPane.addTab( "Best params", null, bestParamsPanel, null );
 
 		panelSpotFilters = new FilterConfigPanel( TrackMateObject.SPOTS, Spot.QUALITY, imp, model.spotFilters() );

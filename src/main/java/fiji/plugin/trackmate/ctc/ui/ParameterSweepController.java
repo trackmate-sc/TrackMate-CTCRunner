@@ -58,7 +58,6 @@ public class ParameterSweepController implements Cancelable
 		try
 		{
 			crawler.crawl( saveFolder.getAbsolutePath() );
-			gui.bestParamsPanel.update();
 		}
 		catch ( final IOException e )
 		{
@@ -163,7 +162,6 @@ public class ParameterSweepController implements Cancelable
 									try
 									{
 										crawler.crawl( gtPathFile.getParent() );
-										gui.bestParamsPanel.update();
 									}
 									catch ( final IOException e )
 									{
