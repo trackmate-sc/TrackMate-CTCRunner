@@ -13,8 +13,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -44,17 +42,12 @@ import fiji.plugin.trackmate.features.track.TrackBranchingAnalyzer;
 import fiji.plugin.trackmate.gui.components.LogPanel;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings.TrackMateObject;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
-import fiji.plugin.trackmate.util.FileChooser;
-import fiji.plugin.trackmate.util.FileChooser.DialogType;
-import fiji.plugin.trackmate.util.FileChooser.SelectionMode;
 import ij.ImagePlus;
 
 public class ParameterSweepPanel extends JPanel
 {
 
 	private static final long serialVersionUID = 1L;
-
-	private final JTextField tfGroundTruth;
 
 	final JTabbedPane tabbedPane;
 
@@ -80,11 +73,14 @@ public class ParameterSweepPanel extends JPanel
 
 	final CTCResultsCrawler crawler;
 
-	public ParameterSweepPanel( final ParameterSweepModel model, final CTCResultsCrawler crawler )
+	public ParameterSweepPanel(
+			final ImagePlus imp,
+			final ParameterSweepModel model,
+			final CTCResultsCrawler crawler,
+			final String gtPath )
 	{
 		this.model = model;
 		this.crawler = crawler;
-		final ImagePlus imp = model.getImage();
 		enabler = new EverythingDisablerAndReenabler( this, new Class[] {
 				JLabel.class,
 				JTabbedPane.class,
@@ -197,6 +193,8 @@ public class ParameterSweepPanel extends JPanel
 		panelChkboxes.add( lblTrackers, gbcLblTrackers );
 
 		// Add detector checkboxes.
+		final String spaceUnits = imp.getCalibration().getUnit();
+		final String timeUnits = imp.getCalibration().getTimeUnit();
 		final GridBagConstraints c1 = new GridBagConstraints();
 		c1.anchor = GridBagConstraints.WEST;
 		c1.insets = new Insets( 0, 0, 5, 5 );
@@ -208,7 +206,7 @@ public class ParameterSweepPanel extends JPanel
 			final boolean active = model.isActive( name );
 			final JCheckBox chkbox = new JCheckBox( name, active );
 			chkbox.setFont( SMALL_FONT );
-			final SweepPanel panel = new SweepPanel( dm );
+			final SweepPanel panel = new SweepPanel( dm, spaceUnits, timeUnits );
 			final ActionListener al = l -> {
 				if ( chkbox.isSelected() )
 				{
@@ -245,7 +243,7 @@ public class ParameterSweepPanel extends JPanel
 			final boolean active = model.isActive( name );
 			final JCheckBox chkbox = new JCheckBox( name, active );
 			chkbox.setFont( SMALL_FONT );
-			final SweepPanel panel = new SweepPanel( tm );
+			final SweepPanel panel = new SweepPanel( tm, spaceUnits, timeUnits );
 			final ActionListener al = e -> {
 				if ( chkbox.isSelected() )
 				{
@@ -346,24 +344,16 @@ public class ParameterSweepPanel extends JPanel
 		gbcLblGroundTruth.gridy = 5;
 		panelPath.add( lblGroundTruth, gbcLblGroundTruth );
 
-		final JButton btnBrowseGT = new JButton( "Browse" );
-		btnBrowseGT.setFont( SMALL_FONT );
-		final GridBagConstraints gbcBtnBrowseGT = new GridBagConstraints();
-		gbcBtnBrowseGT.insets = new Insets( 0, 0, 5, 0 );
-		gbcBtnBrowseGT.gridx = 1;
-		gbcBtnBrowseGT.gridy = 5;
-		panelPath.add( btnBrowseGT, gbcBtnBrowseGT );
-
-		tfGroundTruth = new JTextField();
-		tfGroundTruth.setFont( SMALL_FONT );
+		final JTextField lblGroundTruthPath = new JTextField( gtPath );
+		lblGroundTruthPath.setEditable( false );
+		lblGroundTruthPath.setFont( SMALL_FONT );
 		final GridBagConstraints gbcTfGroundTruth = new GridBagConstraints();
 		gbcTfGroundTruth.insets = new Insets( 0, 0, 5, 0 );
 		gbcTfGroundTruth.gridwidth = 2;
 		gbcTfGroundTruth.fill = GridBagConstraints.HORIZONTAL;
 		gbcTfGroundTruth.gridx = 0;
 		gbcTfGroundTruth.gridy = 6;
-		panelPath.add( tfGroundTruth, gbcTfGroundTruth );
-		tfGroundTruth.setColumns( 10 );
+		panelPath.add( lblGroundTruthPath, gbcTfGroundTruth );
 
 		final GridBagConstraints gbcSeparator2 = new GridBagConstraints();
 		gbcSeparator2.insets = new Insets( 0, 0, 5, 0 );
@@ -477,8 +467,6 @@ public class ParameterSweepPanel extends JPanel
 		 * Wire some listeners.
 		 */
 
-		// Browse buttons.
-		btnBrowseGT.addActionListener( e -> browseGroundTruthPath() );
 		// Count the number of different settings.
 		model.listeners().add( () -> {
 			final int count = model.count();
@@ -494,54 +482,13 @@ public class ParameterSweepPanel extends JPanel
 		model.notifyListeners();
 	}
 
+	/**
+	 * Reads the spot and track filters from the GUI and put them in the model.
+	 */
 	void refresh()
 	{
 		// Forced to do that because of how we set the filters.
 		model.setSpotFilters( panelSpotFilters.getFeatureFilters() );
 		model.setTrackFilters( panelTrackFilters.getFeatureFilters() );
-	}
-
-	private void browseGroundTruthPath()
-	{
-		enabler.disable();
-		try
-		{
-			final File file = FileChooser.chooseFile(
-					this,
-					tfGroundTruth.getText(),
-					null,
-					"Browse to the ground truth folder",
-					DialogType.LOAD,
-					SelectionMode.DIRECTORIES_ONLY );
-			if ( file != null )
-				setGroundTruthPath( file );
-		}
-		finally
-		{
-			enabler.reenable();
-		}
-	}
-
-	public void setGroundTruthPath( final File file )
-	{
-		tfGroundTruth.setText( file.getAbsolutePath() );
-		model.setGroundTruthPath( file.getParent() );
-		crawler.reset();
-		try
-		{
-			crawler.crawl( file.getParent() );
-			bestParamsPanel.update();
-		}
-		catch ( final IOException e )
-		{
-			logger.error( "Error while crawling the folder " + file.getParent() + " for CSV results file:\n" );
-			logger.error( e.getMessage() );
-			e.printStackTrace();
-		}
-	}
-
-	public String getGroundThruthPath()
-	{
-		return tfGroundTruth.getText();
 	}
 }
