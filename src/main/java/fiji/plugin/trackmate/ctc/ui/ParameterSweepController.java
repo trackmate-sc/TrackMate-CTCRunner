@@ -36,21 +36,42 @@ public class ParameterSweepController implements Cancelable
 
 	private final CTCResultsCrawler crawler;
 
-	public ParameterSweepController( final ImagePlus imp )
+	private final ImagePlus imp;
+
+	private final String gtPath;
+
+	public ParameterSweepController( final ImagePlus imp, final String gtPath )
 	{
-		model = ParameterSweepModelIO.readFromDefault( imp );
+		this.imp = imp;
+		this.gtPath = gtPath;
+		final File modelFile = ParameterSweepModelIO.makeSettingsFileForGTPath( gtPath );
+		final File saveFolder = modelFile.getParentFile();
+		model = ParameterSweepModelIO.readFrom( modelFile );
 		crawler = new CTCResultsCrawler( Logger.DEFAULT_LOGGER );
 
-		gui = new ParameterSweepPanel( model, crawler );
+		gui = new ParameterSweepPanel( imp, model, crawler, gtPath );
 		gui.btnRun.addActionListener( e -> run() );
 		gui.btnStop.addActionListener( e -> cancel( "User pressed the stop button." ) );
 		gui.btnStop.setVisible( false );
+
+		crawler.reset();
+		try
+		{
+			crawler.crawl( saveFolder.getAbsolutePath() );
+			gui.bestParamsPanel.update();
+		}
+		catch ( final IOException e )
+		{
+			gui.logger.error( "Error while crawling the folder " + saveFolder + " for CSV results file:\n" );
+			gui.logger.error( e.getMessage() );
+			e.printStackTrace();
+		}
 
 		// Save on model modification.
 		model.listeners().add( () -> 
 		{
 			gui.refresh();
-			ParameterSweepModelIO.saveToDefault( model );
+			ParameterSweepModelIO.saveTo( modelFile, model );
 		} );
 
 		frame = new JFrame( "TrackMate parameter sweep" );
@@ -80,13 +101,13 @@ public class ParameterSweepController implements Cancelable
 			{
 				try
 				{
-					final String gtPath = gui.getGroundThruthPath();
+					final File gtPathFile = new File( gtPath );
 					final int targetChannel = gui.sliderChannel.getValue();
 					final Context context = TMUtils.getContext();
-					final CTCMetricsRunner2 runner = new CTCMetricsRunner2( model.getImage(), gtPath, context );
+					final CTCMetricsRunner2 runner = new CTCMetricsRunner2( imp, gtPath, context );
 					runner.setBatchLogger( gui.logger );
 
-					final Settings base = new Settings( model.getImage() );
+					final Settings base = new Settings( imp );
 					int progress = 0;
 					for ( final DetectorSweepModel detectorModel : model.getActiveDetectors() )
 					{
@@ -137,7 +158,18 @@ public class ParameterSweepController implements Cancelable
 									runner.performCTCMetricsMeasurements( trackmate, detectionTiming, trackingTiming );
 
 									// Update best results.
-									ParameterSweepController.this.setGroundTruthPath( gtPath );
+									crawler.reset();
+									try
+									{
+										crawler.crawl( gtPathFile.getParent() );
+										gui.bestParamsPanel.update();
+									}
+									catch ( final IOException e )
+									{
+										gui.logger.error( "Error while crawling the folder " + gtPathFile.getParent() + " for CSV results file:\n" );
+										gui.logger.error( e.getMessage() );
+										e.printStackTrace();
+									}
 
 									// Save TrackMate file if required.
 									if ( saveEachTime )
@@ -208,10 +240,5 @@ public class ParameterSweepController implements Cancelable
 	public boolean isCanceled()
 	{
 		return cancelReason != null;
-	}
-
-	public void setGroundTruthPath( final String groundTruthPath )
-	{
-		gui.setGroundTruthPath( new File( groundTruthPath ) );
 	}
 }

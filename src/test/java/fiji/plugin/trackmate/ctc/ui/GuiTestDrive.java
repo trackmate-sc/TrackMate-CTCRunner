@@ -18,9 +18,11 @@ public class GuiTestDrive
 		ij.launch( args );
 		final String rootFolder = "D:\\Projects\\JYTinevez\\TrackMate-StarDist\\CTCMetrics\\CellMigration";
 		final String sourceImagePath = new File( rootFolder, "CellMigration.tif" ).getAbsolutePath();
-		final String groundTruthPath = new File( rootFolder, "02_GT" ).getAbsolutePath();
+		final File groundTruthPath = new File( rootFolder, "02_GT" );
 		final TrackMateParameterSweepPlugin plugin = new TrackMateParameterSweepPlugin();
-		plugin.run( sourceImagePath );
-		plugin.getController().setGroundTruthPath( groundTruthPath );
+		plugin.run( sourceImagePath + ", " + groundTruthPath );
+
+//		IJ.openImage( sourceImagePath ).show();
+//		plugin.run( "" );
 	}
 }
