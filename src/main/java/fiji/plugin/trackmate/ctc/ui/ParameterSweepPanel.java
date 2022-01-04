@@ -39,6 +39,7 @@ import fiji.plugin.trackmate.ctc.ui.components.FilterConfigPanel;
 import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModel;
 import fiji.plugin.trackmate.ctc.ui.trackers.TrackerSweepModel;
 import fiji.plugin.trackmate.features.track.TrackBranchingAnalyzer;
+import fiji.plugin.trackmate.gui.Fonts;
 import fiji.plugin.trackmate.gui.components.LogPanel;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings.TrackMateObject;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
@@ -102,6 +103,7 @@ public class ParameterSweepPanel extends JPanel
 		add( tabbedPane, BorderLayout.CENTER );
 
 		final LogPanel panelLog = new LogPanel();
+		panelLog.getTextPane().setFont( Fonts.SMALL_FONT_MONOSPACED );
 		this.logger = panelLog.getLogger();
 		tabbedPane.addTab( "Log", null, panelLog, null );
 
