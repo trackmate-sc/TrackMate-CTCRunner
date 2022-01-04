@@ -24,7 +24,6 @@ import fiji.plugin.trackmate.ctc.ui.trackers.TrackerSweepModel;
 import fiji.plugin.trackmate.ctc.ui.trackers.TrackerSweepModels;
 import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.providers.DetectorProvider;
-import ij.ImagePlus;
 
 public class ParameterSweepModel
 {
@@ -37,28 +36,17 @@ public class ParameterSweepModel
 
 	private final Map< String, Boolean > active = new HashMap<>();
 
-	private transient ImagePlus imp;
-
 	private final List< FeatureFilter > spotFilters = new ArrayList<>();
 
 	private final List< FeatureFilter > trackFilters = new ArrayList<>();
 
-	private String groundTruthPath;
-
-	private ParameterSweepModel()
+	public ParameterSweepModel()
 	{
 		modelListeners = new Listeners.SynchronizedList<>();
-	}
-
-	public ParameterSweepModel( final ImagePlus imp )
-	{
-		this();
-		this.imp = imp;
-		final String units = imp.getCalibration().getUnits();
 
 		// Detectors.
-		add( DetectorSweepModels.logDetectorModel( units ) );
-		add( DetectorSweepModels.dogDetectorModel( units ) );
+		add( DetectorSweepModels.logDetectorModel() );
+		add( DetectorSweepModels.dogDetectorModel() );
 		add( DetectorSweepModels.maskDetectorModel() );
 		add( DetectorSweepModels.thresholdDetectorModel() );
 		add( DetectorSweepModels.labelImgDetectorModel() );
@@ -111,7 +99,7 @@ public class ParameterSweepModel
 										+ "below for installation instructions." )
 								.url( "https://imagej.net/plugins/trackmate/trackmate-cellpose" ) )
 						.get()
-				: CellposeDetector.cellposeDetectorModel( units );
+				: CellposeDetector.cellposeDetectorModel();
 		add( cellposeDetectorModel );
 
 		final DetectorSweepModel stardistDetectorModel;
@@ -145,17 +133,17 @@ public class ParameterSweepModel
 		add( stardistCustomDetectorModel );
 
 		// Trackers.
-		add( TrackerSweepModels.simpleLAPTrackerModel( units ) );
-		add( TrackerSweepModels.lapTrackerModel( units ) );
-		add( TrackerSweepModels.kalmanTrackerModel( units ) );
+		add( TrackerSweepModels.simpleLAPTrackerModel() );
+		add( TrackerSweepModels.lapTrackerModel() );
+		add( TrackerSweepModels.kalmanTrackerModel() );
 		add( TrackerSweepModels.overlapTrackerModel() );
-		add( TrackerSweepModels.nearestNeighborTrackerModel( units ) );
+		add( TrackerSweepModels.nearestNeighborTrackerModel() );
 
 		// Default: everything is inactive.
-		for ( final TrackerSweepModel model : trackerModels.values() )
-			active.put( model.name, Boolean.FALSE );
-		for ( final DetectorSweepModel model : detectorModels.values() )
-			active.put( model.name, Boolean.FALSE );
+		for ( final TrackerSweepModel m : trackerModels.values() )
+			active.put( m.name, Boolean.FALSE );
+		for ( final DetectorSweepModel m : detectorModels.values() )
+			active.put( m.name, Boolean.FALSE );
 
 		registerListeners();
 	}
@@ -201,26 +189,6 @@ public class ParameterSweepModel
 		final Boolean previous = this.active.put( name, Boolean.valueOf( active ) );
 		if ( active != previous.booleanValue() )
 			notifyListeners();
-	}
-
-	public ImagePlus getImage()
-	{
-		return imp;
-	}
-
-	public void setImage( final ImagePlus imp )
-	{
-		this.imp = imp;
-	}
-
-	public void setGroundTruthPath( final String groundTruthPath )
-	{
-		this.groundTruthPath = groundTruthPath;
-	}
-
-	public String getGroundTruthPath()
-	{
-		return groundTruthPath;
 	}
 
 	public List< FeatureFilter > spotFilters()
@@ -275,7 +243,7 @@ public class ParameterSweepModel
 	{
 		final List< Settings > list = new ArrayList<>();
 		final int targetChannel = 1;
-		final Settings base = new Settings( imp );
+		final Settings base = new Settings( null );
 		for ( final DetectorSweepModel detectorModel : getActiveDetectors() )
 		{
 			final List< Settings > detectorSettings = detectorModel.generateSettings( base, targetChannel );

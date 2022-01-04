@@ -28,7 +28,6 @@ import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.providers.DetectorProvider;
 import fiji.plugin.trackmate.providers.TrackerProvider;
 import fiji.plugin.trackmate.tracking.SpotTrackerFactory;
-import ij.ImagePlus;
 
 public class ParameterSweepModelIO
 {
@@ -71,11 +70,11 @@ public class ParameterSweepModelIO
 		saveTo( defaultSaveFile, model );
 	}
 
-	public static ParameterSweepModel readFrom( final File modelFile, final ImagePlus imp )
+	public static ParameterSweepModel readFrom( final File modelFile )
 	{
 		if ( !modelFile.exists() )
 		{
-			final ParameterSweepModel model = new ParameterSweepModel( imp );
+			final ParameterSweepModel model = new ParameterSweepModel();
 			saveToDefault( model );
 			return model;
 		}
@@ -85,7 +84,7 @@ public class ParameterSweepModelIO
 			final String str = Files.lines( Paths.get( modelFile.getAbsolutePath() ) )
 					.collect( Collectors.joining( System.lineSeparator() ) );
 
-			return fromJson( str, imp );
+			return fromJson( str );
 		}
 		catch ( final FileNotFoundException e )
 		{
@@ -99,12 +98,12 @@ public class ParameterSweepModelIO
 					+ ". Using built-in default setting." );
 			e.printStackTrace();
 		}
-		return new ParameterSweepModel( imp );
+		return new ParameterSweepModel();
 	}
 
-	public static ParameterSweepModel readFromDefault( final ImagePlus imp )
+	public static ParameterSweepModel readFromDefault()
 	{
-		return readFrom( defaultSaveFile, imp );
+		return readFrom( defaultSaveFile );
 	}
 
 	private static Gson getGson()
@@ -123,10 +122,9 @@ public class ParameterSweepModelIO
 		return getGson().toJson( model );
 	}
 
-	public static ParameterSweepModel fromJson( final String str, final ImagePlus imp )
+	public static ParameterSweepModel fromJson( final String str )
 	{
 		final ParameterSweepModel model = getGson().fromJson( str, ParameterSweepModel.class );
-		model.setImage( imp );
 		model.registerListeners();
 		return model;
 	}
