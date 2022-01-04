@@ -57,6 +57,11 @@ public class CTCResults
 
 	public int bestFor( final CTCMetricsDescription desc )
 	{
+		return bestFor( null, null, desc );
+	}
+
+	public int bestFor( final String detector, final String tracker, final CTCMetricsDescription desc )
+	{
 		final BiFunction<Double, Double, Boolean> betterThan;
 		double best;
 		if (desc == CTCMetricsDescription.TIM 
@@ -77,6 +82,10 @@ public class CTCResults
 		int bestLine = -1;
 		for ( int i = 0; i < ctcMetrics.size(); i++ )
 		{
+			if ( ( null != detector && !detectors.get( i ).equals( detector ) )
+					|| ( null != tracker && !trackers.get( i ).equals( tracker ) ) )
+				continue;
+
 			final CTCMetrics c = ctcMetrics.get( i );
 			final double val = c.get( desc );
 			if ( betterThan.apply( val, best ) )

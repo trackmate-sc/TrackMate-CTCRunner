@@ -5,12 +5,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.scijava.listeners.Listeners;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
@@ -23,6 +29,13 @@ import net.imglib2.util.ValuePair;
 
 public class CTCResultsCrawler
 {
+
+	public interface CrawlerListener
+	{
+		public void crawled();
+	}
+
+	private final transient Listeners.List< CrawlerListener > listeners = new Listeners.SynchronizedList<>();
 
 	private final Logger batchLogger;
 
@@ -64,7 +77,7 @@ public class CTCResultsCrawler
 		return str.toString();
 	}
 
-	public ValuePair< String, Integer > bestFor( final CTCMetricsDescription desc )
+	public ValuePair< String, Integer > bestFor( final String detector, final String tracker, final CTCMetricsDescription desc )
 	{
 		final BiFunction< Double, Double, Boolean > betterThan;
 		double best;
@@ -88,9 +101,10 @@ public class CTCResultsCrawler
 		for ( final String csvFile : tables.keySet() )
 		{
 			final CTCResults results = tables.get( csvFile );
-			final int line = results.bestFor( desc );
+			final int line = results.bestFor( detector, tracker, desc );
 			if ( line < 0 )
 				continue;
+			
 			final CTCMetrics m = results.getMetrics( line );
 			final double val = m.get( desc );
 			if ( betterThan.apply( val, best ) )
@@ -101,6 +115,11 @@ public class CTCResultsCrawler
 			}
 		}
 		return new ValuePair<>( bestCSVFile, bestLine );
+	}
+
+	public ValuePair< String, Integer > bestFor( final CTCMetricsDescription desc )
+	{
+		return bestFor( null, null, desc );
 	}
 
 	public CTCResults get( final String csvFile )
@@ -137,7 +156,7 @@ public class CTCResultsCrawler
 				e.printStackTrace();
 			}
 		}
-
+		notifyListeners();
 	}
 
 	private static final List< String > findFiles( final String folder, final String fileExtension ) throws IOException
@@ -200,5 +219,64 @@ public class CTCResultsCrawler
 			}
 		}
 		return false;
+	}
+
+	public Listeners.List< CrawlerListener > listeners()
+	{
+		return listeners;
+	}
+
+	protected void notifyListeners()
+	{
+		for ( final CrawlerListener l : listeners.list )
+			l.crawled();
+	}
+
+	public Set< String > getDetectors()
+	{
+		final Set< String > set = new HashSet<>();
+		for ( final CTCResults results : tables.values() )
+		{
+			for ( int i = 0; i < results.size(); i++ )
+				set.add( results.getDetector( i ) );
+		}
+		final ArrayList< String > list = new ArrayList<>( set );
+		list.sort( null );
+		return new LinkedHashSet<>( list );
+	}
+
+	public Set< String > getTrackers()
+	{
+		final Set< String > set = new HashSet<>();
+		for ( final CTCResults results : tables.values() )
+		{
+			for ( int i = 0; i < results.size(); i++ )
+				set.add( results.getTracker( i ) );
+		}
+		final ArrayList< String > list = new ArrayList<>( set );
+		list.sort( null );
+		return new LinkedHashSet<>( list );
+	}
+
+	public Set< String > getDetectorTrackerCombination()
+	{
+		final Set< String > set = new HashSet<>();
+		for ( final CTCResults results : tables.values() )
+		{
+			for ( int i = 0; i < results.size(); i++ )
+			{
+				final String detector = results.getDetector( i );
+				final String tracker = results.getTracker( i );
+				set.add( detector + ", " + tracker );
+			}
+		}
+		final ArrayList< String > list = new ArrayList<>( set );
+		list.sort( null );
+		return new LinkedHashSet<>( list );
+	}
+
+	public int count()
+	{
+		return tables.values().stream().mapToInt( r -> r.size() ).sum();
 	}
 }
