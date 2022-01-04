@@ -1,7 +1,7 @@
 package fiji.plugin.trackmate.ctc.ui;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.scijava.listeners.Listeners;
@@ -16,7 +16,7 @@ public abstract class AbstractSweepModel< F extends TrackMateModule >
 
 	protected transient Listeners.List< ModelListener > modelListeners;
 
-	public abstract List< Settings > generateSettings( final Settings base, final int targetChannel );
+	public abstract Iterator< Settings > iterator( final Settings base, final int targetChannel );
 
 	protected final String name;
 

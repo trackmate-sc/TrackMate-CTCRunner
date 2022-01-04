@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.Iterator;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -81,7 +82,13 @@ public class SweepPanel extends JPanel
 		add( scrollPane, BorderLayout.CENTER );
 
 		final ModelListener infoListener = () -> {
-			final int ns = model.generateSettings( new Settings(), 1 ).size();
+			final Iterator< Settings > it = model.iterator( new Settings(), 1 );
+			int ns = 0;
+			while ( it.hasNext() )
+			{
+				it.next();
+				ns++;
+			}
 			final String str = ( ns == 1 )
 					? "Sweep over one setting for this detector."
 					: String.format( "Sweep over %d different settings for this detector.", ns );

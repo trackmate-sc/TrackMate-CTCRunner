@@ -2,7 +2,7 @@ package fiji.plugin.trackmate.ctc.ui;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.Iterator;
 
 import javax.swing.JFrame;
 
@@ -111,9 +111,10 @@ public class ParameterSweepController implements Cancelable
 					int progress = 0;
 					for ( final DetectorSweepModel detectorModel : model.getActiveDetectors() )
 					{
-						final List< Settings > detectorSettings = detectorModel.generateSettings( base, targetChannel );
-						for ( final Settings ds : detectorSettings )
+						final Iterator< Settings > dit = detectorModel.iterator( base, targetChannel );
+						while ( dit.hasNext() )
 						{
+							final Settings ds = dit.next();
 							if ( isCanceled() )
 								return;
 
@@ -126,10 +127,10 @@ public class ParameterSweepController implements Cancelable
 
 							for ( final TrackerSweepModel trackerModel : model.getActiveTracker() )
 							{
-								final List< Settings > detectorAndTrackerSettings = trackerModel.generateSettings( ds, targetChannel );
-
-								for ( final Settings dts : detectorAndTrackerSettings )
+								final Iterator< Settings > tit = trackerModel.iterator( ds, targetChannel );
+								while ( tit.hasNext() )
 								{
+									final Settings dts = tit.next();
 									if ( isCanceled() )
 										return;
 

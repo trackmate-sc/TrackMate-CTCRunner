@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -241,22 +242,27 @@ public class ParameterSweepModel
 	 */
 	public int count()
 	{
-		final List< Settings > list = new ArrayList<>();
 		final int targetChannel = 1;
 		final Settings base = new Settings( null );
+		int count = 0;
 		for ( final DetectorSweepModel detectorModel : getActiveDetectors() )
 		{
-			final List< Settings > detectorSettings = detectorModel.generateSettings( base, targetChannel );
-			for ( final Settings ds : detectorSettings )
+			final Iterator< Settings > dit = detectorModel.iterator( base, targetChannel );
+			while ( dit.hasNext() )
 			{
+				final Settings ds = dit.next();
 				for ( final TrackerSweepModel trackerModel : getActiveTracker() )
 				{
-					final List< Settings > detectorAndTrackerSettings = trackerModel.generateSettings( ds, targetChannel );
-					list.addAll( detectorAndTrackerSettings );
+					final Iterator< Settings > tit = trackerModel.iterator( ds, targetChannel );
+					while ( tit.hasNext() )
+					{
+						tit.next();
+						count++;
+					}
 				}
 			}
 		}
-		return list.size();
+		return count;
 	}
 
 	public Listeners.List< ModelListener > listeners()
