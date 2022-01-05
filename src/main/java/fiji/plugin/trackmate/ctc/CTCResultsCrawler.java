@@ -55,6 +55,8 @@ public class CTCResultsCrawler
 	public String printReport()
 	{
 		final StringBuilder str = new StringBuilder();
+		str.append( "Optimum for each Cell-Tracking-Challenge metrics, over " + count() + " different tests." );
+		str.append( "\n\n________________________________________________________________\n" );
 		for ( final CTCMetricsDescription desc : CTCMetricsDescription.values() )
 		{
 			final ValuePair< String, Integer > pair = bestFor( desc );
@@ -71,7 +73,7 @@ public class CTCResultsCrawler
 						results.getMetrics( pair.getB() ).get( desc ) ) );
 				str.append( s );
 			}
-			str.append( "\n________________________________\n" );
+			str.append( "\n\n________________________________________________________________\n" );
 		}
 
 		return str.toString();
