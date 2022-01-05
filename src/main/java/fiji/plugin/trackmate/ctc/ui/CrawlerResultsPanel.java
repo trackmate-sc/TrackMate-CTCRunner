@@ -82,7 +82,17 @@ public class CrawlerResultsPanel extends JPanel
 		panelBestDT.add( scrollPaneBestDT, BorderLayout.CENTER );
 
 		final BestDTTableModel bestDTTableModel = new BestDTTableModel( crawler );
-		final JTable tableDT = new JTable();
+		final JTable tableDT = new JTable()
+		{
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void setEnabled( final boolean enabled )
+			{
+				// Never disable.
+			}
+		};
 		tableDT.setFont( Fonts.FONT );
 		tableDT.setBackground( getBackground() );
 		tableDT.getTableHeader().setOpaque( false );
@@ -133,7 +143,17 @@ public class CrawlerResultsPanel extends JPanel
 		panelBestVal.add( scrollPaneBestVal, BorderLayout.CENTER );
 
 		final BestValTableModel bestValTableModel = new BestValTableModel( crawler, defaultMetrics );
-		final JTable tableVal = new JTable();
+		final JTable tableVal = new JTable()
+		{
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void setEnabled( final boolean enabled )
+			{
+				// Never disable.
+			}
+		};
 		tableVal.setFont( Fonts.FONT );
 		tableVal.setRowHeight( 24 );
 		tableVal.setBackground( getBackground() );
