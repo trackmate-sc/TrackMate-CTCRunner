@@ -1,9 +1,10 @@
 package fiji.plugin.trackmate.ctc.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Arrays;
@@ -14,7 +15,6 @@ import java.util.function.Function;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -22,8 +22,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -32,13 +30,14 @@ import javax.swing.table.TableColumnModel;
 
 import com.itextpdf.text.Font;
 
-import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.ctc.CTCMetrics;
 import fiji.plugin.trackmate.ctc.CTCMetricsDescription;
 import fiji.plugin.trackmate.ctc.CTCResults;
 import fiji.plugin.trackmate.ctc.CTCResultsCrawler;
 import fiji.plugin.trackmate.ctc.CTCResultsCrawler.CrawlerListener;
 import fiji.plugin.trackmate.gui.Fonts;
+import fiji.plugin.trackmate.gui.GuiUtils;
+import fiji.plugin.trackmate.gui.displaysettings.Colormap;
 import fiji.plugin.trackmate.util.TMUtils;
 import net.imglib2.util.ValuePair;
 
@@ -46,6 +45,13 @@ public class CrawlerResultsPanel extends JPanel
 {
 
 	private static final long serialVersionUID = 1L;
+
+	private final static CTCMetricsDescription[] descs = CTCMetricsDescription.values();
+
+	private final static CTCMetricsDescription[] timingDescs = new CTCMetricsDescription[] {
+			CTCMetricsDescription.TIM,
+			CTCMetricsDescription.DETECTION_TIME,
+			CTCMetricsDescription.TRACKING_TIME };
 
 	public CrawlerResultsPanel( final CTCResultsCrawler crawler )
 	{
@@ -78,15 +84,18 @@ public class CrawlerResultsPanel extends JPanel
 		final BestDTTableModel bestDTTableModel = new BestDTTableModel( crawler );
 		final JTable tableDT = new JTable();
 		tableDT.setFont( Fonts.FONT );
+		tableDT.setBackground( getBackground() );
+		tableDT.getTableHeader().setOpaque( false );
+		tableDT.getTableHeader().setBackground( getBackground() );
 		tableDT.setRowHeight( 24 );
 		tableDT.setShowGrid( false );
 		tableDT.setFillsViewportHeight( true );
 		tableDT.setAutoResizeMode( JTable.AUTO_RESIZE_OFF );
 		tableDT.setModel( bestDTTableModel );
-		tableDT.setDefaultRenderer( Double.class, new MyDoubleCellRenderer( r -> bestDTTableModel.tooltips[ r ] ) );
-		tableDT.setDefaultRenderer( String.class, new MyStringCellRenderer( r -> bestDTTableModel.tooltips[ r ] ) );
 		tableDT.getTableHeader().setFont( Fonts.FONT.deriveFont( Font.ITALIC ) );
 		scrollPaneBestDT.setViewportView( tableDT );
+		tableDT.setDefaultRenderer( Double.class, bestDTTableModel );
+		tableDT.setDefaultRenderer( String.class, new MyStringCellRenderer( r -> bestDTTableModel.tooltips[ r ] ) );
 
 		/*
 		 * Best results for each detector and tracker combination.
@@ -127,11 +136,14 @@ public class CrawlerResultsPanel extends JPanel
 		final JTable tableVal = new JTable();
 		tableVal.setFont( Fonts.FONT );
 		tableVal.setRowHeight( 24 );
+		tableVal.setBackground( getBackground() );
+		tableVal.getTableHeader().setOpaque( false );
+		tableVal.getTableHeader().setBackground( getBackground() );
 		tableVal.setShowGrid( false );
 		tableVal.setFillsViewportHeight( true );
 		tableVal.setAutoResizeMode( JTable.AUTO_RESIZE_OFF );
 		tableVal.setModel( bestValTableModel );
-		tableVal.setDefaultRenderer( Double.class, new MyDoubleCellRenderer( r -> bestValTableModel.getTooltip( r ) ) );
+		tableVal.setDefaultRenderer( Double.class, bestValTableModel );
 		tableVal.setDefaultRenderer( String.class, new MyStringCellRenderer( r -> bestValTableModel.getTooltip( r ) ) );
 		tableVal.getTableHeader().setFont( Fonts.FONT.deriveFont( Font.ITALIC ) );
 		scrollPaneBestVal.setViewportView( tableVal );
@@ -166,7 +178,7 @@ public class CrawlerResultsPanel extends JPanel
 		crawler.listeners().add( l );
 	}
 
-	private static final class BestValTableModel extends AbstractTableModel
+	private static final class BestValTableModel extends AbstractTableModel implements TableCellRenderer
 	{
 
 		private static final long serialVersionUID = 1L;
@@ -187,6 +199,12 @@ public class CrawlerResultsPanel extends JPanel
 
 		private String[] tooltips;
 
+		private final DefaultTableCellRenderer renderer;
+
+		private final double[] mint = new double[ 3 ];
+
+		private final double[] maxt = new double[ 3 ];
+
 		public BestValTableModel( final CTCResultsCrawler crawler, final CTCMetricsDescription target )
 		{
 			this.crawler = crawler;
@@ -197,7 +215,7 @@ public class CrawlerResultsPanel extends JPanel
 			columnNames[ 1 ] = "Tracker";
 			for ( int i = 0; i < descs.length; i++ )
 				columnNames[ i + 2 ] = descs[ i ].ctcName();
-
+			this.renderer = new DefaultTableCellRenderer();
 			update();
 		}
 
@@ -225,7 +243,7 @@ public class CrawlerResultsPanel extends JPanel
 				objs[ 0 ][ 1 ] = "";
 				for ( int i = 2; i < ncols; i++ )
 					objs[ 0 ][ i ] = Double.NaN;
-				
+
 				this.tooltips = new String[] { "" };
 				fireTableDataChanged();
 				return;
@@ -261,8 +279,9 @@ public class CrawlerResultsPanel extends JPanel
 				id++;
 			}
 
-			// Tooltips.
 			this.tooltips = new String[ nrows ];
+			Arrays.fill( mint, Double.POSITIVE_INFINITY );
+			Arrays.fill( maxt, Double.NEGATIVE_INFINITY );
 			for ( int r = 0; r < nrows; r++ )
 			{
 				final String detector = ( String ) objs[ r ][ 0 ];
@@ -283,6 +302,7 @@ public class CrawlerResultsPanel extends JPanel
 					for ( int i = 0; i < descs.length; i++ )
 						objs[ r ][ 2 + i ] = metrics.get( descs[ i ] );
 
+					// Tooltips.
 					final Map detectorParams = results.getDetectorParams( line );
 					final Map trackerParams = results.getTrackerParams( line );
 					final String detector2 = results.getDetector( line );
@@ -295,6 +315,16 @@ public class CrawlerResultsPanel extends JPanel
 							+ TMUtils.echoMap( trackerParams, 0 )
 							+ "</html>";
 					tooltips[ r ] = str.replaceAll( "[\\t|\\n|\\r]", "<br>" );
+
+					// Min & max timings.
+					for ( int i = 0; i < timingDescs.length; i++ )
+					{
+						final double t = metrics.get( timingDescs[ i ] );
+						if ( t < mint[ i ] )
+							mint[ i ] = t;
+						if ( t > maxt[ i ] )
+							maxt[ i ] = t;
+					}
 				}
 			}
 			fireTableDataChanged();
@@ -336,14 +366,62 @@ public class CrawlerResultsPanel extends JPanel
 		{
 			return columnNames[ column ];
 		}
+
+		@Override
+		public Component getTableCellRendererComponent( final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column )
+		{
+			renderer.getTableCellRendererComponent( table, value, isSelected, hasFocus, row, column );
+			renderer.setBackground( null );
+			renderer.setForeground( null );
+			if ( value instanceof Double )
+			{
+				renderer.setHorizontalAlignment( SwingConstants.RIGHT );
+				if ( null == value || Double.isNaN( ( ( Double ) value ).doubleValue() ) )
+					renderer.setText( "Ø" );
+				else
+					renderer.setText( nf.format( value ) );
+
+				if ( isSelected )
+				{
+					renderer.setForeground( table.getSelectionForeground() );
+					renderer.setBackground( table.getSelectionBackground() );
+				}
+				else
+				{
+					// Color code performance from 0 to 1.
+					final double val = ( ( Double ) value ).doubleValue();
+					if ( column >= 2 && column < 2 + descs.length - 3 )
+					{
+						// Metrics from 0 to 1.
+						final Color bg = Double.isNaN( val ) ? null : cmap.getPaint( val );
+						final Color fg = ( bg == null ) ? null : GuiUtils.textColorForBackground( bg );
+						renderer.setBackground( bg );
+						renderer.setForeground( fg );
+					}
+					else if ( column >= 9 )
+					{
+						// Timings. Shorter is better.
+						final int i = column - 9;
+						final double valt = 1. - ( val - mint[ i ] ) / ( maxt[ i ] - mint[ i ] );
+						final Color bg = Double.isNaN( val ) ? null : cmap.getPaint( valt );
+						final Color fg = ( bg == null ) ? null : GuiUtils.textColorForBackground( bg );
+						renderer.setBackground( bg );
+						renderer.setForeground( fg );
+					}
+				}
+				renderer.setPreferredSize( new Dimension( 60, 24 ) );
+			}
+
+			renderer.setBorder( padding );
+			renderer.setToolTipText( tooltips[ row ] );
+			return renderer;
+		}
 	}
 
-	private static final class BestDTTableModel extends AbstractTableModel
+	private static final class BestDTTableModel extends AbstractTableModel implements TableCellRenderer
 	{
 
 		private static final long serialVersionUID = 1L;
-
-		private final static CTCMetricsDescription[] descs = CTCMetricsDescription.values();
 
 		private final CTCResultsCrawler crawler;
 
@@ -356,6 +434,12 @@ public class CrawlerResultsPanel extends JPanel
 		private final Object[][] objs;
 
 		private final String[] tooltips;
+
+		private final DefaultTableCellRenderer renderer;
+
+		private final double[] mint = new double[ 3 ];
+
+		private final double[] maxt = new double[ 3 ];
 
 		public BestDTTableModel( final CTCResultsCrawler crawler )
 		{
@@ -376,13 +460,15 @@ public class CrawlerResultsPanel extends JPanel
 				objs[ i ][ 0 ] = descs[ i ].description();
 			// Tooltips.
 			this.tooltips = new String[ nrows ];
-
+			this.renderer = new DefaultTableCellRenderer();
 			update();
 		}
 
 		@SuppressWarnings( { "unchecked", "rawtypes" } )
 		private void update()
 		{
+			Arrays.fill( mint, Double.POSITIVE_INFINITY );
+			Arrays.fill( maxt, Double.NEGATIVE_INFINITY );
 			for ( int r = 0; r < nrows; r++ )
 			{
 				final CTCMetricsDescription m = descs[ r ];
@@ -392,10 +478,13 @@ public class CrawlerResultsPanel extends JPanel
 				{
 					tooltips[ r ] = "No good results";
 					for ( int c = 1; c < ncols; c++ )
-						objs[ r ][ c ] = null;
+						objs[ r ][ c ] = Double.NaN;
+					objs[ r ][ 2 ] = null;
+					objs[ r ][ 3 ] = null;
 				}
 				else
 				{
+					// Values.
 					final int line = pair.getB();
 					final CTCMetrics metrics = results.getMetrics( line );
 					final String detector = results.getDetector( line );
@@ -406,6 +495,7 @@ public class CrawlerResultsPanel extends JPanel
 					for ( int i = 0; i < descs.length; i++ )
 						objs[ r ][ 4 + i ] = metrics.get( descs[ i ] );
 
+					// Tooltips.
 					final Map detectorParams = results.getDetectorParams( line );
 					final Map trackerParams = results.getTrackerParams( line );
 					final String str = "<html>Detector parameters for " + detector + ":\n"
@@ -415,6 +505,16 @@ public class CrawlerResultsPanel extends JPanel
 							+ TMUtils.echoMap( trackerParams, 0 )
 							+ "</html>";
 					tooltips[ r ] = str.replaceAll( "[\\t|\\n|\\r]", "<br>" );
+
+					// Min & max timings.
+					for ( int i = 0; i < timingDescs.length; i++ )
+					{
+						final double t = metrics.get( timingDescs[ i ] );
+						if ( t < mint[ i ] )
+							mint[ i ] = t;
+						if ( t > maxt[ i ] )
+							maxt[ i ] = t;
+					}
 				}
 			}
 			fireTableDataChanged();
@@ -457,7 +557,65 @@ public class CrawlerResultsPanel extends JPanel
 		{
 			return columnNames[ column ];
 		}
+
+		@Override
+		public Component getTableCellRendererComponent( final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column )
+		{
+			renderer.getTableCellRendererComponent( table, value, isSelected, hasFocus, row, column );
+			renderer.setBackground( null );
+			renderer.setForeground( null );
+			if ( value instanceof Double )
+			{
+				renderer.setHorizontalAlignment( SwingConstants.RIGHT );
+				if ( null == value || Double.isNaN( ( ( Double ) value ).doubleValue() ) )
+					renderer.setText( "Ø" );
+				else
+					renderer.setText( nf.format( value ) );
+
+				if ( isSelected )
+				{
+					renderer.setForeground( table.getSelectionForeground() );
+					renderer.setBackground( table.getSelectionBackground() );
+				}
+				else
+				{
+					// Color code performance from 0 to 1.
+					final double val = ( ( Double ) value ).doubleValue();
+					if ( ( column >= 4 && column < 4 + descs.length - 3 ) || ( column == 1 && row < 7 ) )
+					{
+						// Metrics from 0 to 1.
+						final Color bg = Double.isNaN( val ) ? null : cmap.getPaint( val );
+						final Color fg = ( bg == null ) ? null : GuiUtils.textColorForBackground( bg );
+						renderer.setBackground( bg );
+						renderer.setForeground( fg );
+					}
+					else if ( ( column >= 4 + descs.length - 3 ) || ( column == 1 && row >= 7 ) )
+					{
+						// Timings. Shorter is better.
+						final int i = ( column == 1 )
+								? row - 7
+								: column - ( 4 + descs.length - 3 );
+						final double valt = 1. - ( val - mint[ i ] ) / ( maxt[ i ] - mint[ i ] );
+						final Color bg = Double.isNaN( val ) ? null : cmap.getPaint( valt );
+						final Color fg = ( bg == null ) ? null : GuiUtils.textColorForBackground( bg );
+						renderer.setBackground( bg );
+						renderer.setForeground( fg );
+					}
+				}
+				renderer.setPreferredSize( new Dimension( 60, 24 ) );
+			}
+
+			renderer.setBorder( padding );
+			renderer.setToolTipText( tooltips[ row ] );
+			return renderer;
+		}
 	}
+
+	private final static Border padding = BorderFactory.createEmptyBorder( 0, 10, 0, 10 );
+
+	private static final NumberFormat nf = new DecimalFormat( "0.000" );
+
+	private static final Colormap cmap = Colormap.Viridis;
 
 	private static final void resizeColumnWidth( final JTable table )
 	{
@@ -470,7 +628,6 @@ public class CrawlerResultsPanel extends JPanel
 				final TableCellRenderer renderer = table.getCellRenderer( row, column );
 				final Component comp = table.prepareRenderer( renderer, row, column );
 				width = Math.max( comp.getPreferredSize().width + 1, width );
-				width = Math.max( width, table.getColumnModel().getColumn( column ).getPreferredWidth() );
 			}
 			columnModel.getColumn( column ).setPreferredWidth( width );
 		}
@@ -492,65 +649,10 @@ public class CrawlerResultsPanel extends JPanel
 		public Component getTableCellRendererComponent( final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column )
 		{
 			super.getTableCellRendererComponent( table, value, isSelected, hasFocus, row, column );
-			setBorder( MyDoubleCellRenderer.padding );
-			setToolTipText( tooltipSupplier.apply( row ) );
-			return this;
-		}
-
-	}
-
-	private static final class MyDoubleCellRenderer extends DefaultTableCellRenderer
-	{
-
-		private static final long serialVersionUID = 1L;
-
-		private final static Border padding = BorderFactory.createEmptyBorder( 0, 10, 0, 10 );
-
-		private final Function< Integer, String > tooltipSupplier;
-
-		private final NumberFormat nf = new DecimalFormat( "0.000" );
-
-		public MyDoubleCellRenderer( final Function< Integer, String > tooltipSupplier )
-		{
-			this.tooltipSupplier = tooltipSupplier;
-			setHorizontalAlignment( SwingConstants.RIGHT );
-		}
-
-		@Override
-		public Component getTableCellRendererComponent( final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column )
-		{
-			setFont( null );
-
-			if ( null == value || Double.isNaN( ( ( Double ) value ).doubleValue() ) )
-				setText( "Ø" );
-			else
-				setText( nf.format( value ) );
-
-			if ( isSelected )
-				setBackground( table.getSelectionBackground() );
-			else
-				setBackground( null );
-
 			setBorder( padding );
 			setToolTipText( tooltipSupplier.apply( row ) );
 			return this;
 		}
-	}
 
-	public static void main( final String[] args ) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
-	{
-		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
-//		final String resultsFolder = "/Users/tinevez/Projects/JYTinevez/TrackMate-StarDist/CellMigration/";
-		final String resultsFolder = "D:\\Projects\\JYTinevez\\TrackMate-StarDist\\CTCMetrics\\CellMigration";
-		final CTCResultsCrawler crawler = new CTCResultsCrawler( Logger.DEFAULT_LOGGER );
-
-		final CrawlerResultsPanel panel = new CrawlerResultsPanel( crawler );
-		final JFrame frame = new JFrame( "TrackMate parameter sweep results" );
-		frame.getContentPane().add( panel );
-		frame.pack();
-		frame.setLocationRelativeTo( null );
-		frame.setVisible( true );
-
-		crawler.crawl( resultsFolder );
 	}
 }
