@@ -1,4 +1,4 @@
-package fiji.plugin.trackmate.ctc.ui.trackers;
+package fiji.plugin.trackmate.ctc.model.tracker;
 
 import java.util.Collections;
 import java.util.Iterator;

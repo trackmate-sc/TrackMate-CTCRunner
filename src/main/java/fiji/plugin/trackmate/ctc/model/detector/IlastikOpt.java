@@ -1,15 +1,23 @@
-package fiji.plugin.trackmate.ctc.ui.detectors.optional;
+package fiji.plugin.trackmate.ctc.model.detector;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.DoubleParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.IntParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel.RangeType;
 import fiji.plugin.trackmate.ctc.ui.components.StringRangeParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModel;
+import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.ilastik.IlastikDetectorFactory;
 
-public class IlastikDetector
+public class IlastikOpt
 {
-	public static DetectorSweepModel ilastikDetectorModel()
+
+	private IlastikOpt()
+	{}
+
+	public static Map< String, AbstractParamSweepModel< ? > > createModels()
 	{
 		final StringRangeParamSweepModel classifierPath = new StringRangeParamSweepModel()
 				.paramName( "Ilastik project path" )
@@ -26,12 +34,15 @@ public class IlastikDetector
 				.rangeType( RangeType.FIXED )
 				.min( 1 );
 
-		return DetectorSweepModel.create()
-				.name( IlastikDetectorFactory.NAME )
-				.factory( new IlastikDetectorFactory<>() )
-				.add( IlastikDetectorFactory.KEY_CLASSIFIER_FILEPATH, classifierPath )
-				.add( IlastikDetectorFactory.KEY_CLASS_INDEX, classIndex )
-				.add( IlastikDetectorFactory.KEY_PROBA_THRESHOLD, probaThreshold )
-				.get();
+		final Map< String, AbstractParamSweepModel< ? > > models = new HashMap<>();
+		models.put( IlastikDetectorFactory.KEY_CLASSIFIER_FILEPATH, classifierPath );
+		models.put( IlastikDetectorFactory.KEY_CLASS_INDEX, classIndex );
+		models.put( IlastikDetectorFactory.KEY_PROBA_THRESHOLD, probaThreshold );
+		return models;
+	}
+
+	public static SpotDetectorFactoryBase< ? > createFactory()
+	{
+		return new IlastikDetectorFactory<>();
 	}
 }

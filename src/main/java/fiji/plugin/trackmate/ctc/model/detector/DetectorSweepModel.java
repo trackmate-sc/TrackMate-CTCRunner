@@ -1,4 +1,4 @@
-package fiji.plugin.trackmate.ctc.ui.detectors;
+package fiji.plugin.trackmate.ctc.model.detector;
 
 import static fiji.plugin.trackmate.detection.DetectorKeys.KEY_TARGET_CHANNEL;
 

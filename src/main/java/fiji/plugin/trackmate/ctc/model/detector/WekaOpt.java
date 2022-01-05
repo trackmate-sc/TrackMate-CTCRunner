@@ -1,15 +1,28 @@
-package fiji.plugin.trackmate.ctc.ui.detectors.optional;
+package fiji.plugin.trackmate.ctc.model.detector;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.DoubleParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.IntParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel.RangeType;
 import fiji.plugin.trackmate.ctc.ui.components.StringRangeParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModel;
+import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.weka.WekaDetectorFactory;
 
-public class WekaDetector
+public class WekaOpt
 {
-	public static DetectorSweepModel wekaDetectorModel()
+
+	private WekaOpt()
+	{}
+
+	public static SpotDetectorFactoryBase< ? > createFactory()
+	{
+		return new WekaDetectorFactory<>();
+	}
+
+	public static Map< String, AbstractParamSweepModel< ? > > createModels()
 	{
 		final StringRangeParamSweepModel classifierPath = new StringRangeParamSweepModel()
 				.paramName( "Weka classifier path" )
@@ -26,12 +39,10 @@ public class WekaDetector
 				.rangeType( RangeType.FIXED )
 				.min( 1 );
 
-		return DetectorSweepModel.create()
-				.name( WekaDetectorFactory.NAME )
-				.factory( new WekaDetectorFactory<>() )
-				.add( WekaDetectorFactory.KEY_CLASSIFIER_FILEPATH, classifierPath )
-				.add( WekaDetectorFactory.KEY_CLASS_INDEX, classIndex )
-				.add( WekaDetectorFactory.KEY_PROBA_THRESHOLD, probaThreshold )
-				.get();
+		final Map< String, AbstractParamSweepModel< ? > > models = new HashMap<>();
+		models.put( WekaDetectorFactory.KEY_CLASSIFIER_FILEPATH, classifierPath );
+		models.put( WekaDetectorFactory.KEY_CLASS_INDEX, classIndex );
+		models.put( WekaDetectorFactory.KEY_PROBA_THRESHOLD, probaThreshold );
+		return models;
 	}
 }

@@ -12,19 +12,26 @@ import java.util.Map;
 import org.scijava.listeners.Listeners;
 
 import fiji.plugin.trackmate.Settings;
+import fiji.plugin.trackmate.ctc.model.detector.CellposeDetectorModel;
+import fiji.plugin.trackmate.ctc.model.detector.DetectorSweepModel;
+import fiji.plugin.trackmate.ctc.model.detector.DogDetectorModel;
+import fiji.plugin.trackmate.ctc.model.detector.IlastikDetectorModel;
+import fiji.plugin.trackmate.ctc.model.detector.LabelImgDetectorModel;
+import fiji.plugin.trackmate.ctc.model.detector.LogDetectorModel;
+import fiji.plugin.trackmate.ctc.model.detector.MaskDetectorModel;
+import fiji.plugin.trackmate.ctc.model.detector.MorphoLibJDetectorModel;
+import fiji.plugin.trackmate.ctc.model.detector.StarDistCustomDetectorModel;
+import fiji.plugin.trackmate.ctc.model.detector.StarDistDetectorModel;
+import fiji.plugin.trackmate.ctc.model.detector.ThresholdDetectorModel;
+import fiji.plugin.trackmate.ctc.model.detector.WekaDetectorModel;
+import fiji.plugin.trackmate.ctc.model.tracker.KalmanTrackerModel;
+import fiji.plugin.trackmate.ctc.model.tracker.LAPTrackerModel;
+import fiji.plugin.trackmate.ctc.model.tracker.NearestNeighborTrackerModel;
+import fiji.plugin.trackmate.ctc.model.tracker.OverlapTrackerModel;
+import fiji.plugin.trackmate.ctc.model.tracker.SimpleLAPTrackerModel;
+import fiji.plugin.trackmate.ctc.model.tracker.TrackerSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel.ModelListener;
-import fiji.plugin.trackmate.ctc.ui.components.InfoParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModel;
-import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModels;
-import fiji.plugin.trackmate.ctc.ui.detectors.optional.CellposeDetector;
-import fiji.plugin.trackmate.ctc.ui.detectors.optional.IlastikDetector;
-import fiji.plugin.trackmate.ctc.ui.detectors.optional.MorphoLibJDetector;
-import fiji.plugin.trackmate.ctc.ui.detectors.optional.StarDistDetector;
-import fiji.plugin.trackmate.ctc.ui.detectors.optional.WekaDetector;
-import fiji.plugin.trackmate.ctc.ui.trackers.TrackerSweepModel;
-import fiji.plugin.trackmate.ctc.ui.trackers.TrackerSweepModels;
 import fiji.plugin.trackmate.features.FeatureFilter;
-import fiji.plugin.trackmate.providers.DetectorProvider;
 
 public class ParameterSweepModel
 {
@@ -46,99 +53,26 @@ public class ParameterSweepModel
 		modelListeners = new Listeners.SynchronizedList<>();
 
 		// Detectors.
-		add( DetectorSweepModels.logDetectorModel() );
-		add( DetectorSweepModels.dogDetectorModel() );
-		add( DetectorSweepModels.maskDetectorModel() );
-		add( DetectorSweepModels.thresholdDetectorModel() );
-		add( DetectorSweepModels.labelImgDetectorModel() );
+		add( new LogDetectorModel() );
+		add( new DogDetectorModel() );
+		add( new MaskDetectorModel() );
+		add( new ThresholdDetectorModel() );
+		add( new LabelImgDetectorModel() );
 
-		// Optional modules.
-		final DetectorProvider detectorProvider = new DetectorProvider();
-
-		final DetectorSweepModel morphoLibJDetectorModel = ( null == detectorProvider.getFactory( "MORPHOLIBJ_DETECTOR" ) )
-				? DetectorSweepModel.create()
-						.name( "MorphoLibJ detector" )
-						.add( "", new InfoParamSweepModel()
-								.info( "The TrackMate-MorphoLibJ module seems to be missing<br>"
-										+ "from your Fiji installation. Please follow the link<br>"
-										+ "below for installation instructions." )
-								.url( "https://imagej.net/plugins/trackmate/trackmate-morpholibj" ) )
-						.get()
-				: MorphoLibJDetector.morphoLibJDetectorModel();
-		add( morphoLibJDetectorModel );
-
-		final DetectorSweepModel wekaDetectorModel = ( null == detectorProvider.getFactory( "WEKA_DETECTOR" ) )
-				? DetectorSweepModel.create()
-						.name( "Weka detector" )
-						.add( "", new InfoParamSweepModel()
-								.info( "The TrackMate-Weka module seems to be missing<br>"
-										+ "from your Fiji installation. Please follow the link<br>"
-										+ "below for installation instructions." )
-								.url( "https://imagej.net/plugins/trackmate/trackmate-weka" ) )
-						.get()
-				: WekaDetector.wekaDetectorModel();
-		add( wekaDetectorModel );
-
-		final DetectorSweepModel ilastikDetectorModel = ( null == detectorProvider.getFactory( "ILASTIK_DETECTOR" ) )
-				? DetectorSweepModel.create()
-						.name( "Ilastik detector" )
-						.add( "", new InfoParamSweepModel()
-								.info( "The TrackMate-Ilastik module seems to be missing<br>"
-										+ "from your Fiji installation. Please follow the link<br>"
-										+ "below for installation instructions." )
-								.url( "https://imagej.net/plugins/trackmate/trackmate-ilastik" ) )
-						.get()
-				: IlastikDetector.ilastikDetectorModel();
-		add( ilastikDetectorModel );
-
-		final DetectorSweepModel cellposeDetectorModel = ( null == detectorProvider.getFactory( "CELLPOSE_DETECTOR" ) )
-				? DetectorSweepModel.create()
-						.name( "Cellpose detector" )
-						.add( "", new InfoParamSweepModel()
-								.info( "The TrackMate-Cellpose module seems to be missing<br>"
-										+ "from your Fiji installation. Please follow the link<br>"
-										+ "below for installation instructions." )
-								.url( "https://imagej.net/plugins/trackmate/trackmate-cellpose" ) )
-						.get()
-				: CellposeDetector.cellposeDetectorModel();
-		add( cellposeDetectorModel );
-
-		final DetectorSweepModel stardistDetectorModel;
-		final DetectorSweepModel stardistCustomDetectorModel;
-		if ( null == detectorProvider.getFactory( "STARDIST_DETECTOR" ) )
-		{
-			stardistDetectorModel = DetectorSweepModel.create()
-					.name( "StarDist detector" )
-					.add( "", new InfoParamSweepModel()
-							.info( "The TrackMate-StarDist module seems to be missing<br>"
-									+ "from your Fiji installation. Please follow the link<br>"
-									+ "below for installation instructions." )
-							.url( "https://imagej.net/plugins/trackmate/trackmate-stardist" ) )
-					.get();
-
-			stardistCustomDetectorModel = DetectorSweepModel.create()
-					.name( "StarDist detector custom model" )
-					.add( "", new InfoParamSweepModel()
-							.info( "The TrackMate-StarDist module seems to be missing<br>"
-									+ "from your Fiji installation. Please follow the link<br>"
-									+ "below for installation instructions." )
-							.url( "https://imagej.net/plugins/trackmate/trackmate-stardist" ) )
-					.get();
-		}
-		else
-		{
-			stardistDetectorModel = StarDistDetector.stardistDetectorModel();
-			stardistCustomDetectorModel = StarDistDetector.stardistCustomDetectorModel();
-		}
-		add( stardistDetectorModel );
-		add( stardistCustomDetectorModel );
+		// Optional detector modules. Stuff that might not be installed.
+		add( new MorphoLibJDetectorModel() );
+		add( new IlastikDetectorModel() );
+		add( new CellposeDetectorModel() );
+		add( new WekaDetectorModel() );
+		add( new StarDistDetectorModel() );
+		add( new StarDistCustomDetectorModel() );
 
 		// Trackers.
-		add( TrackerSweepModels.simpleLAPTrackerModel() );
-		add( TrackerSweepModels.lapTrackerModel() );
-		add( TrackerSweepModels.kalmanTrackerModel() );
-		add( TrackerSweepModels.overlapTrackerModel() );
-		add( TrackerSweepModels.nearestNeighborTrackerModel() );
+		add( new SimpleLAPTrackerModel() );
+		add( new LAPTrackerModel() );
+		add( new KalmanTrackerModel() );
+		add( new OverlapTrackerModel() );
+		add( new NearestNeighborTrackerModel() );
 
 		// Default: everything is inactive.
 		for ( final TrackerSweepModel m : trackerModels.values() )

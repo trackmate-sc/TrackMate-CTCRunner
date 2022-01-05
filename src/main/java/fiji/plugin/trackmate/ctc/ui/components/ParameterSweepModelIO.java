@@ -22,6 +22,8 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
+import fiji.plugin.trackmate.ctc.model.detector.DetectorSweepModel;
+import fiji.plugin.trackmate.ctc.model.tracker.TrackerSweepModel;
 import fiji.plugin.trackmate.ctc.ui.ParameterSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.EnumParamSweepModel.RangeType;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
@@ -113,6 +115,8 @@ public class ParameterSweepModelIO
 				.registerTypeAdapter( SpotDetectorFactoryBase.class, new SpotDetectorFactoryBaseAdapter() )
 				.registerTypeAdapter( SpotTrackerFactory.class, new SpotTrackerFactoryAdapter() )
 				.registerTypeAdapter( AbstractParamSweepModel.class, new AbstractParamSweepModelAdapter() )
+				.registerTypeAdapter( DetectorSweepModel.class, new DetectorSweepModelAdapter() )
+				.registerTypeAdapter( TrackerSweepModel.class, new TrackerSweepModelAdapter() )
 				.registerTypeAdapter( Class.class, new ClassTypeAdapter() );
 		return builder.setPrettyPrinting().create();
 	}
@@ -151,6 +155,66 @@ public class ParameterSweepModelIO
 
 		@Override
 		public JsonElement serialize( final AbstractParamSweepModel< ? > src, final Type typeOfSrc, final JsonSerializationContext context )
+		{
+			final JsonObject result = new JsonObject();
+			result.add( "type", new JsonPrimitive( src.getClass().getSimpleName() ) );
+			result.add( "properties", context.serialize( src, src.getClass() ) );
+			return result;
+		}
+	}
+
+	private static class DetectorSweepModelAdapter implements JsonSerializer< DetectorSweepModel >, JsonDeserializer< DetectorSweepModel >
+	{
+
+		@Override
+		public DetectorSweepModel deserialize( final JsonElement json, final Type typeOfT, final JsonDeserializationContext context ) throws JsonParseException
+		{
+			final JsonObject jsonObject = json.getAsJsonObject();
+			final String type = jsonObject.get( "type" ).getAsString();
+			final JsonElement element = jsonObject.get( "properties" );
+
+			try
+			{
+				return context.deserialize( element, Class.forName( "fiji.plugin.trackmate.ctc.model.detector." + type ) );
+			}
+			catch ( final ClassNotFoundException cnfe )
+			{
+				throw new JsonParseException( "Unknown element type: " + type, cnfe );
+			}
+		}
+
+		@Override
+		public JsonElement serialize( final DetectorSweepModel src, final Type typeOfSrc, final JsonSerializationContext context )
+		{
+			final JsonObject result = new JsonObject();
+			result.add( "type", new JsonPrimitive( src.getClass().getSimpleName() ) );
+			result.add( "properties", context.serialize( src, src.getClass() ) );
+			return result;
+		}
+	}
+
+	private static class TrackerSweepModelAdapter implements JsonSerializer< TrackerSweepModel >, JsonDeserializer< TrackerSweepModel >
+	{
+
+		@Override
+		public TrackerSweepModel deserialize( final JsonElement json, final Type typeOfT, final JsonDeserializationContext context ) throws JsonParseException
+		{
+			final JsonObject jsonObject = json.getAsJsonObject();
+			final String type = jsonObject.get( "type" ).getAsString();
+			final JsonElement element = jsonObject.get( "properties" );
+
+			try
+			{
+				return context.deserialize( element, Class.forName( "fiji.plugin.trackmate.ctc.model.tracker." + type ) );
+			}
+			catch ( final ClassNotFoundException cnfe )
+			{
+				throw new JsonParseException( "Unknown element type: " + type, cnfe );
+			}
+		}
+
+		@Override
+		public JsonElement serialize( final TrackerSweepModel src, final Type typeOfSrc, final JsonSerializationContext context )
 		{
 			final JsonObject result = new JsonObject();
 			result.add( "type", new JsonPrimitive( src.getClass().getSimpleName() ) );

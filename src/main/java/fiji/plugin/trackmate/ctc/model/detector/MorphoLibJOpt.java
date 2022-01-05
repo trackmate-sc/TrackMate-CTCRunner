@@ -1,17 +1,30 @@
-package fiji.plugin.trackmate.ctc.ui.detectors.optional;
+package fiji.plugin.trackmate.ctc.model.detector;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.DoubleParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.EnumParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel.RangeType;
-import fiji.plugin.trackmate.ctc.ui.detectors.DetectorSweepModel;
+import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.detection.ThresholdDetectorFactory;
 import fiji.plugin.trackmate.morpholibj.Connectivity;
 import fiji.plugin.trackmate.morpholibj.MorphoLibJDetectorFactory;
 
-public class MorphoLibJDetector
+public class MorphoLibJOpt
 {
-	public static final DetectorSweepModel morphoLibJDetectorModel()
+
+	private MorphoLibJOpt()
+	{}
+
+	public static SpotDetectorFactoryBase< ? > createFactory()
+	{
+		return new MorphoLibJDetectorFactory<>();
+	}
+
+	public static Map< String, AbstractParamSweepModel< ? > > createModels()
 	{
 		final DoubleParamSweepModel toleranceParam = new DoubleParamSweepModel()
 				.paramName( "Tolerance" )
@@ -28,12 +41,10 @@ public class MorphoLibJDetector
 				.rangeType( BooleanParamSweepModel.RangeType.FIXED )
 				.fixedValue( true );
 
-		return DetectorSweepModel.create()
-				.name( MorphoLibJDetectorFactory.NAME )
-				.factory( new MorphoLibJDetectorFactory<>() )
-				.add( MorphoLibJDetectorFactory.KEY_TOLERANCE, toleranceParam )
-				.add( MorphoLibJDetectorFactory.KEY_CONNECTIVITY, connectivityParam )
-				.add( ThresholdDetectorFactory.KEY_SIMPLIFY_CONTOURS, simplifyContourParam )
-				.get();
+		final Map< String, AbstractParamSweepModel< ? > > models = new HashMap<>();
+		models.put( MorphoLibJDetectorFactory.KEY_TOLERANCE, toleranceParam );
+		models.put( MorphoLibJDetectorFactory.KEY_CONNECTIVITY, connectivityParam );
+		models.put( ThresholdDetectorFactory.KEY_SIMPLIFY_CONTOURS, simplifyContourParam );
+		return models;
 	}
 }
