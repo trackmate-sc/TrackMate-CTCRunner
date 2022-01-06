@@ -1,6 +1,6 @@
 package fiji.plugin.trackmate.ctc.model.detector;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
@@ -41,7 +41,7 @@ public class MorphoLibJOpt
 				.rangeType( BooleanParamSweepModel.RangeType.FIXED )
 				.fixedValue( true );
 
-		final Map< String, AbstractParamSweepModel< ? > > models = new HashMap<>();
+		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
 		models.put( MorphoLibJDetectorFactory.KEY_TOLERANCE, toleranceParam );
 		models.put( MorphoLibJDetectorFactory.KEY_CONNECTIVITY, connectivityParam );
 		models.put( ThresholdDetectorFactory.KEY_SIMPLIFY_CONTOURS, simplifyContourParam );

@@ -1,6 +1,6 @@
 package fiji.plugin.trackmate.ctc.model.detector;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import fiji.plugin.trackmate.Dimension;
@@ -58,7 +58,7 @@ public class CellposeOpt
 				.rangeType( fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel.RangeType.FIXED )
 				.fixedValue( true );
 
-		final Map< String, AbstractParamSweepModel< ? > > models = new HashMap<>();
+		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
 		models.put( CellposeDetectorFactory.KEY_CELLPOSE_PYTHON_FILEPATH, cellposePath );
 		models.put( CellposeDetectorFactory.KEY_CELLPOSE_MODEL, cellposeModel );
 		models.put( CellposeDetectorFactory.KEY_CELL_DIAMETER, cellDiameter );

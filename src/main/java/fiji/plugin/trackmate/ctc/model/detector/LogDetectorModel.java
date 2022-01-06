@@ -1,6 +1,6 @@
 package fiji.plugin.trackmate.ctc.model.detector;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import fiji.plugin.trackmate.Dimension;
@@ -41,7 +41,7 @@ public class LogDetectorModel extends DetectorSweepModel
 				.rangeType( BooleanParamSweepModel.RangeType.FIXED )
 				.fixedValue( false );
 
-		final Map< String, AbstractParamSweepModel< ? > > models = new HashMap<>();
+		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
 		models.put( DetectorKeys.KEY_RADIUS, estimatedRadius );
 		models.put( DetectorKeys.KEY_THRESHOLD, threshold );
 		models.put( DetectorKeys.KEY_DO_SUBPIXEL_LOCALIZATION, subpixelLocalization );

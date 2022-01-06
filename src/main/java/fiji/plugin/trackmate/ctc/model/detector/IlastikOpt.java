@@ -1,6 +1,6 @@
 package fiji.plugin.trackmate.ctc.model.detector;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
@@ -34,7 +34,7 @@ public class IlastikOpt
 				.rangeType( RangeType.FIXED )
 				.min( 1 );
 
-		final Map< String, AbstractParamSweepModel< ? > > models = new HashMap<>();
+		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
 		models.put( IlastikDetectorFactory.KEY_CLASSIFIER_FILEPATH, classifierPath );
 		models.put( IlastikDetectorFactory.KEY_CLASS_INDEX, classIndex );
 		models.put( IlastikDetectorFactory.KEY_PROBA_THRESHOLD, probaThreshold );

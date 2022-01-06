@@ -1,6 +1,6 @@
 package fiji.plugin.trackmate.ctc.model.detector;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
@@ -29,7 +29,7 @@ public class ThresholdDetectorModel extends DetectorSweepModel
 				.min( 50. )
 				.max( 100. )
 				.nSteps( 3 );
-		final Map< String, AbstractParamSweepModel< ? > > models = new HashMap<>();
+		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
 		models.put( ThresholdDetectorFactory.KEY_INTENSITY_THRESHOLD, intensityThreshold );
 		models.put( ThresholdDetectorFactory.KEY_SIMPLIFY_CONTOURS, simplifyContours );
 		return models;

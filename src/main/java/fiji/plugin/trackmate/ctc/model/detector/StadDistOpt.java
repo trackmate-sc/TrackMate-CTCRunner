@@ -1,7 +1,7 @@
 package fiji.plugin.trackmate.ctc.model.detector;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
@@ -50,7 +50,7 @@ public class StadDistOpt
 				.rangeType( RangeType.FIXED )
 				.min( 0.5 );
 
-		final Map< String, AbstractParamSweepModel< ? > > models = new HashMap<>();
+		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
 		models.put( StarDistCustomDetectorFactory.KEY_MODEL_FILEPATH, stardistBunblePath );
 		models.put( StarDistCustomDetectorFactory.KEY_SCORE_THRESHOLD, probaThreshold );
 		models.put( StarDistCustomDetectorFactory.KEY_OVERLAP_THRESHOLD, overlapThreshold );
