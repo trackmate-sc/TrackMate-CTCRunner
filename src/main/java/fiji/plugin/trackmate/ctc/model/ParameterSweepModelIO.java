@@ -146,7 +146,7 @@ public class ParameterSweepModelIO
 
 			try
 			{
-				return context.deserialize( element, Class.forName( "fiji.plugin.trackmate.ctc.ui.components." + type ) );
+				return context.deserialize( element, Class.forName( "fiji.plugin.trackmate.ctc.model.parameter." + type ) );
 			}
 			catch ( final ClassNotFoundException cnfe )
 			{
