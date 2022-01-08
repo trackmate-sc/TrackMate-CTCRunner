@@ -1,6 +1,6 @@
 package fiji.plugin.trackmate.ctc.model.tracker;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import fiji.plugin.trackmate.Dimension;
@@ -40,7 +40,7 @@ public class KalmanTrackerModel extends TrackerSweepModel
 				.min( 2 )
 				.rangeType( RangeType.FIXED );
 
-		final Map< String, AbstractParamSweepModel< ? > > models = new HashMap<>();
+		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
 		models.put( TrackerKeys.KEY_LINKING_MAX_DISTANCE, initSearchParam );
 		models.put( KalmanTrackerFactory.KEY_KALMAN_SEARCH_RADIUS, searchRadiusParam );
 		models.put( TrackerKeys.KEY_GAP_CLOSING_MAX_FRAME_GAP, maxFrameGapParam );

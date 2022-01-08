@@ -1,6 +1,6 @@
 package fiji.plugin.trackmate.ctc.model.tracker;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import fiji.plugin.trackmate.Dimension;
@@ -70,7 +70,7 @@ public class LAPTrackerModel extends TrackerSweepModel
 				.nSteps( 3 )
 				.rangeType( RangeType.FIXED );
 
-		final Map< String, AbstractParamSweepModel< ? > > models = new HashMap<>();
+		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
 		models.put( TrackerKeys.KEY_LINKING_MAX_DISTANCE, maxLinkingDistanceParam );
 		models.put( TrackerKeys.KEY_ALLOW_GAP_CLOSING, allowGapClosingParam );
 		models.put( TrackerKeys.KEY_GAP_CLOSING_MAX_DISTANCE, gapClosingDistanceParam );
