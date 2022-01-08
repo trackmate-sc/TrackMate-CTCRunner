@@ -208,7 +208,7 @@ public class ParameterSweepPanel extends JPanel
 			final boolean active = model.isActive( name );
 			final JCheckBox chkbox = new JCheckBox( name, active );
 			chkbox.setFont( SMALL_FONT );
-			final SweepPanel panel = new SweepPanel( dm, spaceUnits, timeUnits );
+			final ModuleParameterSweepPanel panel = new ModuleParameterSweepPanel( dm, spaceUnits, timeUnits );
 			final ActionListener al = l -> {
 				if ( chkbox.isSelected() )
 				{
@@ -245,7 +245,7 @@ public class ParameterSweepPanel extends JPanel
 			final boolean active = model.isActive( name );
 			final JCheckBox chkbox = new JCheckBox( name, active );
 			chkbox.setFont( SMALL_FONT );
-			final SweepPanel panel = new SweepPanel( tm, spaceUnits, timeUnits );
+			final ModuleParameterSweepPanel panel = new ModuleParameterSweepPanel( tm, spaceUnits, timeUnits );
 			final ActionListener al = e -> {
 				if ( chkbox.isSelected() )
 				{

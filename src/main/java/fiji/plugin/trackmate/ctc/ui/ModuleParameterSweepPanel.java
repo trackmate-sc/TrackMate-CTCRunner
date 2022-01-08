@@ -28,12 +28,18 @@ import fiji.plugin.trackmate.ctc.ui.components.NumberRangeSweepPanel;
 import fiji.plugin.trackmate.ctc.ui.components.StringRangeParamSweepPanel;
 import fiji.plugin.trackmate.gui.Fonts;
 
-public class SweepPanel extends JPanel
+/**
+ * Panel that lets the user configure a parameter sweep over a TrackMate module
+ * (detector or tracker).
+ * 
+ * @author Jean-Yves Tinevez
+ */
+public class ModuleParameterSweepPanel extends JPanel
 {
 
 	private static final long serialVersionUID = 1L;
 
-	public SweepPanel( final AbstractSweepModel< ? > model, final String spaceUnits, final String timeUnits )
+	public ModuleParameterSweepPanel( final AbstractSweepModel< ? > model, final String spaceUnits, final String timeUnits )
 	{
 		setBorder( BorderFactory.createEmptyBorder( 5, 5, 5, 5 ) );
 		setLayout( new BorderLayout() );
