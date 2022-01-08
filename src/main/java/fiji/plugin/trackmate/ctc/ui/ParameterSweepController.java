@@ -108,6 +108,8 @@ public class ParameterSweepController implements Cancelable
 					runner.setBatchLogger( gui.logger );
 
 					final Settings base = new Settings( imp );
+					base.setSpotFilters( model.getSpotFilters() );
+					base.setTrackFilters( model.getTrackFilters() );
 					int progress = 0;
 					for ( final DetectorSweepModel detectorModel : model.getActiveDetectors() )
 					{
@@ -121,6 +123,7 @@ public class ParameterSweepController implements Cancelable
 							gui.logger.log( "\n________________________________________\n" );
 							gui.logger.log( TMUtils.getCurrentTimeString() + "\n" );
 							gui.logger.setStatus( ds.detectorFactory.getName() );
+
 							final ValuePair< TrackMate, Double > detectionResult = runner.execDetection( ds );
 							final TrackMate trackmate = detectionResult.getA();
 							if ( null == trackmate )

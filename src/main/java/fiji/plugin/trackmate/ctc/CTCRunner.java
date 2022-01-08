@@ -81,6 +81,8 @@ public class CTCRunner implements Cancelable, Runnable
 		crawl();
 
 		final Settings base = new Settings( imp );
+		base.setSpotFilters( model.getSpotFilters() );
+		base.setTrackFilters( model.getTrackFilters() );
 		int progress = 0;
 		for ( final DetectorSweepModel detectorModel : model.getActiveDetectors() )
 		{
