@@ -110,10 +110,10 @@ public class ParameterSweepPanel extends JPanel
 		final CrawlerResultsPanel bestParamsPanel = new CrawlerResultsPanel( crawler );
 		tabbedPane.addTab( "Best params", null, bestParamsPanel, null );
 
-		panelSpotFilters = new FilterConfigPanel( TrackMateObject.SPOTS, Spot.QUALITY, imp, model.spotFilters() );
+		panelSpotFilters = new FilterConfigPanel( TrackMateObject.SPOTS, Spot.QUALITY, imp, model.getSpotFilters() );
 		tabbedPane.addTab( "Spot filters", null, panelSpotFilters, null );
 
-		panelTrackFilters = new FilterConfigPanel( TrackMateObject.TRACKS, TrackBranchingAnalyzer.NUMBER_SPOTS, imp, model.trackFilters() );
+		panelTrackFilters = new FilterConfigPanel( TrackMateObject.TRACKS, TrackBranchingAnalyzer.NUMBER_SPOTS, imp, model.getTrackFilters() );
 		tabbedPane.addTab( "Track filters", null, panelTrackFilters, null );
 
 		/*

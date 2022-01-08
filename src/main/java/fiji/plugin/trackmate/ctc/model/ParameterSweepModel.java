@@ -126,12 +126,12 @@ public class ParameterSweepModel
 			notifyListeners();
 	}
 
-	public List< FeatureFilter > spotFilters()
+	public List< FeatureFilter > getSpotFilters()
 	{
 		return Collections.unmodifiableList( spotFilters );
 	}
 
-	public List< FeatureFilter > trackFilters()
+	public List< FeatureFilter > getTrackFilters()
 	{
 		return Collections.unmodifiableList( trackFilters );
 	}
