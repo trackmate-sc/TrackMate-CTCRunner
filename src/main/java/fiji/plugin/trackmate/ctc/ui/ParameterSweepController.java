@@ -122,6 +122,12 @@ public class ParameterSweepController implements Cancelable
 							gui.logger.setStatus( ds.detectorFactory.getName() );
 							final ValuePair< TrackMate, Double > detectionResult = runner.execDetection( ds );
 							final TrackMate trackmate = detectionResult.getA();
+							if ( null == trackmate )
+							{
+								gui.logger.error( "Error running TrackMate with these parameters.\nSkipping.\n" );
+								continue;
+							}
+
 							final double detectionTiming = detectionResult.getB();
 
 							for ( final TrackerSweepModel trackerModel : model.getActiveTracker() )
