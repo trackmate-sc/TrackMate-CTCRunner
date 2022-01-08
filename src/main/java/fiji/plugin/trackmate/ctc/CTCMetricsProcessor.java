@@ -64,7 +64,19 @@ public class CTCMetricsProcessor
 
 	public CTCMetrics process( final String groundTruthPath, final String resultsFolder ) throws ImgIOException, IOException
 	{
-		final double segValue = seg.calculate( groundTruthPath, resultsFolder );
+		double segValue = Double.NaN;
+		try
+		{
+			segValue = seg.calculate( groundTruthPath, resultsFolder );
+		}
+		catch ( final IllegalArgumentException e )
+		{
+			/*
+			 * Could not find the source to compute SEG metrics. Never-mind,
+			 * return NaN.
+			 */
+		}
+
 		final double traValue = tra.calculate( groundTruthPath, resultsFolder );
 		final TrackDataCache sharedCache = tra.getCache();
 		final double detValue = det.calculate( groundTruthPath, resultsFolder, sharedCache );
