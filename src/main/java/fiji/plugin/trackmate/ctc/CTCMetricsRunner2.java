@@ -97,7 +97,9 @@ public class CTCMetricsRunner2
 		final double detectionTiming = ( end - start ) / 1000.;
 
 		batchLogger.log( String.format( "Detection done in %.1f s.\n", ( end - start ) / 1e3f ) );
-		batchLogger.log( String.format( "Found %d spots.\n", trackmate.getModel().getSpots().getNSpots( false ) ) );
+		batchLogger.log( String.format( "Found %d visible spots over %d in total.\n",
+				trackmate.getModel().getSpots().getNSpots( true ),
+				trackmate.getModel().getSpots().getNSpots( false ) ) );
 
 		return new ValuePair<>( trackmate, detectionTiming );
 	}
@@ -105,6 +107,8 @@ public class CTCMetricsRunner2
 	public double execTracking( final TrackMate trackmate )
 	{
 		batchLogger.log( "Executing tracking.\n" );
+		batchLogger.log( "Configured detector: " );
+		batchLogger.log( trackmate.getSettings().detectorFactory.getName(), Logger.BLUE_COLOR );
 		batchLogger.log( "Configured tracker: " );
 		batchLogger.log( trackmate.getSettings().trackerFactory.getName(), Logger.BLUE_COLOR );
 		batchLogger.log( " with settings:\n" );
@@ -125,11 +129,11 @@ public class CTCMetricsRunner2
 
 		batchLogger.log( String.format( "Tracking done in %.1f s.\n", trackingTiming ) );
 		final TrackModel trackModel = trackmate.getModel().getTrackModel();
-		final int nTracks = trackModel.nTracks( false );
 		final IntSummaryStatistics stats = trackModel.unsortedTrackIDs( false ).stream()
 				.mapToInt( id -> trackModel.trackSpots( id ).size() )
 				.summaryStatistics();
-		batchLogger.log( "Found " + nTracks + " tracks.\n" );
+		batchLogger.log( "Found " + trackModel.nTracks( false ) + " visible tracks over " 
+				+ trackModel.nTracks( false ) + " in total.\n" );
 		batchLogger.log( String.format( "  - avg size: %.1f spots.\n", stats.getAverage() ) );
 		batchLogger.log( String.format( "  - min size: %d spots.\n", stats.getMin() ) );
 		batchLogger.log( String.format( "  - max size: %d spots.\n", stats.getMax() ) );
