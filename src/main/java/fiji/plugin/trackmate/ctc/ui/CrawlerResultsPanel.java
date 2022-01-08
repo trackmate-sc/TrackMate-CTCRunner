@@ -22,6 +22,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -347,7 +348,7 @@ public class CrawlerResultsPanel extends JPanel
 					}
 				}
 			}
-			fireTableDataChanged();
+			SwingUtilities.invokeLater( () -> fireTableDataChanged() );
 		}
 
 		@Override
@@ -537,7 +538,7 @@ public class CrawlerResultsPanel extends JPanel
 					}
 				}
 			}
-			fireTableDataChanged();
+			SwingUtilities.invokeLater( () -> fireTableDataChanged() );
 		}
 
 		@Override
