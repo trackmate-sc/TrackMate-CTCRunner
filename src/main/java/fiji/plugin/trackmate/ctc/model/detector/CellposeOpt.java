@@ -31,7 +31,7 @@ public class CellposeOpt
 				.add( System.getProperty( "user.home" ) );
 		final EnumParamSweepModel< PretrainedModel > cellposeModel = new EnumParamSweepModel<>( PretrainedModel.class )
 				.paramName( "Cellpose model" )
-				.rangeType( fiji.plugin.trackmate.ctc.ui.components.EnumParamSweepModel.RangeType.FIXED )
+				.rangeType( fiji.plugin.trackmate.ctc.ui.components.ArrayParamSweepModel.RangeType.FIXED )
 				.fixedValue( PretrainedModel.CYTO );
 		final IntParamSweepModel channel1 = new IntParamSweepModel()
 				.paramName( "Channel to segment" )

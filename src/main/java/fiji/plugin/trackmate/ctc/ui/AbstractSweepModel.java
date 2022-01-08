@@ -8,14 +8,16 @@ import org.scijava.listeners.Listeners;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMateModule;
 import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel.ModelListener;
 
 public abstract class AbstractSweepModel< F extends TrackMateModule >
 {
 
-	protected transient Listeners.List< ModelListener > modelListeners;
+	public interface ModelListener
+	{
+		public void modelChanged();
+	}
 
-	public abstract Iterator< Settings > iterator( final Settings base, final int targetChannel );
+	private transient Listeners.List< ModelListener > modelListeners;
 
 	protected final String name;
 
@@ -25,9 +27,20 @@ public abstract class AbstractSweepModel< F extends TrackMateModule >
 	
 	protected AbstractSweepModel( final String name, final Map< String, AbstractParamSweepModel< ? > > models, final F factory )
 	{
+		super();
 		this.name = name;
 		this.models = models;
 		this.factory = factory;
+
+		// Register models.
+		models.values().forEach( m -> m.listeners().add( () -> notifyListeners() ) );
+	}
+
+	public abstract Iterator< Settings > iterator( final Settings base, final int targetChannel );
+
+	public String getName()
+	{
+		return name;
 	}
 
 	public Listeners.List< ModelListener > listeners()
@@ -49,10 +62,5 @@ public abstract class AbstractSweepModel< F extends TrackMateModule >
 	{
 		for ( final ModelListener l : modelListeners.list )
 			l.modelChanged();
-	}
-
-	public String getName()
-	{
-		return name;
 	}
 }

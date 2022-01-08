@@ -30,7 +30,7 @@ import fiji.plugin.trackmate.ctc.model.tracker.NearestNeighborTrackerModel;
 import fiji.plugin.trackmate.ctc.model.tracker.OverlapTrackerModel;
 import fiji.plugin.trackmate.ctc.model.tracker.SimpleLAPTrackerModel;
 import fiji.plugin.trackmate.ctc.model.tracker.TrackerSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel.ModelListener;
+import fiji.plugin.trackmate.ctc.ui.AbstractSweepModel.ModelListener;
 import fiji.plugin.trackmate.features.FeatureFilter;
 
 public class ParameterSweepModel

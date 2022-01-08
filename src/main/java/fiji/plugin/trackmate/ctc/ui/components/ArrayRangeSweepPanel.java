@@ -22,11 +22,11 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.EmptyBorder;
 
-import fiji.plugin.trackmate.ctc.ui.components.EnumParamSweepModel.RangeType;
+import fiji.plugin.trackmate.ctc.ui.components.ArrayParamSweepModel.RangeType;
 import fiji.plugin.trackmate.gui.Fonts;
 import fiji.plugin.trackmate.gui.Icons;
 
-public class EnumRangeSweepPanel< T extends Enum< T > > extends JPanel
+public class ArrayRangeSweepPanel< T > extends JPanel
 {
 
 	private static final long serialVersionUID = 1L;
@@ -47,11 +47,11 @@ public class EnumRangeSweepPanel< T extends Enum< T > > extends JPanel
 
 	private final JLabel lblValuesList;
 
-	private final EnumParamSweepModel< T > values;
+	private final ArrayParamSweepModel< T > values;
 
 	private final JButton btnRemove;
 
-	public EnumRangeSweepPanel( final EnumParamSweepModel< T > val )
+	public ArrayRangeSweepPanel( final ArrayParamSweepModel< T > val )
 	{
 		this.values = val;
 		setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
@@ -249,14 +249,14 @@ public class EnumRangeSweepPanel< T extends Enum< T > > extends JPanel
 
 	public static void main( final String[] args )
 	{
-		final EnumParamSweepModel< RangeType > model = new EnumParamSweepModel<>( RangeType.class )
+		final ArrayParamSweepModel< RangeType > model = new ArrayParamSweepModel<>( RangeType.values() )
 				.paramName( "Test enum" )
 				.rangeType( RangeType.LIST )
 				.addValue( RangeType.FIXED )
 				.addValue( RangeType.TEST_ALL );
 
 		final JFrame frame = new JFrame();
-		frame.getContentPane().add( new EnumRangeSweepPanel<>( model ) );
+		frame.getContentPane().add( new ArrayRangeSweepPanel<>( model ) );
 		frame.pack();
 		frame.setLocationRelativeTo( null );
 		frame.setVisible( true );

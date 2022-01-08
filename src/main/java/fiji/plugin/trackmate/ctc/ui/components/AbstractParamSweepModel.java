@@ -4,13 +4,10 @@ import java.util.List;
 
 import org.scijava.listeners.Listeners;
 
+import fiji.plugin.trackmate.ctc.ui.AbstractSweepModel.ModelListener;
+
 public abstract class AbstractParamSweepModel< T >
 {
-
-	public interface ModelListener
-	{
-		public void modelChanged();
-	}
 
 	public abstract List< T > getRange();
 
@@ -31,6 +28,11 @@ public abstract class AbstractParamSweepModel< T >
 			notifyListeners();
 		}
 		return this;
+	}
+
+	public String getParamName()
+	{
+		return paramName;
 	}
 
 	public Listeners.List< ModelListener > listeners()

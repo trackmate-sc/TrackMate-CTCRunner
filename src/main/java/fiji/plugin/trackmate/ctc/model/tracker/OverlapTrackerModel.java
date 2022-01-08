@@ -1,14 +1,16 @@
 package fiji.plugin.trackmate.ctc.model.tracker;
 
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
+import fiji.plugin.trackmate.ctc.ui.components.ArrayParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.DoubleParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.EnumParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel.RangeType;
-import fiji.plugin.trackmate.tracking.overlap.OverlapTrackerFactory;
 import fiji.plugin.trackmate.tracking.overlap.OverlapTracker.IoUCalculation;
+import fiji.plugin.trackmate.tracking.overlap.OverlapTrackerFactory;
 
 public class OverlapTrackerModel extends TrackerSweepModel
 {
@@ -17,7 +19,6 @@ public class OverlapTrackerModel extends TrackerSweepModel
 	{
 		super( OverlapTrackerFactory.TRACKER_NAME, createModels(), new OverlapTrackerFactory() );
 	}
-
 	private static Map< String, AbstractParamSweepModel< ? > > createModels()
 	{
 		final DoubleParamSweepModel scaleFactorParam = new DoubleParamSweepModel()
@@ -32,12 +33,16 @@ public class OverlapTrackerModel extends TrackerSweepModel
 				.max( 0.5 )
 				.nSteps( 3 )
 				.rangeType( RangeType.FIXED );
-		final EnumParamSweepModel< IoUCalculation > iouCalculationParam = new EnumParamSweepModel<>( IoUCalculation.class )
+		final String[] iouCalVals = Arrays.stream( IoUCalculation.values() )
+				.map( e -> e.name() )
+				.collect( Collectors.toList() )
+				.toArray( new String[] {} );
+		final ArrayParamSweepModel< String > iouCalculationParam = new ArrayParamSweepModel<>( iouCalVals )
 				.paramName( "IoU calculation" )
-				.fixedValue( IoUCalculation.PRECISE )
-				.rangeType( fiji.plugin.trackmate.ctc.ui.components.EnumParamSweepModel.RangeType.FIXED );
+				.fixedValue( IoUCalculation.PRECISE.name() )
+				.rangeType( fiji.plugin.trackmate.ctc.ui.components.ArrayParamSweepModel.RangeType.FIXED );
 
-		final Map< String, AbstractParamSweepModel< ? > > models = new HashMap<>();
+		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
 		models.put( OverlapTrackerFactory.KEY_SCALE_FACTOR, scaleFactorParam );
 		models.put( OverlapTrackerFactory.KEY_MIN_IOU, minIoUParam );
 		models.put( OverlapTrackerFactory.KEY_IOU_CALCULATION, iouCalculationParam );

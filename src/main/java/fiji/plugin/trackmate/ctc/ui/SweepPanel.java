@@ -13,12 +13,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 
 import fiji.plugin.trackmate.Settings;
+import fiji.plugin.trackmate.ctc.ui.AbstractSweepModel.ModelListener;
 import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel.ModelListener;
+import fiji.plugin.trackmate.ctc.ui.components.ArrayParamSweepModel;
+import fiji.plugin.trackmate.ctc.ui.components.ArrayRangeSweepPanel;
 import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.BooleanRangeSweepPanel;
-import fiji.plugin.trackmate.ctc.ui.components.EnumParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.EnumRangeSweepPanel;
 import fiji.plugin.trackmate.ctc.ui.components.InfoPanel;
 import fiji.plugin.trackmate.ctc.ui.components.InfoParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel;
@@ -106,11 +106,11 @@ public class SweepPanel extends JPanel
 			return new NumberRangeSweepPanel( ( NumberParamSweepModel ) cm, spaceUnits, timeUnits );
 		else if ( cm instanceof StringRangeParamSweepModel )
 			return new StringRangeParamSweepPanel( ( StringRangeParamSweepModel ) cm );
-		else if ( cm instanceof EnumParamSweepModel< ? > )
-			return new EnumRangeSweepPanel<>( ( EnumParamSweepModel< ? > ) cm );
+		else if ( cm instanceof ArrayParamSweepModel< ? > )
+			return new ArrayRangeSweepPanel<>( ( ArrayParamSweepModel< ? > ) cm );
 		else if ( cm instanceof InfoParamSweepModel )
 			return new InfoPanel( ( InfoParamSweepModel ) cm );
 		else
-			throw new IllegalArgumentException( "Do not know how to create a panel for model: " + cm );
+			throw new IllegalArgumentException( "Do not know how to create a panel for model: " + cm.getClass() );
 	}
 }

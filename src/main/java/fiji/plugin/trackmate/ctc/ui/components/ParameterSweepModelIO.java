@@ -25,7 +25,7 @@ import com.google.gson.JsonSerializer;
 import fiji.plugin.trackmate.ctc.model.detector.DetectorSweepModel;
 import fiji.plugin.trackmate.ctc.model.tracker.TrackerSweepModel;
 import fiji.plugin.trackmate.ctc.ui.ParameterSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.EnumParamSweepModel.RangeType;
+import fiji.plugin.trackmate.ctc.ui.components.ArrayParamSweepModel.RangeType;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.providers.DetectorProvider;
 import fiji.plugin.trackmate.providers.TrackerProvider;

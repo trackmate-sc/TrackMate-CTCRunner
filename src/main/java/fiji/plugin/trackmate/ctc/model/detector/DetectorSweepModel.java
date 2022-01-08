@@ -35,17 +35,17 @@ public class DetectorSweepModel extends AbstractSweepModel< SpotDetectorFactoryB
 		s.detectorFactory = factory.copy();
 		s.detectorSettings = ds;
 
-		return new MyIterator( s, models );
+		return new ModelsIterator( s, models );
 	}
 
-	private static class MyIterator implements Iterator< Settings >
+	protected static class ModelsIterator implements Iterator< Settings >
 	{
 
 		private final Settings base;
 
 		private final Combinations combinations;
 
-		public MyIterator( final Settings base, final Map< String, AbstractParamSweepModel< ? > > models )
+		public ModelsIterator( final Settings base, final Map< String, AbstractParamSweepModel< ? > > models )
 		{
 			this.base = base;
 			final Map< String, List< Object > > values = new LinkedHashMap<>( models.size() );
