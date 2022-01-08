@@ -4,11 +4,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import fiji.plugin.trackmate.Dimension;
-import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.DoubleParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.IntParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel.RangeType;
+import fiji.plugin.trackmate.ctc.model.parameter.AbstractParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.BooleanParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.DoubleParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.IntParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.NumberParamSweepModel.RangeType;
 import fiji.plugin.trackmate.tracking.TrackerKeys;
 import fiji.plugin.trackmate.tracking.sparselap.SparseLAPTrackerFactory;
 
@@ -33,7 +33,7 @@ public class LAPTrackerModel extends TrackerSweepModel
 		final BooleanParamSweepModel allowGapClosingParam = new BooleanParamSweepModel()
 				.paramName( "Allow gap-closing" )
 				.fixedValue( true )
-				.rangeType( fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel.RangeType.FIXED );
+				.rangeType( fiji.plugin.trackmate.ctc.model.parameter.BooleanParamSweepModel.RangeType.FIXED );
 		final DoubleParamSweepModel gapClosingDistanceParam = new DoubleParamSweepModel()
 				.paramName( "Gap-closing distance" )
 				.dimension( Dimension.LENGTH )
@@ -49,7 +49,7 @@ public class LAPTrackerModel extends TrackerSweepModel
 		final BooleanParamSweepModel allowTrackSplittingParam = new BooleanParamSweepModel()
 				.paramName( "Allow track splitting" )
 				.fixedValue( true )
-				.rangeType( fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel.RangeType.FIXED );
+				.rangeType( fiji.plugin.trackmate.ctc.model.parameter.BooleanParamSweepModel.RangeType.FIXED );
 		final DoubleParamSweepModel splittingMaxDistanceParam = new DoubleParamSweepModel()
 				.paramName( "Splitting max distance" )
 				.dimension( Dimension.LENGTH )
@@ -61,7 +61,7 @@ public class LAPTrackerModel extends TrackerSweepModel
 		final BooleanParamSweepModel allowTrackMergingParam = new BooleanParamSweepModel()
 				.paramName( "Allow track merging" )
 				.fixedValue( true )
-				.rangeType( fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel.RangeType.FIXED );
+				.rangeType( fiji.plugin.trackmate.ctc.model.parameter.BooleanParamSweepModel.RangeType.FIXED );
 		final DoubleParamSweepModel mergingMaxDistanceParam = new DoubleParamSweepModel()
 				.paramName( "Merging max distance" )
 				.dimension( Dimension.LENGTH )

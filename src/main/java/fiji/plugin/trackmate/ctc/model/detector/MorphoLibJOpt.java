@@ -10,12 +10,12 @@ import java.util.stream.Collectors;
 
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.ctc.model.detector.DetectorSweepModel.ModelsIterator;
-import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.DoubleParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.EnumParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.IntParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel.RangeType;
+import fiji.plugin.trackmate.ctc.model.parameter.AbstractParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.BooleanParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.DoubleParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.EnumParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.IntParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.NumberParamSweepModel.RangeType;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.detection.ThresholdDetectorFactory;
 import fiji.plugin.trackmate.morpholibj.Connectivity;
@@ -42,7 +42,7 @@ public class MorphoLibJOpt
 				.nSteps( 3 );
 		final EnumParamSweepModel< Connectivity > connectivityParam = new EnumParamSweepModel<>( Connectivity.class )
 				.paramName( "Connectivity" )
-				.rangeType( fiji.plugin.trackmate.ctc.ui.components.ArrayParamSweepModel.RangeType.FIXED )
+				.rangeType( fiji.plugin.trackmate.ctc.model.parameter.ArrayParamSweepModel.RangeType.FIXED )
 				.fixedValue( Connectivity.DIAGONAL );
 		final BooleanParamSweepModel simplifyContourParam = new BooleanParamSweepModel()
 				.paramName( "Simplify contours" )
@@ -66,7 +66,7 @@ public class MorphoLibJOpt
 
 		// Substitute the Connectivity model, that must return an integer...
 		@SuppressWarnings( "unchecked" )
-		final EnumParamSweepModel< Connectivity > connectivityModel = ( EnumParamSweepModel< Connectivity > ) models.get( MorphoLibJDetectorFactory.KEY_CONNECTIVITY );
+		final EnumParamSweepModel< Connectivity > connectivityModel = (fiji.plugin.trackmate.ctc.model.parameter.EnumParamSweepModel< Connectivity > ) models.get( MorphoLibJDetectorFactory.KEY_CONNECTIVITY );
 		final Integer[] vals = connectivityModel.getRange().stream()
 				.map( Connectivity::getConnectivity )
 				.collect( Collectors.toList() )

@@ -28,6 +28,7 @@ import javax.swing.ScrollPaneConstants;
 
 import com.itextpdf.text.Font;
 
+import fiji.plugin.trackmate.ctc.model.parameter.StringRangeParamSweepModel;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import fiji.plugin.trackmate.util.FileChooser;
 import fiji.plugin.trackmate.util.FileChooser.DialogType;
@@ -63,7 +64,7 @@ public class StringRangeParamSweepPanel extends JPanel
 		setPreferredSize( new Dimension( 270, 150 ) );
 
 		final JPanel topPanel = new JPanel();
-		final JLabel lblName = new JLabel( val.paramName );
+		final JLabel lblName = new JLabel( val.getParamName() );
 		lblName.setFont( FONT.deriveFont( Font.BOLD ) );
 		topPanel.add( lblName );
 		add( topPanel, BorderLayout.NORTH );

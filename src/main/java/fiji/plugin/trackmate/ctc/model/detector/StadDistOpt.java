@@ -4,10 +4,10 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.DoubleParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel.RangeType;
-import fiji.plugin.trackmate.ctc.ui.components.StringRangeParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.AbstractParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.DoubleParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.StringRangeParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.NumberParamSweepModel.RangeType;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.stardist.StarDistCustomDetectorFactory;
 import fiji.plugin.trackmate.stardist.StarDistDetectorFactory;

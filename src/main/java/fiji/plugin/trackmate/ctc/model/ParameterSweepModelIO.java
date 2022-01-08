@@ -1,4 +1,4 @@
-package fiji.plugin.trackmate.ctc.ui.components;
+package fiji.plugin.trackmate.ctc.model;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,9 +23,10 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import fiji.plugin.trackmate.ctc.model.detector.DetectorSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.AbstractParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.ArrayParamSweepModel.RangeType;
+import fiji.plugin.trackmate.ctc.model.parameter.EnumParamSweepModel;
 import fiji.plugin.trackmate.ctc.model.tracker.TrackerSweepModel;
-import fiji.plugin.trackmate.ctc.ui.ParameterSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.ArrayParamSweepModel.RangeType;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.providers.DetectorProvider;
 import fiji.plugin.trackmate.providers.TrackerProvider;
@@ -316,16 +317,16 @@ public class ParameterSweepModelIO
 		public JsonElement serialize( final EnumParamSweepModel< T > src, final Type typeOfSrc, final JsonSerializationContext context )
 		{
 			final JsonObject obj = new JsonObject();
-			obj.addProperty( "paramName", src.paramName );
-			obj.addProperty( "rangeType", src.rangeType.name() );
-			obj.addProperty( "fixedValue", src.fixedValue.name() );
-			final JsonArray arr = new JsonArray( src.set.size() );
-			for ( final T t : src.set )
+			obj.addProperty( "paramName", src.getParamName() );
+			obj.addProperty( "rangeType", src.getRangeType().name() );
+			obj.addProperty( "fixedValue", src.getFixedValue().name() );
+			final JsonArray arr = new JsonArray( src.getSelection().size() );
+			for ( final T t : src.getSelection() )
 				arr.add( t.name() );
 			obj.add( "set", arr );
 			obj.add( "enumClass", new ClassTypeAdapter().serialize(
-					src.fixedValue.getClass(),
-					src.fixedValue.getClass(),
+					src.getFixedValue().getClass(),
+					src.getFixedValue().getClass(),
 					context ) );
 
 			return obj;

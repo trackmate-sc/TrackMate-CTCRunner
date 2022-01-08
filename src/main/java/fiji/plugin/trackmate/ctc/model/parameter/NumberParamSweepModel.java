@@ -1,4 +1,4 @@
-package fiji.plugin.trackmate.ctc.ui.components;
+package fiji.plugin.trackmate.ctc.model.parameter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,6 +70,36 @@ public abstract class NumberParamSweepModel extends AbstractParamSweepModel< Num
 			notifyListeners();
 		}
 		return this;
+	}
+
+	public Dimension getDimension()
+	{
+		return dimension;
+	}
+
+	public RangeType getRangeType()
+	{
+		return rangeType;
+	}
+
+	public int getNSteps()
+	{
+		return nSteps;
+	}
+	
+	public Number getMin()
+	{
+		return min;
+	}
+	
+	public Number getMax()
+	{
+		return max;
+	}
+
+	public List< Number > getManualRange()
+	{
+		return manualRange;
 	}
 
 	@Override

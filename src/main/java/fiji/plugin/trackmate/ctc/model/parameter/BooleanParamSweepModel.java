@@ -1,4 +1,4 @@
-package fiji.plugin.trackmate.ctc.ui.components;
+package fiji.plugin.trackmate.ctc.model.parameter;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,6 +41,16 @@ public class BooleanParamSweepModel extends AbstractParamSweepModel< Boolean >
 		default:
 			throw new IllegalArgumentException( "Unknown range type: " + rangeType );
 		}
+	}
+
+	public boolean getFixedValue()
+	{
+		return fixedValue;
+	}
+
+	public RangeType getRangeType()
+	{
+		return rangeType;
 	}
 
 	@Override

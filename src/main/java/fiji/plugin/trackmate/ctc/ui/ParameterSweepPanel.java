@@ -35,6 +35,8 @@ import com.itextpdf.text.Font;
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.ctc.CTCResultsCrawler;
+import fiji.plugin.trackmate.ctc.model.AbstractSweepModel.ModelListener;
+import fiji.plugin.trackmate.ctc.model.ParameterSweepModel;
 import fiji.plugin.trackmate.ctc.model.detector.DetectorSweepModel;
 import fiji.plugin.trackmate.ctc.model.tracker.TrackerSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.FilterConfigPanel;
@@ -202,7 +204,7 @@ public class ParameterSweepPanel extends JPanel
 		c1.gridy = 1;
 		for ( final DetectorSweepModel dm : model.detectorModels() )
 		{
-			final String name = dm.name;
+			final String name = dm.getName();
 			final boolean active = model.isActive( name );
 			final JCheckBox chkbox = new JCheckBox( name, active );
 			chkbox.setFont( SMALL_FONT );
@@ -239,7 +241,7 @@ public class ParameterSweepPanel extends JPanel
 		c2.gridy = 1;
 		for ( final TrackerSweepModel tm : model.trackerModels() )
 		{
-			final String name = tm.name;
+			final String name = tm.getName();
 			final boolean active = model.isActive( name );
 			final JCheckBox chkbox = new JCheckBox( name, active );
 			chkbox.setFont( SMALL_FONT );
@@ -468,7 +470,7 @@ public class ParameterSweepPanel extends JPanel
 		 */
 
 		// Count the number of different settings.
-		model.listeners().add( () -> {
+		final ModelListener l1 = () -> {
 			final int count = model.count();
 			String str = "Parameter sweep configuration  -  ";
 			if ( count == 0 )
@@ -478,8 +480,9 @@ public class ParameterSweepPanel extends JPanel
 			else
 				str += String.format( "Will generate %d different settings to test.", count );
 			lblParamSweep.setText( str );
-		} );
-		model.notifyListeners();
+		};
+		model.listeners().add( l1 );
+		l1.modelChanged();
 	}
 
 	/**

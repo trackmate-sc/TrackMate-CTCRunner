@@ -6,13 +6,13 @@ import java.util.Map;
 import fiji.plugin.trackmate.Dimension;
 import fiji.plugin.trackmate.cellpose.CellposeDetectorFactory;
 import fiji.plugin.trackmate.cellpose.CellposeSettings.PretrainedModel;
-import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.DoubleParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.EnumParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.IntParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel.RangeType;
-import fiji.plugin.trackmate.ctc.ui.components.StringRangeParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.AbstractParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.BooleanParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.DoubleParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.EnumParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.IntParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.StringRangeParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.NumberParamSweepModel.RangeType;
 import fiji.plugin.trackmate.detection.DetectorKeys;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.detection.ThresholdDetectorFactory;
@@ -31,7 +31,7 @@ public class CellposeOpt
 				.add( System.getProperty( "user.home" ) );
 		final EnumParamSweepModel< PretrainedModel > cellposeModel = new EnumParamSweepModel<>( PretrainedModel.class )
 				.paramName( "Cellpose model" )
-				.rangeType( fiji.plugin.trackmate.ctc.ui.components.ArrayParamSweepModel.RangeType.FIXED )
+				.rangeType( fiji.plugin.trackmate.ctc.model.parameter.ArrayParamSweepModel.RangeType.FIXED )
 				.fixedValue( PretrainedModel.CYTO );
 		final IntParamSweepModel channel1 = new IntParamSweepModel()
 				.paramName( "Channel to segment" )
@@ -51,11 +51,11 @@ public class CellposeOpt
 				.max( 50. );
 		final BooleanParamSweepModel useGPU = new BooleanParamSweepModel()
 				.paramName( "Use GPU" )
-				.rangeType( fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel.RangeType.FIXED )
+				.rangeType( fiji.plugin.trackmate.ctc.model.parameter.BooleanParamSweepModel.RangeType.FIXED )
 				.fixedValue( true );
 		final BooleanParamSweepModel simplifyContours = new BooleanParamSweepModel()
 				.paramName( "Simplify contours" )
-				.rangeType( fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel.RangeType.FIXED )
+				.rangeType( fiji.plugin.trackmate.ctc.model.parameter.BooleanParamSweepModel.RangeType.FIXED )
 				.fixedValue( true );
 
 		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();

@@ -17,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import fiji.plugin.trackmate.ctc.model.parameter.InfoParamSweepModel;
 import fiji.plugin.trackmate.gui.Fonts;
 
 public class InfoPanel extends JPanel
@@ -34,14 +35,14 @@ public class InfoPanel extends JPanel
 		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		setLayout( gridBagLayout );
 
-		final JLabel lblParamName = new JLabel( values.paramName );
+		final JLabel lblParamName = new JLabel( values.getParamName() );
 		final GridBagConstraints gbcLblParamName = new GridBagConstraints();
 		gbcLblParamName.insets = new Insets( 0, 0, 5, 0 );
 		gbcLblParamName.gridx = 0;
 		gbcLblParamName.gridy = 0;
 		add( lblParamName, gbcLblParamName );
 
-		final JLabel lblInfo = new JLabel( "<html>" + values.info + "</html>" );
+		final JLabel lblInfo = new JLabel( "<html>" + values.getInfo() + "</html>" );
 		final GridBagConstraints gbcLblInfo = new GridBagConstraints();
 		gbcLblInfo.fill = GridBagConstraints.BOTH;
 		gbcLblInfo.insets = new Insets( 0, 0, 5, 0 );
@@ -49,7 +50,7 @@ public class InfoPanel extends JPanel
 		gbcLblInfo.gridy = 1;
 		add( lblInfo, gbcLblInfo );
 
-		final JLabel lblUrl = new JLabel( values.url );
+		final JLabel lblUrl = new JLabel( values.getUrl() );
 		lblUrl.setForeground( Color.BLUE.darker() );
 		lblUrl.setCursor( Cursor.getPredefinedCursor( Cursor.HAND_CURSOR ) );
 		lblUrl.addMouseListener( new MouseAdapter()
@@ -59,7 +60,7 @@ public class InfoPanel extends JPanel
 			{
 				try
 				{
-					Desktop.getDesktop().browse( new URI( values.url ) );
+					Desktop.getDesktop().browse( new URI( values.getUrl() ) );
 				}
 				catch ( final URISyntaxException | IOException urie )
 				{
@@ -70,13 +71,13 @@ public class InfoPanel extends JPanel
 			@Override
 			public void mouseEntered( final MouseEvent e )
 			{
-				lblUrl.setText( "<html><a href=" + values.url + ">" + values.url + "</a></html>" );
+				lblUrl.setText( "<html><a href=" + values.getUrl() + ">" + values.getUrl() + "</a></html>" );
 			}
 
 			@Override
 			public void mouseExited( final MouseEvent e )
 			{
-				lblUrl.setText( "<html>" + values.url + "</html>" );
+				lblUrl.setText( "<html>" + values.getUrl() + "</html>" );
 			}
 		} );
 

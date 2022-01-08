@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import fiji.plugin.trackmate.Dimension;
-import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.DoubleParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel.RangeType;
+import fiji.plugin.trackmate.ctc.model.parameter.AbstractParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.DoubleParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.NumberParamSweepModel.RangeType;
 import fiji.plugin.trackmate.tracking.TrackerKeys;
 import fiji.plugin.trackmate.tracking.kdtree.NearestNeighborTrackerFactory;
 

@@ -1,4 +1,4 @@
-package fiji.plugin.trackmate.ctc.ui;
+package fiji.plugin.trackmate.ctc.model;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -7,7 +7,7 @@ import org.scijava.listeners.Listeners;
 
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMateModule;
-import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.AbstractParamSweepModel;
 
 public abstract class AbstractSweepModel< F extends TrackMateModule >
 {
@@ -41,6 +41,11 @@ public abstract class AbstractSweepModel< F extends TrackMateModule >
 	public String getName()
 	{
 		return name;
+	}
+
+	public Map< String, AbstractParamSweepModel< ? > > getModels()
+	{
+		return models;
 	}
 
 	public Listeners.List< ModelListener > listeners()

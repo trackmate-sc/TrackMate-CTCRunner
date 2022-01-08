@@ -1,10 +1,10 @@
-package fiji.plugin.trackmate.ctc.ui.components;
+package fiji.plugin.trackmate.ctc.model.parameter;
 
 import java.util.List;
 
 import org.scijava.listeners.Listeners;
 
-import fiji.plugin.trackmate.ctc.ui.AbstractSweepModel.ModelListener;
+import fiji.plugin.trackmate.ctc.model.AbstractSweepModel.ModelListener;
 
 public abstract class AbstractParamSweepModel< T >
 {

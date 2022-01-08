@@ -29,7 +29,10 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeListener;
 
-import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel.RangeType;
+import fiji.plugin.trackmate.ctc.model.parameter.DoubleParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.IntParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.NumberParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.NumberParamSweepModel.RangeType;
 import fiji.plugin.trackmate.gui.Fonts;
 import fiji.plugin.trackmate.util.TMUtils;
 
@@ -61,7 +64,7 @@ public class NumberRangeSweepPanel extends JPanel
 	public NumberRangeSweepPanel( final NumberParamSweepModel val, final String spaceUnits, final String timeUnits )
 	{
 		this.values = val;
-		final String units = TMUtils.getUnitsFor( val.dimension, spaceUnits, timeUnits );
+		final String units = TMUtils.getUnitsFor( val.getDimension(), spaceUnits, timeUnits );
 
 		setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
 		final GridBagLayout gridBagLayout = new GridBagLayout();
@@ -71,7 +74,7 @@ public class NumberRangeSweepPanel extends JPanel
 		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		setLayout( gridBagLayout );
 
-		final JLabel lblParamName = new JLabel( val.paramName );
+		final JLabel lblParamName = new JLabel( val.getParamName() );
 		final GridBagConstraints gbcLblParamName = new GridBagConstraints();
 		gbcLblParamName.gridwidth = 9;
 		gbcLblParamName.insets = new Insets( 0, 0, 5, 0 );
@@ -79,7 +82,7 @@ public class NumberRangeSweepPanel extends JPanel
 		gbcLblParamName.gridy = 0;
 		add( lblParamName, gbcLblParamName );
 
-		rdbtnRane = new JRadioButton( "Range of values", val.rangeType == RangeType.LIN_RANGE || val.rangeType == RangeType.LOG_RANGE );
+		rdbtnRane = new JRadioButton( "Range of values", val.getRangeType() == RangeType.LIN_RANGE || val.getRangeType() == RangeType.LOG_RANGE );
 		final GridBagConstraints gbcRdbtnSweep = new GridBagConstraints();
 		gbcRdbtnSweep.anchor = GridBagConstraints.WEST;
 		gbcRdbtnSweep.gridwidth = 4;
@@ -88,7 +91,7 @@ public class NumberRangeSweepPanel extends JPanel
 		gbcRdbtnSweep.gridy = 1;
 		add( rdbtnRane, gbcRdbtnSweep );
 
-		chckbxLog = new JCheckBox( "Logarithmic scale", val.rangeType == RangeType.LOG_RANGE );
+		chckbxLog = new JCheckBox( "Logarithmic scale", val.getRangeType() == RangeType.LOG_RANGE );
 		final GridBagConstraints gbcChckbxLog = new GridBagConstraints();
 		gbcChckbxLog.anchor = GridBagConstraints.EAST;
 		gbcChckbxLog.gridwidth = 4;
@@ -104,7 +107,7 @@ public class NumberRangeSweepPanel extends JPanel
 		gbcLblFrom.gridy = 2;
 		add( new JLabel( "From" ), gbcLblFrom );
 
-		ftfFromValue = new JFormattedTextField( val.min );
+		ftfFromValue = new JFormattedTextField( val.getMin() );
 		ftfFromValue.setHorizontalAlignment( SwingConstants.TRAILING );
 		ftfFromValue.setColumns( 6 );
 		final GridBagConstraints gbcFtfFromValue = new GridBagConstraints();
@@ -127,7 +130,7 @@ public class NumberRangeSweepPanel extends JPanel
 		gbcLblTo.gridy = 2;
 		add( new JLabel( "to" ), gbcLblTo );
 
-		ftfToValue = new JFormattedTextField( val.max );
+		ftfToValue = new JFormattedTextField( val.getMax() );
 		ftfToValue.setHorizontalAlignment( SwingConstants.TRAILING );
 		ftfToValue.setColumns( 6 );
 		final GridBagConstraints gbcFtfToValue = new GridBagConstraints();
@@ -149,7 +152,7 @@ public class NumberRangeSweepPanel extends JPanel
 		gbcLblIn.gridy = 2;
 		add( new JLabel( "in" ), gbcLblIn );
 
-		final SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel( val.nSteps, 2, 100, 1 );
+		final SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel( val.getNSteps(), 2, 100, 1 );
 		spinnerNSteps = new JSpinner( spinnerNumberModel );
 		final GridBagConstraints gbcSpinnerNSteps = new GridBagConstraints();
 		gbcSpinnerNSteps.insets = new Insets( 0, 0, 5, 5 );
@@ -185,7 +188,7 @@ public class NumberRangeSweepPanel extends JPanel
 		add( tfValues, gbc_tfValues );
 		tfValues.setColumns( 10 );
 
-		rdbtnFixed = new JRadioButton( "Fixed value", val.rangeType == RangeType.FIXED );
+		rdbtnFixed = new JRadioButton( "Fixed value", val.getRangeType() == RangeType.FIXED );
 		final GridBagConstraints gbcRdbtnFixed = new GridBagConstraints();
 		gbcRdbtnFixed.anchor = GridBagConstraints.WEST;
 		gbcRdbtnFixed.gridwidth = 4;
@@ -194,7 +197,7 @@ public class NumberRangeSweepPanel extends JPanel
 		gbcRdbtnFixed.gridy = 5;
 		add( rdbtnFixed, gbcRdbtnFixed );
 
-		ftfFixedValue = new JFormattedTextField( val.min );
+		ftfFixedValue = new JFormattedTextField( val.getMin() );
 		ftfFixedValue.setHorizontalAlignment( SwingConstants.TRAILING );
 		ftfFixedValue.setColumns( 6 );
 		final GridBagConstraints gbcFtfFixedValue = new GridBagConstraints();
@@ -313,7 +316,7 @@ public class NumberRangeSweepPanel extends JPanel
 		if ( !rangeStr.equals( tfValues.getText() ) )
 			tfValues.setText( rangeStr );
 
-		switch ( values.rangeType )
+		switch ( values.getRangeType() )
 		{
 		case FIXED:
 			ftfFixedValue.setEnabled( true );
@@ -344,7 +347,7 @@ public class NumberRangeSweepPanel extends JPanel
 			tfValues.setBackground( ftfFixedValue.getBackground() );
 			break;
 		default:
-			throw new IllegalArgumentException( "Unknown range type: " + values.rangeType );
+			throw new IllegalArgumentException( "Unknown range type: " + values.getRangeType() );
 		}
 	}
 

@@ -1,4 +1,4 @@
-package fiji.plugin.trackmate.ctc.ui.components;
+package fiji.plugin.trackmate.ctc.model.parameter;
 
 public class EnumParamSweepModel< T extends Enum< T > > extends ArrayParamSweepModel< T >
 {

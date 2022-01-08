@@ -16,7 +16,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 
-import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel.RangeType;
+import fiji.plugin.trackmate.ctc.model.parameter.BooleanParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.BooleanParamSweepModel.RangeType;
 import fiji.plugin.trackmate.gui.Fonts;
 
 public class BooleanRangeSweepPanel extends JPanel
@@ -45,7 +46,7 @@ public class BooleanRangeSweepPanel extends JPanel
 		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		setLayout( gridBagLayout );
 
-		final JLabel lblParamName = new JLabel( values.paramName );
+		final JLabel lblParamName = new JLabel( values.getParamName() );
 		final GridBagConstraints gbcLblParamName = new GridBagConstraints();
 		gbcLblParamName.gridwidth = 3;
 		gbcLblParamName.insets = new Insets( 0, 0, 5, 0 );
@@ -53,7 +54,7 @@ public class BooleanRangeSweepPanel extends JPanel
 		gbcLblParamName.gridy = 0;
 		add( lblParamName, gbcLblParamName );
 
-		rdbtnTestAll = new JRadioButton( "Test true and false", values.rangeType == RangeType.TEST_ALL );
+		rdbtnTestAll = new JRadioButton( "Test true and false", values.getRangeType() == RangeType.TEST_ALL );
 		final GridBagConstraints gbc_rdbtnTestAll = new GridBagConstraints();
 		gbc_rdbtnTestAll.gridwidth = 3;
 		gbc_rdbtnTestAll.anchor = GridBagConstraints.WEST;
@@ -62,7 +63,7 @@ public class BooleanRangeSweepPanel extends JPanel
 		gbc_rdbtnTestAll.gridy = 1;
 		add( rdbtnTestAll, gbc_rdbtnTestAll );
 
-		rdbtnFixed = new JRadioButton( "Fixed value", values.rangeType == RangeType.FIXED );
+		rdbtnFixed = new JRadioButton( "Fixed value", values.getRangeType() == RangeType.FIXED );
 		final GridBagConstraints gbcRdbtnFixed = new GridBagConstraints();
 		gbcRdbtnFixed.anchor = GridBagConstraints.WEST;
 		gbcRdbtnFixed.insets = new Insets( 0, 0, 0, 5 );
@@ -70,14 +71,14 @@ public class BooleanRangeSweepPanel extends JPanel
 		gbcRdbtnFixed.gridy = 2;
 		add( rdbtnFixed, gbcRdbtnFixed );
 
-		rdbtnTrue = new JRadioButton( "true", values.fixedValue );
+		rdbtnTrue = new JRadioButton( "true", values.getFixedValue() );
 		final GridBagConstraints gbc_rdbtnTrue = new GridBagConstraints();
 		gbc_rdbtnTrue.insets = new Insets( 0, 0, 0, 5 );
 		gbc_rdbtnTrue.gridx = 1;
 		gbc_rdbtnTrue.gridy = 2;
 		add( rdbtnTrue, gbc_rdbtnTrue );
 
-		rdbtnFalse = new JRadioButton( "false", !values.fixedValue );
+		rdbtnFalse = new JRadioButton( "false", !values.getFixedValue() );
 		final GridBagConstraints gbc_rdbtnFalse = new GridBagConstraints();
 		gbc_rdbtnFalse.gridx = 2;
 		gbc_rdbtnFalse.gridy = 2;
@@ -124,7 +125,7 @@ public class BooleanRangeSweepPanel extends JPanel
 				.fixedValue( rdbtnTrue.isSelected() );
 
 		// Update UI.
-		switch ( values.rangeType )
+		switch ( values.getRangeType() )
 		{
 		case FIXED:
 			rdbtnFalse.setEnabled( true );
@@ -135,7 +136,7 @@ public class BooleanRangeSweepPanel extends JPanel
 			rdbtnTrue.setEnabled( false );
 			break;
 		default:
-			throw new IllegalArgumentException( "Unknown range type: " + values.rangeType );
+			throw new IllegalArgumentException( "Unknown range type: " + values.getRangeType() );
 		}
 	}
 

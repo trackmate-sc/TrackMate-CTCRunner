@@ -13,17 +13,18 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 
 import fiji.plugin.trackmate.Settings;
-import fiji.plugin.trackmate.ctc.ui.AbstractSweepModel.ModelListener;
-import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.ArrayParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.AbstractSweepModel;
+import fiji.plugin.trackmate.ctc.model.AbstractSweepModel.ModelListener;
+import fiji.plugin.trackmate.ctc.model.parameter.AbstractParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.ArrayParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.BooleanParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.InfoParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.NumberParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.StringRangeParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.ArrayRangeSweepPanel;
-import fiji.plugin.trackmate.ctc.ui.components.BooleanParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.BooleanRangeSweepPanel;
 import fiji.plugin.trackmate.ctc.ui.components.InfoPanel;
-import fiji.plugin.trackmate.ctc.ui.components.InfoParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.NumberRangeSweepPanel;
-import fiji.plugin.trackmate.ctc.ui.components.StringRangeParamSweepModel;
 import fiji.plugin.trackmate.ctc.ui.components.StringRangeParamSweepPanel;
 import fiji.plugin.trackmate.gui.Fonts;
 
@@ -59,7 +60,7 @@ public class SweepPanel extends JPanel
 		c.anchor = GridBagConstraints.NORTH;
 
 		// Model components.
-		for ( final AbstractParamSweepModel< ? > cm : model.models.values() )
+		for ( final AbstractParamSweepModel< ? > cm : model.getModels().values() )
 		{
 			final JPanel p = createPanelFor( cm, spaceUnits, timeUnits );
 			mainPanel.add( p, c );

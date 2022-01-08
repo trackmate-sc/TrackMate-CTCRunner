@@ -1,4 +1,4 @@
-package fiji.plugin.trackmate.ctc.ui;
+package fiji.plugin.trackmate.ctc.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,6 +12,7 @@ import java.util.Map;
 import org.scijava.listeners.Listeners;
 
 import fiji.plugin.trackmate.Settings;
+import fiji.plugin.trackmate.ctc.model.AbstractSweepModel.ModelListener;
 import fiji.plugin.trackmate.ctc.model.detector.CellposeDetectorModel;
 import fiji.plugin.trackmate.ctc.model.detector.DetectorSweepModel;
 import fiji.plugin.trackmate.ctc.model.detector.DogDetectorModel;
@@ -30,7 +31,6 @@ import fiji.plugin.trackmate.ctc.model.tracker.NearestNeighborTrackerModel;
 import fiji.plugin.trackmate.ctc.model.tracker.OverlapTrackerModel;
 import fiji.plugin.trackmate.ctc.model.tracker.SimpleLAPTrackerModel;
 import fiji.plugin.trackmate.ctc.model.tracker.TrackerSweepModel;
-import fiji.plugin.trackmate.ctc.ui.AbstractSweepModel.ModelListener;
 import fiji.plugin.trackmate.features.FeatureFilter;
 
 public class ParameterSweepModel
@@ -76,9 +76,9 @@ public class ParameterSweepModel
 
 		// Default: everything is inactive.
 		for ( final TrackerSweepModel m : trackerModels.values() )
-			active.put( m.name, Boolean.FALSE );
+			active.put( m.getName(), Boolean.FALSE );
 		for ( final DetectorSweepModel m : detectorModels.values() )
-			active.put( m.name, Boolean.FALSE );
+			active.put( m.getName(), Boolean.FALSE );
 
 		registerListeners();
 	}
@@ -92,12 +92,12 @@ public class ParameterSweepModel
 
 	private void add( final DetectorSweepModel model )
 	{
-		this.detectorModels.put( model.name, model );
+		this.detectorModels.put( model.getName(), model );
 	}
 
 	private void add( final TrackerSweepModel model )
 	{
-		this.trackerModels.put( model.name, model );
+		this.trackerModels.put( model.getName(), model );
 	}
 
 	public Collection< DetectorSweepModel > detectorModels()

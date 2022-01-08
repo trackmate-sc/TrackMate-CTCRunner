@@ -3,11 +3,11 @@ package fiji.plugin.trackmate.ctc.model.detector;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.DoubleParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.IntParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.NumberParamSweepModel.RangeType;
-import fiji.plugin.trackmate.ctc.ui.components.StringRangeParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.AbstractParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.DoubleParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.IntParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.StringRangeParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.NumberParamSweepModel.RangeType;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.weka.WekaDetectorFactory;
 

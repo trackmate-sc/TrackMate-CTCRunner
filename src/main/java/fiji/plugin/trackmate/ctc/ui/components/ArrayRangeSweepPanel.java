@@ -22,7 +22,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.EmptyBorder;
 
-import fiji.plugin.trackmate.ctc.ui.components.ArrayParamSweepModel.RangeType;
+import fiji.plugin.trackmate.ctc.model.parameter.ArrayParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.ArrayParamSweepModel.RangeType;
 import fiji.plugin.trackmate.gui.Fonts;
 import fiji.plugin.trackmate.gui.Icons;
 
@@ -60,7 +61,7 @@ public class ArrayRangeSweepPanel< T > extends JPanel
 		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0 };
 		setLayout( gridBagLayout );
 
-		final JLabel lblParamName = new JLabel( val.paramName );
+		final JLabel lblParamName = new JLabel( val.getParamName() );
 		final GridBagConstraints gbcLblParamName = new GridBagConstraints();
 		gbcLblParamName.gridwidth = 2;
 		gbcLblParamName.insets = new Insets( 0, 0, 5, 0 );
@@ -68,7 +69,7 @@ public class ArrayRangeSweepPanel< T > extends JPanel
 		gbcLblParamName.gridy = 0;
 		add( lblParamName, gbcLblParamName );
 
-		rdbtnTestAll = new JRadioButton( "All values", val.rangeType == RangeType.TEST_ALL );
+		rdbtnTestAll = new JRadioButton( "All values", val.getRangeType() == RangeType.TEST_ALL );
 		final GridBagConstraints gbc_rdbtnTestAll = new GridBagConstraints();
 		gbc_rdbtnTestAll.anchor = GridBagConstraints.WEST;
 		gbc_rdbtnTestAll.gridwidth = 2;
@@ -77,7 +78,7 @@ public class ArrayRangeSweepPanel< T > extends JPanel
 		gbc_rdbtnTestAll.gridy = 1;
 		add( rdbtnTestAll, gbc_rdbtnTestAll );
 
-		rdbtnListValues = new JRadioButton( "Set of values", val.rangeType == RangeType.LIST );
+		rdbtnListValues = new JRadioButton( "Set of values", val.getRangeType() == RangeType.LIST );
 		final GridBagConstraints gbc_rdbtnManualRange = new GridBagConstraints();
 		gbc_rdbtnManualRange.anchor = GridBagConstraints.WEST;
 		gbc_rdbtnManualRange.gridwidth = 2;
@@ -122,7 +123,7 @@ public class ArrayRangeSweepPanel< T > extends JPanel
 		lblValuesList = new JLabel();
 		panelListValues.add( lblValuesList );
 
-		rdbtnFixed = new JRadioButton( "Fixed value", val.rangeType == RangeType.FIXED );
+		rdbtnFixed = new JRadioButton( "Fixed value", val.getRangeType() == RangeType.FIXED );
 		final GridBagConstraints gbcRdbtnFixed = new GridBagConstraints();
 		gbcRdbtnFixed.anchor = GridBagConstraints.WEST;
 		gbcRdbtnFixed.insets = new Insets( 0, 0, 0, 5 );
@@ -131,7 +132,7 @@ public class ArrayRangeSweepPanel< T > extends JPanel
 		add( rdbtnFixed, gbcRdbtnFixed );
 
 		cmbboxFixedValue = new JComboBox<>( new Vector<>( val.getAllValues() ) );
-		cmbboxFixedValue.setSelectedItem( val.fixedValue );
+		cmbboxFixedValue.setSelectedItem( val.getFixedValue() );
 		cmbboxFixedValue.setFont( Fonts.SMALL_FONT );
 		cmbboxFixedValue.setPreferredSize( new Dimension( 150, 24 ) );
 		final GridBagConstraints gbcFtfFixedValue = new GridBagConstraints();
@@ -177,9 +178,9 @@ public class ArrayRangeSweepPanel< T > extends JPanel
 
 	private void removeEnum()
 	{
-		if ( values.set.isEmpty() )
+		if ( values.getSelection().isEmpty() )
 			return;
-		values.removeValue( values.set.iterator().next() );
+		values.removeValue( values.getSelection().iterator().next() );
 		update();
 	}
 
@@ -207,7 +208,7 @@ public class ArrayRangeSweepPanel< T > extends JPanel
 		final String rangeStr = str( values.getRange() );
 		lblValuesList.setText( rangeStr );
 
-		switch ( values.rangeType )
+		switch ( values.getRangeType() )
 		{
 		case FIXED:
 			cmbboxFixedValue.setEnabled( true );
@@ -228,7 +229,7 @@ public class ArrayRangeSweepPanel< T > extends JPanel
 			btnRemove.setEnabled( true );
 			break;
 		default:
-			throw new IllegalArgumentException( "Unknown range type: " + values.rangeType );
+			throw new IllegalArgumentException( "Unknown range type: " + values.getRangeType() );
 		}
 	}
 

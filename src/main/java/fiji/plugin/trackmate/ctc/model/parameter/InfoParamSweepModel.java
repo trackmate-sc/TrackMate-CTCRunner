@@ -1,4 +1,4 @@
-package fiji.plugin.trackmate.ctc.ui.components;
+package fiji.plugin.trackmate.ctc.model.parameter;
 
 import java.util.Collections;
 import java.util.List;
@@ -40,5 +40,15 @@ public class InfoParamSweepModel extends AbstractParamSweepModel< Void >
 			notifyListeners();
 		}
 		return this;
+	}
+
+	public String getInfo()
+	{
+		return info;
+	}
+
+	public String getUrl()
+	{
+		return url;
 	}
 }

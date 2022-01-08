@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import fiji.plugin.trackmate.Settings;
-import fiji.plugin.trackmate.ctc.ui.AbstractSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.AbstractParamSweepModel;
-import fiji.plugin.trackmate.ctc.ui.components.Combinations;
+import fiji.plugin.trackmate.ctc.model.AbstractSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.AbstractParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.Combinations;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 
 public class DetectorSweepModel extends AbstractSweepModel< SpotDetectorFactoryBase< ? > >
