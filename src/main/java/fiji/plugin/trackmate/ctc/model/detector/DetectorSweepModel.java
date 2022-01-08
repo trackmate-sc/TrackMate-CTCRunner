@@ -78,19 +78,4 @@ public class DetectorSweepModel extends AbstractSweepModel< SpotDetectorFactoryB
 			return copy;
 		}
 	}
-
-	public static final Builder create()
-	{
-		return new Builder();
-	}
-
-	public static final class Builder extends AbstractSweepModel.Builder< Builder, DetectorSweepModel, SpotDetectorFactoryBase< ? > >
-	{
-
-		@Override
-		public DetectorSweepModel get()
-		{
-			return new DetectorSweepModel( name, models, factory );
-		}
-	}
 }

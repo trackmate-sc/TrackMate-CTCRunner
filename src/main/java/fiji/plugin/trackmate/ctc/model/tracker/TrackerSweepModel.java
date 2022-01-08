@@ -74,20 +74,4 @@ public class TrackerSweepModel extends AbstractSweepModel< SpotTrackerFactory >
 			return copy;
 		}
 	}
-
-
-	public static final Builder create()
-	{
-		return new Builder();
-	}
-
-	public static final class Builder extends AbstractSweepModel.Builder< Builder, TrackerSweepModel, SpotTrackerFactory >
-	{
-
-		@Override
-		public TrackerSweepModel get()
-		{
-			return new TrackerSweepModel( name, models, factory );
-		}
-	}
 }

@@ -1,7 +1,6 @@
 package fiji.plugin.trackmate.ctc.ui;
 
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.scijava.listeners.Listeners;
@@ -55,38 +54,5 @@ public abstract class AbstractSweepModel< F extends TrackMateModule >
 	public String getName()
 	{
 		return name;
-	}
-
-	public static abstract class Builder< T extends Builder< T, M, F >, M extends AbstractSweepModel< F >, F extends TrackMateModule >
-	{
-	
-		protected String name;
-
-		protected F factory;
-	
-		protected final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
-	
-		@SuppressWarnings( "unchecked" )
-		public T name( final String name )
-		{
-			this.name = name;
-			return ( T ) this;
-		}
-	
-		@SuppressWarnings( "unchecked" )
-		public T factory( final F factory )
-		{
-			this.factory = factory;
-			return ( T ) this;
-		}
-
-		@SuppressWarnings( "unchecked" )
-		public < R > T add( final String parameterKey, final AbstractParamSweepModel< R > model )
-		{
-			models.put( parameterKey, model );
-			return ( T ) this;
-		}
-	
-		public abstract M get();
 	}
 }
