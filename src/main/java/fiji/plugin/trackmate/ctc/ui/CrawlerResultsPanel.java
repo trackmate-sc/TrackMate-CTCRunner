@@ -197,6 +197,9 @@ public class CrawlerResultsPanel extends JPanel
 		};
 		l.crawled();
 		crawler.listeners().add( l );
+
+		bestDTTableModel.addTableModelListener( e -> this.repaint() );
+		bestValTableModel.addTableModelListener( e -> this.repaint() );
 	}
 
 	private static final class BestValTableModel extends AbstractTableModel implements TableCellRenderer
