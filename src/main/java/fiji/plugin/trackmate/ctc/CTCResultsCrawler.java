@@ -55,7 +55,8 @@ public class CTCResultsCrawler
 	public String printReport()
 	{
 		final StringBuilder str = new StringBuilder();
-		str.append( "Optimum for each Cell-Tracking-Challenge metrics, over " + count() + " different tests." );
+		str.append( "Optimum for each Cell-Tracking-Challenge metrics, over " + count( true )
+				+ " valid results and " + count( false ) + " different tests." );
 		str.append( "\n\n________________________________________________________________\n" );
 		for ( final CTCMetricsDescription desc : CTCMetricsDescription.values() )
 		{
@@ -277,8 +278,27 @@ public class CTCResultsCrawler
 		return new LinkedHashSet<>( list );
 	}
 
-	public int count()
+	/**
+	 * Returns how many parameter combinations were discovered by this crawler.
+	 * The boolean flag discriminates between counting only combinations that
+	 * return a valid CTC metrics (non-NaN results) or all combinations.
+	 * 
+	 * @param validOnly
+	 *            if <code>true</code> will only count combinations that return
+	 *            valid CTC metrics.
+	 * @return
+	 */
+	public int count( final boolean validOnly )
 	{
-		return tables.values().stream().mapToInt( r -> r.size() ).sum();
+		if ( !validOnly )
+			return tables.values().stream().mapToInt( r -> r.size() ).sum();
+		
+		int count = 0;
+		for ( final CTCResults results : tables.values() )
+			for ( int i = 0; i < results.size(); i++ )
+				if (!Double.isNaN( results.getMetrics( i ).get( CTCMetricsDescription.DET ) ))
+					count++;
+
+		return count;
 	}
 }

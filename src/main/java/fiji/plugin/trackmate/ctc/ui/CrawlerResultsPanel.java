@@ -192,7 +192,8 @@ public class CrawlerResultsPanel extends JPanel
 			bestValTableModel.update();
 			resizeColumnWidth( tableDT );
 			resizeColumnWidth( tableVal );
-			lblCount.setText( "Optimum over " + crawler.count() + " tests." );
+			lblCount.setText( "Optimum over " + crawler.count( true ) + " valid results and "
+					+ crawler.count( false ) + " tests." );
 			textArea.setText( crawler.printReport() );
 		};
 		l.crawled();

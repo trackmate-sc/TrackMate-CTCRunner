@@ -176,6 +176,40 @@ public class ParameterSweepModel
 	 */
 	public int count()
 	{
+		return countDetectorSettings() * countTrackerSettings();
+	}
+
+	/**
+	 * Returns the count of the different tracker settings that will be
+	 * generated from this model.
+	 * 
+	 * @return the count of settings.
+	 */
+	public int countTrackerSettings()
+	{
+		final int targetChannel = 1;
+		final Settings base = new Settings( null );
+		int count = 0;
+		for ( final TrackerSweepModel trackerModel : getActiveTracker() )
+		{
+			final Iterator< Settings > tit = trackerModel.iterator( base, targetChannel );
+			while ( tit.hasNext() )
+			{
+				tit.next();
+				count++;
+			}
+		}
+		return count;
+	}
+
+	/**
+	 * Returns the count of the different detector settings that will be
+	 * generated from this model.
+	 * 
+	 * @return the count of settings.
+	 */
+	public int countDetectorSettings()
+	{
 		final int targetChannel = 1;
 		final Settings base = new Settings( null );
 		int count = 0;
@@ -184,16 +218,8 @@ public class ParameterSweepModel
 			final Iterator< Settings > dit = detectorModel.iterator( base, targetChannel );
 			while ( dit.hasNext() )
 			{
-				final Settings ds = dit.next();
-				for ( final TrackerSweepModel trackerModel : getActiveTracker() )
-				{
-					final Iterator< Settings > tit = trackerModel.iterator( ds, targetChannel );
-					while ( tit.hasNext() )
-					{
-						tit.next();
-						count++;
-					}
-				}
+				dit.next();
+				count++;
 			}
 		}
 		return count;

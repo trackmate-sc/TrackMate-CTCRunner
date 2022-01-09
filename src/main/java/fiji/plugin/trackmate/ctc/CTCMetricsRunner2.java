@@ -109,6 +109,8 @@ public class CTCMetricsRunner2
 		batchLogger.log( "Executing tracking.\n" );
 		batchLogger.log( "Configured detector: " );
 		batchLogger.log( trackmate.getSettings().detectorFactory.getName(), Logger.BLUE_COLOR );
+		batchLogger.log( " with settings:\n" );
+		batchLogger.log( TMUtils.echoMap( trackmate.getSettings().detectorSettings, 2 ) );
 		batchLogger.log( "Configured tracker: " );
 		batchLogger.log( trackmate.getSettings().trackerFactory.getName(), Logger.BLUE_COLOR );
 		batchLogger.log( " with settings:\n" );

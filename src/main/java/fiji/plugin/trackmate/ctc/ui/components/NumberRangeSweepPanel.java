@@ -175,7 +175,7 @@ public class NumberRangeSweepPanel extends JPanel
 		gbc_rdbtnManualRange.gridy = 3;
 		add( rdbtnManualRange, gbc_rdbtnManualRange );
 
-		tfValues = new JTextField( val.getRange().toString() );
+		tfValues = new JTextField( DoubleParamSweepModel.str( values.getRange() ) );
 		tfValues.setHorizontalAlignment( SwingConstants.CENTER );
 		tfValues.setBorder( null );
 		tfValues.setEditable( false );

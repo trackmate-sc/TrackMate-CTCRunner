@@ -1,5 +1,7 @@
 package fiji.plugin.trackmate.ctc.model.parameter;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -109,11 +111,19 @@ public class DoubleParamSweepModel extends NumberParamSweepModel
 
 		final StringBuilder str = new StringBuilder();
 		str.append( "[ " );
-		str.append( String.format( "%s", range.get( 0 ) ) );
+		str.append( String.format( "%s", round( range.get( 0 ), 6 ) ) );
 		for ( int i = 1; i < range.size(); i++ )
-			str.append( String.format( ", %s", range.get( i ) ) );
+			str.append( String.format( ", %s", round( range.get( i ), 6 ) ) );
 
 		str.append( " ]" );
 		return str.toString();
 	}
+
+	public static double round( final Number value, final int places )
+	{
+		BigDecimal bd = BigDecimal.valueOf( value.doubleValue() );
+		bd = bd.setScale( places, RoundingMode.HALF_UP );
+		return bd.doubleValue();
+	}
+
 }
