@@ -1,6 +1,6 @@
 package fiji.plugin.trackmate.ctc;
 
-import java.io.IOException;
+import java.awt.event.WindowAdapter;
 
 import javax.swing.JFrame;
 
@@ -10,7 +10,6 @@ import fiji.plugin.trackmate.gui.Fonts;
 import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.Icons;
 import fiji.util.gui.GenericDialogPlus;
-import ij.IJ;
 import ij.plugin.PlugIn;
 
 public class TrackMateParameterSweepResultsPlugin implements PlugIn
@@ -20,7 +19,7 @@ public class TrackMateParameterSweepResultsPlugin implements PlugIn
 	public void run( final String arg )
 	{
 		GuiUtils.setSystemLookAndFeel();
-		final CTCResultsCrawler crawler = new CTCResultsCrawler( Logger.DEFAULT_LOGGER );
+		final CTCResultsCrawler crawler = new CTCResultsCrawler( Logger.IJ_LOGGER );
 		final String resultsFolder;
 		if ( arg != null && !arg.isEmpty() )
 		{
@@ -45,21 +44,22 @@ public class TrackMateParameterSweepResultsPlugin implements PlugIn
 		}
 
 		final CrawlerResultsPanel panel = new CrawlerResultsPanel( crawler );
+		crawler.watch( resultsFolder );
+
 		final JFrame frame = new JFrame( "TrackMate parameter sweep results" );
+		frame.addWindowListener( new WindowAdapter()
+		{
+			@Override
+			public void windowClosing( final java.awt.event.WindowEvent e )
+			{
+				crawler.stopWatching();
+			}
+		} );
 		frame.setIconImage( Icons.TRACKMATE_ICON.getImage() );
 		frame.getContentPane().add( panel );
 		frame.pack();
 		frame.setLocationRelativeTo( null );
 		frame.setVisible( true );
 
-		try
-		{
-			crawler.crawl( resultsFolder );
-		}
-		catch ( final IOException e )
-		{
-			IJ.error( e.getMessage() );
-			e.printStackTrace();
-		}
 	}
 }

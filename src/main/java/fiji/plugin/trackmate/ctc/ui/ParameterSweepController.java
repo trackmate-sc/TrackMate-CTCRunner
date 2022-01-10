@@ -1,5 +1,6 @@
 package fiji.plugin.trackmate.ctc.ui;
 
+import java.awt.event.WindowAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
@@ -66,6 +67,7 @@ public class ParameterSweepController implements Cancelable
 			gui.logger.error( e.getMessage() );
 			e.printStackTrace();
 		}
+		crawler.watch( saveFolder.getAbsolutePath() );
 
 		// Save on model modification.
 		model.listeners().add( () -> 
@@ -75,6 +77,14 @@ public class ParameterSweepController implements Cancelable
 		} );
 
 		frame = new JFrame( "TrackMate parameter sweep" );
+		frame.addWindowListener( new WindowAdapter()
+		{
+			@Override
+			public void windowClosing( final java.awt.event.WindowEvent e )
+			{
+				crawler.stopWatching();
+			}
+		} );
 		frame.setIconImage( Icons.TRACKMATE_ICON.getImage() );
 		frame.getContentPane().add( gui );
 		frame.setSize( 600, 700 );
@@ -101,7 +111,6 @@ public class ParameterSweepController implements Cancelable
 			{
 				try
 				{
-					final File gtPathFile = new File( gtPath );
 					final int targetChannel = gui.sliderChannel.getValue();
 					final Context context = TMUtils.getContext();
 					final CTCMetricsRunner2 runner = new CTCMetricsRunner2( imp, gtPath, context );
@@ -176,19 +185,6 @@ public class ParameterSweepController implements Cancelable
 
 									// Perform and save CTC metrics measurements.
 									runner.performCTCMetricsMeasurements( trackmate, detectionTiming, trackingTiming );
-
-									// Update best results.
-									crawler.reset();
-									try
-									{
-										crawler.crawl( gtPathFile.getParent() );
-									}
-									catch ( final IOException e )
-									{
-										gui.logger.error( "Error while crawling the folder " + gtPathFile.getParent() + " for CSV results file:\n" );
-										gui.logger.error( e.getMessage() );
-										e.printStackTrace();
-									}
 
 									// Save TrackMate file if required.
 									if ( saveEachTime )

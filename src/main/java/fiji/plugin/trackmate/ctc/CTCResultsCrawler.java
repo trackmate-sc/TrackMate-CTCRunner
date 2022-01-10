@@ -1,11 +1,22 @@
 package fiji.plugin.trackmate.ctc;
 
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
+
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchEvent.Kind;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -13,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.scijava.listeners.Listeners;
 
@@ -41,10 +50,25 @@ public class CTCResultsCrawler
 
 	private final Map< String, CTCResults > tables;
 
+	private CTCResultsFolderWatcher folderWatcher;
+
 	public CTCResultsCrawler( final Logger batchLogger )
 	{
 		this.batchLogger = batchLogger;
 		this.tables = new HashMap<>();
+	}
+
+	public void watch( final String folder )
+	{
+		stopWatching();
+		this.folderWatcher = new CTCResultsFolderWatcher( this, folder, batchLogger );
+		folderWatcher.start();
+	}
+
+	public void stopWatching()
+	{
+		if ( folderWatcher != null )
+			folderWatcher.stopWatching();
 	}
 
 	public void reset()
@@ -70,7 +94,7 @@ public class CTCResultsCrawler
 			{
 				final String s = results.printLine( pair.getB() );
 				str.append( String.format( "Best configuration for %s with a score of %.3f\n",
-						desc.description(), 
+						desc.description(),
 						results.getMetrics( pair.getB() ).get( desc ) ) );
 				str.append( s );
 			}
@@ -107,7 +131,7 @@ public class CTCResultsCrawler
 			final int line = results.bestFor( detector, tracker, desc );
 			if ( line < 0 )
 				continue;
-			
+
 			final CTCMetrics m = results.getMetrics( line );
 			final double val = m.get( desc );
 			if ( betterThan.apply( val, best ) )
@@ -130,7 +154,7 @@ public class CTCResultsCrawler
 		return tables.get( csvFile );
 	}
 
-	public final void crawl( final String resultsFolder ) throws IOException
+	public synchronized void crawl( final String resultsFolder ) throws IOException
 	{
 		final List< String > csvFiles = findFiles( resultsFolder, "csv" );
 		for ( final String csvFile : csvFiles )
@@ -162,23 +186,29 @@ public class CTCResultsCrawler
 		notifyListeners();
 	}
 
-	private static final List< String > findFiles( final String folder, final String fileExtension ) throws IOException
+	private static final List< String > findFiles( final String folder, final String fileExtension )
 	{
-		final Path path = Paths.get( folder );
-		if ( !Files.isDirectory( path ) )
+		final File root = new File( folder );
+		if ( !root.isDirectory() )
 			throw new IllegalArgumentException( "Path must be a directory!" );
 
-		try (Stream< Path > walk = Files.walk( path ))
+		final String fe = fileExtension.toLowerCase();
+		final File[] list = root.listFiles();
+		if ( list == null )
+			return Collections.emptyList();
+
+		final List< String > out = new ArrayList< String >();
+		for ( final File f : list )
 		{
-			return walk
-					.filter( p -> !Files.isDirectory( p ) )
-					.map( p -> p.toString().toLowerCase() )
-					.filter( f -> f.endsWith( fileExtension ) )
-					.collect( Collectors.toList() );
+			if ( f.isDirectory() )
+				out.addAll( findFiles( f.getAbsolutePath(), fileExtension ) );
+			else if ( f.getName().toLowerCase().endsWith( fe ) )
+				out.add( f.getAbsolutePath() );
 		}
+		return out;
 	}
 
-	public boolean isSettingsPresent( final Settings settings )
+	public synchronized boolean isSettingsPresent( final Settings settings )
 	{
 		for ( final CTCResults results : tables.values() )
 		{
@@ -292,13 +322,99 @@ public class CTCResultsCrawler
 	{
 		if ( !validOnly )
 			return tables.values().stream().mapToInt( r -> r.size() ).sum();
-		
+
 		int count = 0;
 		for ( final CTCResults results : tables.values() )
 			for ( int i = 0; i < results.size(); i++ )
-				if (!Double.isNaN( results.getMetrics( i ).get( CTCMetricsDescription.DET ) ))
+				if ( !Double.isNaN( results.getMetrics( i ).get( CTCMetricsDescription.DET ) ) )
 					count++;
 
 		return count;
+	}
+
+	private static final class CTCResultsFolderWatcher extends Thread
+	{
+
+		private final CTCResultsCrawler crawler;
+
+		private WatchService watcher;
+
+		private final Path dir;
+
+		private final Logger logger;
+
+		private boolean stopped;
+
+		public CTCResultsFolderWatcher( final CTCResultsCrawler crawler, final String folder, final Logger logger )
+		{
+			super( "CCTCResultsWatcher_" + folder );
+			this.crawler = crawler;
+			this.logger = logger;
+			this.dir = Paths.get( folder );
+			try
+			{
+				this.watcher = FileSystems.getDefault().newWatchService();
+				dir.register( watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY );
+			}
+			catch ( final IOException e )
+			{
+				e.printStackTrace();
+			}
+		}
+
+		public void stopWatching()
+		{
+			stopped = true;
+		}
+
+		@Override
+		public void run()
+		{
+			logger.log( "Watching folder " + dir.toString() + " for CTC results files.\n" );
+			stopped = false;
+			try
+			{
+				while ( stopped == false )
+				{
+					final WatchKey key = watcher.take();
+					if ( key == null )
+						break;
+
+					for ( final WatchEvent< ? > event : key.pollEvents() )
+					{
+						final Kind< ? > kind = event.kind();
+						if ( kind == OVERFLOW )
+							continue;
+
+						// Crawl only if we have touched a CSV file.
+						@SuppressWarnings( "unchecked" )
+						final WatchEvent< Path > ev = ( WatchEvent< Path > ) event;
+						final Path filename = ev.context();
+						if ( filename.toString().toLowerCase().endsWith( "csv" ) )
+						{
+							try
+							{
+								crawler.reset();
+								crawler.crawl( dir.toString() );
+							}
+							catch ( final IOException e )
+							{
+								logger.error( "Error while crawling the folder " + dir.toString() + " for CSV results file:\n" );
+								logger.error( e.getMessage() );
+								e.printStackTrace();
+							}
+						}
+					}
+					final boolean valid = key.reset();
+					if ( !valid )
+						break;
+				}
+				logger.log( "Stopped watching folder " + dir.toString() + " for CTC results files.\n" );
+			}
+			catch ( final InterruptedException e )
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 }
