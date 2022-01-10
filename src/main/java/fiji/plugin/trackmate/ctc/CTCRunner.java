@@ -75,7 +75,7 @@ public class CTCRunner implements Cancelable, Runnable
 	public void run()
 	{
 		final Context context = TMUtils.getContext();
-		final CTCMetricsRunner2 runner = new CTCMetricsRunner2( imp, gtPath, context );
+		final CTCMetricsRunner runner = new CTCMetricsRunner( imp, gtPath, context );
 		runner.setBatchLogger( logger );
 		final int count = model.count();
 		crawl();

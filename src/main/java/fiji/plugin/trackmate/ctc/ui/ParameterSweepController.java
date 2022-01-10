@@ -13,7 +13,7 @@ import org.scijava.Context;
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
-import fiji.plugin.trackmate.ctc.CTCMetricsRunner2;
+import fiji.plugin.trackmate.ctc.CTCMetricsRunner;
 import fiji.plugin.trackmate.ctc.CTCResultsCrawler;
 import fiji.plugin.trackmate.ctc.model.ParameterSweepModel;
 import fiji.plugin.trackmate.ctc.model.ParameterSweepModelIO;
@@ -113,7 +113,7 @@ public class ParameterSweepController implements Cancelable
 				{
 					final int targetChannel = gui.sliderChannel.getValue();
 					final Context context = TMUtils.getContext();
-					final CTCMetricsRunner2 runner = new CTCMetricsRunner2( imp, gtPath, context );
+					final CTCMetricsRunner runner = new CTCMetricsRunner( imp, gtPath, context );
 					runner.setBatchLogger( gui.logger );
 
 					final Settings base = new Settings( imp );

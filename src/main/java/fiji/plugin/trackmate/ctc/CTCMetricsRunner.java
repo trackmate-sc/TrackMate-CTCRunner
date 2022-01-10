@@ -1,6 +1,5 @@
 package fiji.plugin.trackmate.ctc;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -12,7 +11,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
-import java.util.Map;
+import java.util.IntSummaryStatistics;
 import java.util.function.BiFunction;
 
 import org.scijava.Context;
@@ -23,17 +22,12 @@ import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
 
 import fiji.plugin.trackmate.Logger;
-import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
+import fiji.plugin.trackmate.TrackModel;
 import fiji.plugin.trackmate.action.CTCExporter;
 import fiji.plugin.trackmate.action.CTCExporter.ExportType;
-import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
-import fiji.plugin.trackmate.features.FeatureFilter;
-import fiji.plugin.trackmate.io.TmXmlReader;
-import fiji.plugin.trackmate.io.TmXmlWriter;
-import fiji.plugin.trackmate.tracking.SpotTrackerFactory;
-import ij.IJ;
+import fiji.plugin.trackmate.util.TMUtils;
 import ij.ImagePlus;
 import net.imglib2.util.ValuePair;
 
@@ -48,12 +42,12 @@ public class CTCMetricsRunner
 	/**
 	 * Logger to supervise the batch.
 	 */
-	private final Logger batchLogger = Logger.DEFAULT_LOGGER;
+	private Logger batchLogger = Logger.DEFAULT_LOGGER;
 
 	/**
 	 * Logger to pass to TrackMate instances.
 	 */
-	private final Logger trackmateLogger = Logger.VOID_LOGGER;
+	private Logger trackmateLogger = Logger.VOID_LOGGER;
 
 	/**
 	 * CTC processor instance.
@@ -70,27 +64,23 @@ public class CTCMetricsRunner
 	 */
 	private final Path resultsRootPath;
 
-	public CTCMetricsRunner( final String imagePath, final String gtPath, final Context context )
+	public CTCMetricsRunner( final ImagePlus imp, final String gtPath, final Context context )
 	{
-		this.imp = IJ.openImage( imagePath );
-		this.gtPath = gtPath;
-		this.resultsRootPath = Paths.get( imagePath ).getParent();
 		assert imp != null;
+		this.imp = imp;
+		this.gtPath = gtPath;
+		this.resultsRootPath = Paths.get( gtPath ).getParent();
 		final int logLevel = 0; // silence CTC logging.
 		this.ctc = new CTCMetricsProcessor( context, logLevel );
 	}
 
-	public ValuePair< TrackMate, Double > execDetection( final SpotDetectorFactoryBase< ? > detectorFactory, final Map< String, Object > detectorSettings, final FeatureFilter... filters )
+	public ValuePair< TrackMate, Double > execDetection( final Settings settings )
 	{
-		final Settings settings = new Settings( imp );
-		settings.detectorFactory = detectorFactory;
-		settings.detectorSettings = detectorSettings;
-		settings.addAllAnalyzers();
-		settings.initialSpotFilterValue = 0.;
-
-		// Filters
-		for ( final FeatureFilter filter : filters )
-			settings.addSpotFilter( filter );
+		batchLogger.log( "Executing detection.\n" );
+		batchLogger.log( "Configured detector: " );
+		batchLogger.log( settings.detectorFactory.getName(), Logger.BLUE_COLOR );
+		batchLogger.log( " with settings:\n" );
+		batchLogger.log( TMUtils.echoMap( settings.detectorSettings, 2 ) );
 
 		final long start = System.currentTimeMillis();
 		final TrackMate trackmate = new TrackMate( settings );
@@ -100,112 +90,31 @@ public class CTCMetricsRunner
 				|| !trackmate.computeSpotFeatures( true )
 				|| !trackmate.execSpotFiltering( true ) )
 		{
-			System.err.println( "Error in the detection step:\n" + trackmate.getErrorMessage() );
+			batchLogger.error( "Error in the detection step:\n" + trackmate.getErrorMessage() );
 			return null;
 		}
 		final long end = System.currentTimeMillis();
 		final double detectionTiming = ( end - start ) / 1000.;
 
+		batchLogger.log( String.format( "Detection done in %.1f s.\n", ( end - start ) / 1e3f ) );
+		batchLogger.log( String.format( "Found %d visible spots over %d in total.\n",
+				trackmate.getModel().getSpots().getNSpots( true ),
+				trackmate.getModel().getSpots().getNSpots( false ) ) );
+
 		return new ValuePair<>( trackmate, detectionTiming );
 	}
 
-	public ValuePair< TrackMate, Double > getOrExecDetection( final SpotDetectorFactoryBase< ? > detectorFactory, final Map< String, Object > detectorSettings, final FeatureFilter... filters )
+	public double execTracking( final TrackMate trackmate )
 	{
-		final Settings settings = new Settings( imp );
-		settings.detectorFactory = detectorFactory;
-		settings.detectorSettings = detectorSettings;
-		settings.addAllAnalyzers();
-		settings.initialSpotFilterValue = 0.;
-
-		// Filters
-		for ( final FeatureFilter filter : filters )
-			settings.addSpotFilter( filter );
-
-		// For timing.
-		double detectionTiming = Double.NaN;
-
-		// Did we have already an existing detection file?
-		final File trackmateFile = new File( resultsRootPath.toFile(), "TrackMate_" + settings.detectorFactory.getKey() + ".xml" );
-		final File timingFile = new File( resultsRootPath.toFile(), "TrackMate_" + settings.detectorFactory.getKey() + "_timing.txt" );
-		final TrackMate trackmate;
-		if ( trackmateFile.exists() )
-		{
-			batchLogger.log( "Reading detection from " + trackmateFile + '\n' );
-			final TmXmlReader reader = new TmXmlReader( trackmateFile );
-			if ( !reader.isReadingOk() )
-			{
-				batchLogger.error( reader.getErrorMessage() );
-				return null;
-			}
-			final Model model = reader.getModel();
-			trackmate = new TrackMate( model, settings );
-			trackmate.getModel().setLogger( trackmateLogger );
-
-			// Read timing.
-			batchLogger.log( "Reading timing from " + timingFile + '\n' );
-			try (BufferedReader timingReader = new BufferedReader( new FileReader( timingFile ) ))
-			{
-				final String line = timingReader.readLine();
-				detectionTiming = Double.parseDouble( line );
-			}
-			catch ( final IOException e )
-			{
-				batchLogger.error( "Could not read timing file:\n" + e.getMessage() + '\n' );
-				e.printStackTrace();
-			}
-
-			batchLogger.log( "Reading done. Timing = " + detectionTiming + " s.\n" );
-		}
-		else
-		{
-			final long start = System.currentTimeMillis();
-			trackmate = new TrackMate( settings );
-			trackmate.getModel().setLogger( trackmateLogger );
-			if ( !trackmate.execDetection()
-					|| !trackmate.execInitialSpotFiltering()
-					|| !trackmate.computeSpotFeatures( true )
-					|| !trackmate.execSpotFiltering( true ) )
-			{
-				System.err.println( "Error in the detection step:\n" + trackmate.getErrorMessage() );
-				return null;
-			}
-			final long end = System.currentTimeMillis();
-			detectionTiming = ( end - start ) / 1000.;
-
-			// Write tmp file so that we don't have to redo the tracking.
-			batchLogger.log( "Saving detection to file " + trackmateFile + '\n' );
-			final TmXmlWriter writer = new TmXmlWriter( trackmateFile, trackmateLogger );
-			writer.appendLog( batchLogger.toString() );
-			writer.appendModel( trackmate.getModel() );
-			writer.appendSettings( trackmate.getSettings() );
-			try
-			{
-				writer.writeToFile();
-			}
-			catch ( final IOException e )
-			{
-				batchLogger.error( "Could not write TrackMate file:\n" + e.getMessage() + '\n' );
-				e.printStackTrace();
-			}
-
-			// Write timing.
-			try (FileWriter timingWriter = new FileWriter( timingFile ))
-			{
-				timingWriter.write( "" + detectionTiming );
-			}
-			catch ( final IOException e )
-			{
-				batchLogger.error( "Could not write timing file:\n" + e.getMessage() + '\n' );
-				e.printStackTrace();
-			}
-		}
-		return new ValuePair<>( trackmate, detectionTiming );
-	}
-
-	public double execTracking( final TrackMate trackmate, final SpotTrackerFactory trackerFactory, final Map< String, Object > trackerSettings )
-	{
-		trackmate.getSettings().trackerFactory = trackerFactory;
-		trackmate.getSettings().trackerSettings = trackerSettings;
+		batchLogger.log( "Executing tracking.\n" );
+		batchLogger.log( "Configured detector: " );
+		batchLogger.log( trackmate.getSettings().detectorFactory.getName(), Logger.BLUE_COLOR );
+		batchLogger.log( " with settings:\n" );
+		batchLogger.log( TMUtils.echoMap( trackmate.getSettings().detectorSettings, 2 ) );
+		batchLogger.log( "Configured tracker: " );
+		batchLogger.log( trackmate.getSettings().trackerFactory.getName(), Logger.BLUE_COLOR );
+		batchLogger.log( " with settings:\n" );
+		batchLogger.log( TMUtils.echoMap( trackmate.getSettings().trackerSettings, 2 ) );
 
 		final long start = System.currentTimeMillis();
 		if ( !trackmate.checkInput()
@@ -219,25 +128,37 @@ public class CTCMetricsRunner
 		}
 		final long end = System.currentTimeMillis();
 		final double trackingTiming = ( end - start ) / 1000.;
-		batchLogger.log( String.format( "Tracking time: %.1f s\n", trackingTiming ) );
+
+		batchLogger.log( String.format( "Tracking done in %.1f s.\n", trackingTiming ) );
+		final TrackModel trackModel = trackmate.getModel().getTrackModel();
+		final IntSummaryStatistics stats = trackModel.unsortedTrackIDs( false ).stream()
+				.mapToInt( id -> trackModel.trackSpots( id ).size() )
+				.summaryStatistics();
+		batchLogger.log( "Found " + trackModel.nTracks( false ) + " visible tracks over " 
+				+ trackModel.nTracks( false ) + " in total.\n" );
+		batchLogger.log( String.format( "  - avg size: %.1f spots.\n", stats.getAverage() ) );
+		batchLogger.log( String.format( "  - min size: %d spots.\n", stats.getMin() ) );
+		batchLogger.log( String.format( "  - max size: %d spots.\n", stats.getMax() ) );
 
 		return trackingTiming;
 	}
 
 	public void performCTCMetricsMeasurements( final TrackMate trackmate, final double detectionTiming, final double trackingTiming )
 	{
-		trackmateLogger.log( "Exporting as CTC results.\n" );
+		batchLogger.log( "Exporting as CTC results.\n" );
 		final Settings settings = trackmate.getSettings();
 		final File csvFile = findSuitableCSVFile( settings );
 		final String[] csvHeader1 = toCSVHeader( settings );
 
 		final int id = CTCExporter.getAvailableDatasetID( resultsRootPath.toString() );
+		final String resultsFolder = CTCExporter.getExportTrackingDataPath( resultsRootPath.toString(), id, ExportType.RESULTS, trackmate );
 		try
 		{
 			// Export to CTC files.
-			final String resultsFolder = CTCExporter.exportTrackingData( resultsRootPath.toString(), id, ExportType.RESULTS, trackmate, trackmateLogger );
+			CTCExporter.exportTrackingData( resultsRootPath.toString(), id, ExportType.RESULTS, trackmate, trackmateLogger );
 
 			// Perform CTC measurements.
+			batchLogger.log( "Performing CTC metrics measurements.\n" );
 			final CTCMetrics m = ctc.process( gtPath, resultsFolder );
 			// Add timing measurements.
 			final CTCMetrics metrics = m.copyEdit()
@@ -245,6 +166,7 @@ public class CTCMetricsRunner
 					.trackingTime( trackingTiming )
 					.tim( detectionTiming + trackingTiming )
 					.get();
+			batchLogger.log( "CTC metrics:\n" );
 			batchLogger.log( metrics.toString() + '\n' );
 
 			// Write to CSV.
@@ -260,13 +182,43 @@ public class CTCMetricsRunner
 				csvWriter.writeNext( line );
 			}
 
-			// Delete CTC export folder.
-			deleteFolder( resultsFolder );
 		}
-		catch ( final IOException e )
+		catch ( final IOException | IllegalArgumentException e )
 		{
 			batchLogger.error( "Could not export tracking data to CTC files:\n" + e.getMessage() + '\n' );
-			e.printStackTrace();
+			// Write default values to CSV.
+			final String[] line1 = toCSVLine( settings, csvHeader1 );
+			final CTCMetrics metrics = CTCMetrics.create()
+					.seg( Double.NaN )
+					.tra( Double.NaN )
+					.det( Double.NaN )
+					.ct( Double.NaN )
+					.tf( Double.NaN )
+					.bci( Double.NaN )
+					.cca( Double.NaN )
+					.tim( Double.NaN )
+					.detectionTime( Double.NaN )
+					.trackingTime( Double.NaN )
+					.get();
+			final String[] line = metrics.concatWithCSVLine( line1 );
+			try (CSVWriter csvWriter = new CSVWriter( new FileWriter( csvFile, true ),
+					CSVWriter.DEFAULT_SEPARATOR,
+					CSVWriter.NO_QUOTE_CHARACTER,
+					CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+					CSVWriter.DEFAULT_LINE_END ))
+			{
+				csvWriter.writeNext( line );
+			}
+			catch ( final IOException e1 )
+			{
+				batchLogger.error( "Could not write failed results to CSV file:\n" + e1.getMessage() + '\n' );
+				e1.printStackTrace();
+			}
+		}
+		finally
+		{
+			// Delete CTC export folder.
+			deleteFolder( resultsFolder );
 		}
 	}
 
@@ -413,6 +365,16 @@ public class CTCMetricsRunner
 		{
 			throw new RuntimeException( "Failed to delete " + path, e );
 		}
+	}
+
+	public void setBatchLogger( final Logger batchLogger )
+	{
+		this.batchLogger = batchLogger;
+	}
+
+	public void setTrackmateLogger( final Logger trackmateLogger )
+	{
+		this.trackmateLogger = trackmateLogger;
 	}
 
 	private static final BiFunction< String, Integer, String > nameGenWithID = ( imName, i ) -> String.format( "%s_CTCMetrics_%02d.csv", imName, i );
