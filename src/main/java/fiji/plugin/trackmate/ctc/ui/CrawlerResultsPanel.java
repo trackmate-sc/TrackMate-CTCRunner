@@ -252,6 +252,8 @@ public class CrawlerResultsPanel extends JPanel
 
 		public String getTooltip( final int row )
 		{
+			if ( row >= tooltips.length )
+				return "";
 			return tooltips[ row ];
 		}
 
@@ -370,6 +372,9 @@ public class CrawlerResultsPanel extends JPanel
 		@Override
 		public Object getValueAt( final int rowIndex, final int columnIndex )
 		{
+			if ( objs.length == 0 || rowIndex >= objs.length || columnIndex >= objs[ 0 ].length )
+				return null;
+
 			return objs[ rowIndex ][ columnIndex ];
 		}
 
@@ -438,7 +443,7 @@ public class CrawlerResultsPanel extends JPanel
 			}
 
 			renderer.setBorder( padding );
-			renderer.setToolTipText( tooltips[ row ] );
+			renderer.setToolTipText( row >= tooltips.length ? "" : tooltips[ row ] );
 			return renderer;
 		}
 	}
@@ -560,6 +565,9 @@ public class CrawlerResultsPanel extends JPanel
 		@Override
 		public Object getValueAt( final int rowIndex, final int columnIndex )
 		{
+			if ( objs.length == 0 || rowIndex >= objs.length || columnIndex >= objs[ 0 ].length )
+				return null;
+
 			return objs[ rowIndex ][ columnIndex ];
 		}
 
