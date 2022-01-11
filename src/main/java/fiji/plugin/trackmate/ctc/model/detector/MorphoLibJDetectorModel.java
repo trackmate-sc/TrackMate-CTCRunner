@@ -21,6 +21,7 @@
  */
 package fiji.plugin.trackmate.ctc.model.detector;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -42,7 +43,10 @@ public class MorphoLibJDetectorModel extends DetectorSweepModel
 	@Override
 	public Iterator< Settings > iterator( final Settings base, final int targetChannel )
 	{
-		return MorphoLibJOpt.iterator( models, base, targetChannel );
+		if ( null == new DetectorProvider().getFactory( "MORPHOLIBJ_DETECTOR" ) )
+			return Collections.emptyIterator();
+		else
+			return MorphoLibJOpt.iterator( models, base, targetChannel );
 	}
 
 	private static SpotDetectorFactoryBase< ? > createFactory()
