@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -195,8 +196,56 @@ public class ParameterSweepModelIO
 			final String type = jsonObject.get( "type" ).getAsString();
 			final JsonElement element = jsonObject.get( "properties" );
 
+			/*
+			 * Is the module of the model we are trying to deserialize
+			 * available?
+			 */
 			try
 			{
+				final Object obj = Class.forName( "fiji.plugin.trackmate.ctc.model.detector." + type ).getConstructor().newInstance();
+				final DetectorSweepModel m = ( DetectorSweepModel ) obj;
+				if ( m.factory == null )
+				{
+					/*
+					 * Non de-serialized version (will correctly show a message
+					 * about a missing module, even if the JSon files referred
+					 * to an installed module.
+					 */
+					return m;
+				}
+			}
+			catch ( InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException e )
+			{
+				e.printStackTrace();
+			}
+
+			/*
+			 * The module is available. But does the JSon file refers to a
+			 * missing module?
+			 */
+			try
+			{
+				final JsonElement properiesElement = json.getAsJsonObject().get( "properties" );
+				final JsonElement factoryElement = properiesElement.getAsJsonObject().get( "factory" );
+				if ( factoryElement == null )
+				{
+					/*
+					 * The JSon says that when it was saved it could not find
+					 * the module. But now we can. Substitute a default version
+					 * properly initialized.
+					 */
+					try
+					{
+						final Object obj2 = Class.forName( "fiji.plugin.trackmate.ctc.model.detector." + type ).getConstructor().newInstance();
+						return ( DetectorSweepModel ) obj2;
+					}
+					catch ( InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e )
+					{
+						e.printStackTrace();
+					}
+				}
+
+				// Normal case.
 				return context.deserialize( element, Class.forName( "fiji.plugin.trackmate.ctc.model.detector." + type ) );
 			}
 			catch ( final ClassNotFoundException cnfe )
@@ -225,8 +274,56 @@ public class ParameterSweepModelIO
 			final String type = jsonObject.get( "type" ).getAsString();
 			final JsonElement element = jsonObject.get( "properties" );
 
+			/*
+			 * Is the module of the model we are trying to deserialize
+			 * available?
+			 */
 			try
 			{
+				final Object obj = Class.forName( "fiji.plugin.trackmate.ctc.model.tracker." + type ).getConstructor().newInstance();
+				final TrackerSweepModel m = ( TrackerSweepModel ) obj;
+				if ( m.factory == null )
+				{
+					/*
+					 * Non de-serialized version (will correctly show a message
+					 * about a missing module, even if the JSon files referred
+					 * to an installed module.
+					 */
+					return m;
+				}
+			}
+			catch ( InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException e )
+			{
+				e.printStackTrace();
+			}
+
+			/*
+			 * The module is available. But does the JSon file refers to a
+			 * missing module?
+			 */
+			try
+			{
+				final JsonElement properiesElement = json.getAsJsonObject().get( "properties" );
+				final JsonElement factoryElement = properiesElement.getAsJsonObject().get( "factory" );
+				if ( factoryElement == null )
+				{
+					/*
+					 * The JSon says that when it was saved it could not find
+					 * the module. But now we can. Substitute a default version
+					 * properly initialized.
+					 */
+					try
+					{
+						final Object obj2 = Class.forName( "fiji.plugin.trackmate.ctc.model.tracker." + type ).getConstructor().newInstance();
+						return ( TrackerSweepModel ) obj2;
+					}
+					catch ( InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e )
+					{
+						e.printStackTrace();
+					}
+				}
+
+				// Normal case.
 				return context.deserialize( element, Class.forName( "fiji.plugin.trackmate.ctc.model.tracker." + type ) );
 			}
 			catch ( final ClassNotFoundException cnfe )
