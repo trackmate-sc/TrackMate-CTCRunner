@@ -64,6 +64,7 @@ public class MorphoLibJOpt
 		final EnumParamSweepModel< Connectivity > connectivityParam = new EnumParamSweepModel<>( Connectivity.class )
 				.paramName( "Connectivity" )
 				.rangeType( fiji.plugin.trackmate.ctc.model.parameter.ArrayParamSweepModel.RangeType.FIXED )
+				.addValue( Connectivity.DIAGONAL )
 				.fixedValue( Connectivity.DIAGONAL );
 		final BooleanParamSweepModel simplifyContourParam = new BooleanParamSweepModel()
 				.paramName( "Simplify contours" )
