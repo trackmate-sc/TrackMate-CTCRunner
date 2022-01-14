@@ -21,12 +21,15 @@
  */
 package fiji.plugin.trackmate.ctc.ui;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import fiji.plugin.trackmate.ctc.TrackMateParameterSweepResultsPlugin;
+import ij.IJ;
+import net.imagej.ImageJ;
 
 public class CrawlerResultsUITestDrive
 {
@@ -34,9 +37,14 @@ public class CrawlerResultsUITestDrive
 	public static void main( final String[] args ) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
 	{
 		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
-//			final String resultsFolder = "/Users/tinevez/Projects/JYTinevez/TrackMate-StarDist/CellMigration/";
-		final String resultsFolder = "D:\\Projects\\JYTinevez\\TrackMate-StarDist\\CTCMetrics\\CellMigration";
+		final ImageJ ij = new ImageJ();
+		ij.launch( args );
 
+		final String resultsFolder = "/Users/tinevez/Projects/JYTinevez/TrackMateDLPaper/Data/CTCMetrics/CellMigration";
+		final String imName = "CellMigration.tif";
+//		final String resultsFolder = "D:\\Projects\\JYTinevez\\TrackMate-StarDist\\CTCMetrics\\CellMigration";
+
+		IJ.openImage( new File( resultsFolder, imName ).getAbsolutePath() ).show();
 		new TrackMateParameterSweepResultsPlugin().run( resultsFolder );
 	}
 }
