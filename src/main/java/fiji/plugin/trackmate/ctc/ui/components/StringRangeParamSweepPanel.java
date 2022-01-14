@@ -138,6 +138,11 @@ public class StringRangeParamSweepPanel extends JPanel
 		for ( final String string : val.getRange() )
 			addStringPanel( string );
 
+		if ( stringPanels.size() > 1 )
+			stringPanels.forEach( sp -> sp.btnRemove.setVisible( true ) );
+		else
+			stringPanels.get( 0 ).btnRemove.setVisible( false );
+
 		// We assign the field only now so that the lines above do not result in
 		// adding the strings to the model a second time.
 		this.values = val;
