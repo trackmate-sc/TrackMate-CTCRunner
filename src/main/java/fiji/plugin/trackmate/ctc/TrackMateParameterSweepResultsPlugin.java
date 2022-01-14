@@ -22,6 +22,7 @@
 package fiji.plugin.trackmate.ctc;
 
 import java.awt.event.WindowAdapter;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 
@@ -31,6 +32,7 @@ import fiji.plugin.trackmate.gui.Fonts;
 import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.Icons;
 import fiji.util.gui.GenericDialogPlus;
+import ij.IJ;
 import ij.plugin.PlugIn;
 
 public class TrackMateParameterSweepResultsPlugin implements PlugIn
@@ -63,8 +65,18 @@ public class TrackMateParameterSweepResultsPlugin implements PlugIn
 
 			resultsFolder = dialog.getNextString();
 		}
+		try
+		{
+			crawler.crawl( resultsFolder );
+		}
+		catch ( final IOException e1 )
+		{
+			IJ.error( "Problem while inspecting folder " + resultsFolder
+					+ " for CTC results files:\n" + e1.getMessage() );
+			e1.printStackTrace();
+		}
 
-		final CrawlerResultsPanel panel = new CrawlerResultsPanel( crawler );
+		final CrawlerResultsPanel panel = new CrawlerResultsPanel( crawler, null );
 		crawler.watch( resultsFolder );
 
 		final JFrame frame = new JFrame( "TrackMate parameter sweep results" );
@@ -78,9 +90,8 @@ public class TrackMateParameterSweepResultsPlugin implements PlugIn
 		} );
 		frame.setIconImage( Icons.TRACKMATE_ICON.getImage() );
 		frame.getContentPane().add( panel );
-		frame.pack();
+		frame.setSize( 800, 400 );
 		frame.setLocationRelativeTo( null );
 		frame.setVisible( true );
-
 	}
 }
