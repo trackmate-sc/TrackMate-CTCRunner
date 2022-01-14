@@ -310,6 +310,8 @@ public class NumberRangeSweepPanel extends JPanel
 
 		values.rangeType( type )
 				.nSteps( ( ( Number ) spinnerNSteps.getValue() ).intValue() );
+
+		final String rangeStr;
 		if ( values instanceof DoubleParamSweepModel )
 		{
 			( ( DoubleParamSweepModel ) values )
@@ -318,6 +320,7 @@ public class NumberRangeSweepPanel extends JPanel
 							: min.doubleValue() )
 					.max( max.doubleValue() )
 					.manualRange( parseRange() );
+			rangeStr = DoubleParamSweepModel.str( values.getRange() );
 		}
 		else
 		{
@@ -330,10 +333,10 @@ public class NumberRangeSweepPanel extends JPanel
 					.max( max.intValue() )
 					.nSteps( ( ( Number ) spinnerNSteps.getValue() ).intValue() )
 					.manualRange( arr );
+			rangeStr = IntParamSweepModel.str( values.getRange() );
 		}
 
 		// Update UI.
-		final String rangeStr = DoubleParamSweepModel.str( values.getRange() );
 		if ( !rangeStr.equals( tfValues.getText() ) )
 			tfValues.setText( rangeStr );
 
@@ -392,6 +395,8 @@ public class NumberRangeSweepPanel extends JPanel
 				}
 			}
 		}
+		if (vals.isEmpty())
+			vals.add( Double.valueOf( 1. ) );
 		final Double[] arr = new Double[ vals.size() ];
 		for ( int i = 0; i < vals.size(); i++ )
 			arr[ i ] = vals.get( i ).doubleValue();

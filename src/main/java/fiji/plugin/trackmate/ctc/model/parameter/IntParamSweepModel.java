@@ -134,16 +134,16 @@ public class IntParamSweepModel extends NumberParamSweepModel
 		return new ArrayList<>( set );
 	}
 
-	public static final String str( final int[] range )
+	public static final String str( final List< Number > list )
 	{
-		if ( range.length == 0 )
+		if ( list.isEmpty() )
 			return "[]";
 
 		final StringBuilder str = new StringBuilder();
 		str.append( "[ " );
-		str.append( String.format( "%d", range[ 0 ] ) );
-		for ( int i = 1; i < range.length; i++ )
-			str.append( String.format( ", %d", range[ i ] ) );
+		str.append( String.format( "%d", list.get( 0 ).intValue() ) );
+		for ( int i = 1; i < list.size(); i++ )
+			str.append( String.format( ", %d", list.get( i ).intValue() ) );
 
 		str.append( " ]" );
 		return str.toString();
