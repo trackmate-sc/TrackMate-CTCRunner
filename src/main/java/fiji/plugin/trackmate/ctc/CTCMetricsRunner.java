@@ -238,8 +238,16 @@ public class CTCMetricsRunner
 		}
 		finally
 		{
-			// Delete CTC export folder.
-			deleteFolder( resultsFolder );
+			try
+			{
+				// Delete CTC export folder.
+				deleteFolder( resultsFolder );
+			}
+			catch ( final RuntimeException e )
+			{
+				batchLogger.error( "Failed to delete CTC export folder: " + resultsFolder + "\n"
+						+ "Please delete it manually later.\n" );
+			}
 		}
 	}
 
