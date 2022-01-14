@@ -30,7 +30,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.io.File;
 import java.util.ArrayList;
@@ -72,6 +71,8 @@ public class StringRangeParamSweepPanel extends JPanel
 
 	private final JPanel panelButton;
 
+	private final Runnable refresher;
+
 	/*
 	 * CONSTRUCTOR
 	 */
@@ -80,6 +81,24 @@ public class StringRangeParamSweepPanel extends JPanel
 	{
 		this.showBrowse = val.isFile();
 		this.enabler = new EverythingDisablerAndReenabler( this, new Class[] { JLabel.class } );
+		this.refresher = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if ( values == null )
+					return;
+
+				final List< String > strs = new ArrayList<>( stringPanels.size() );
+				for ( int i = 0; i < stringPanels.size(); i++ )
+				{
+					final StringPanel sp = stringPanels.get( i );
+					final String str = sp.tfStr.getText();
+					strs.add( str );
+				}
+				values.setAll( strs );
+			}
+		};
 
 		this.setLayout( new BorderLayout() );
 		setPreferredSize( new Dimension( 270, 150 ) );
@@ -155,10 +174,8 @@ public class StringRangeParamSweepPanel extends JPanel
 			stringPanels.forEach( sp -> sp.btnRemove.setVisible( true ) );
 
 		panel.btnRemove.addActionListener( e -> removeStringPanel( panel, strut ) );
-		if ( values != null )
-			values.add( panel.tfStr.getText() );
-
 		allStringPanels.revalidate();
+		refresher.run();
 	}
 
 	/*
@@ -177,6 +194,7 @@ public class StringRangeParamSweepPanel extends JPanel
 		allStringPanels.remove( stringPanel );
 		allStringPanels.revalidate();
 		allStringPanels.repaint();
+		refresher.run();
 	}
 
 	/*
@@ -225,18 +243,13 @@ public class StringRangeParamSweepPanel extends JPanel
 
 			// Listeners.
 			fiji.plugin.trackmate.gui.GuiUtils.selectAllOnFocus( tfStr );
-
-			final ActionListener al = e -> {
-				final int id = stringPanels.indexOf( this );
-				values.set( id, tfStr.getText() );
-			};
-			tfStr.addActionListener( al );
+			tfStr.addActionListener( e -> refresher.run() );
 			final FocusAdapter fa = new FocusAdapter()
 			{
 				@Override
 				public void focusLost( final java.awt.event.FocusEvent e )
 				{
-					al.actionPerformed( null );
+					refresher.run();
 				}
 			};
 			tfStr.addFocusListener( fa );
@@ -255,7 +268,10 @@ public class StringRangeParamSweepPanel extends JPanel
 						DialogType.LOAD,
 						SelectionMode.FILES_AND_DIRECTORIES );
 				if ( file != null )
+				{
 					tfStr.setText( file.getAbsolutePath() );
+					refresher.run();
+				}
 			}
 			finally
 			{

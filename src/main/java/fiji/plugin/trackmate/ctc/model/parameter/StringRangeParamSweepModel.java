@@ -37,6 +37,35 @@ public class StringRangeParamSweepModel extends AbstractParamSweepModel< String 
 		return ( StringRangeParamSweepModel ) super.paramName( paramName );
 	}
 
+	public StringRangeParamSweepModel removeAll()
+	{
+		if ( !stringList.isEmpty() )
+		{
+			stringList.clear();
+			notifyListeners();
+		}
+		return this;
+	}
+
+	public StringRangeParamSweepModel addAll( final List< String > strs )
+	{
+		if ( !strs.isEmpty() )
+		{
+			stringList.addAll( strs );
+			notifyListeners();
+		}
+		return this;
+	}
+
+	public StringRangeParamSweepModel setAll( final List< String > strs )
+	{
+		stringList.clear();
+		stringList.addAll( strs );
+		notifyListeners();
+		return this;
+
+	}
+
 	public StringRangeParamSweepModel add( final String string )
 	{
 		stringList.add( string );
@@ -95,5 +124,4 @@ public class StringRangeParamSweepModel extends AbstractParamSweepModel< String 
 	{
 		return isFile;
 	}
-
 }
