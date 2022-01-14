@@ -53,7 +53,13 @@ public class CellposeOpt
 		final EnumParamSweepModel< PretrainedModel > cellposeModel = new EnumParamSweepModel<>( PretrainedModel.class )
 				.paramName( "Cellpose model" )
 				.rangeType( fiji.plugin.trackmate.ctc.model.parameter.ArrayParamSweepModel.RangeType.FIXED )
+				.addValue( PretrainedModel.CYTO )
+				.addValue( PretrainedModel.CYTO2 )
 				.fixedValue( PretrainedModel.CYTO );
+		final StringRangeParamSweepModel cellposeCustomModelPath = new StringRangeParamSweepModel()
+				.paramName( "Cellpose custom model path" )
+				.isFile( true )
+				.add( System.getProperty( "user.home" ) );
 		final IntParamSweepModel channel1 = new IntParamSweepModel()
 				.paramName( "Channel to segment" )
 				.rangeType( RangeType.FIXED )
@@ -82,6 +88,7 @@ public class CellposeOpt
 		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
 		models.put( CellposeDetectorFactory.KEY_CELLPOSE_PYTHON_FILEPATH, cellposePath );
 		models.put( CellposeDetectorFactory.KEY_CELLPOSE_MODEL, cellposeModel );
+		models.put( CellposeDetectorFactory.KEY_CELLPOSE_CUSTOM_MODEL_FILEPATH, cellposeCustomModelPath );
 		models.put( CellposeDetectorFactory.KEY_CELL_DIAMETER, cellDiameter );
 		models.put( DetectorKeys.KEY_TARGET_CHANNEL, channel1 );
 		models.put( CellposeDetectorFactory.KEY_OPTIONAL_CHANNEL_2, channel2 );
