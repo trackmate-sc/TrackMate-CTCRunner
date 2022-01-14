@@ -221,6 +221,11 @@ public class CTCResultsCrawler
 		final List< String > out = new ArrayList< String >();
 		for ( final File f : list )
 		{
+			// Skip CTC export folders.
+			final String name = f.getName();
+			if ( name.endsWith( "GT" ) || name.endsWith( "ST" ) || name.endsWith( "RES" ) )
+				continue;
+
 			if ( f.isDirectory() )
 				out.addAll( findFiles( f.getAbsolutePath(), fileExtension ) );
 			else if ( f.getName().toLowerCase().endsWith( fe ) )
