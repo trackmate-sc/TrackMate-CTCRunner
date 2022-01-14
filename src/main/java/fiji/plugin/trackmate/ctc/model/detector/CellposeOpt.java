@@ -32,8 +32,8 @@ import fiji.plugin.trackmate.ctc.model.parameter.BooleanParamSweepModel;
 import fiji.plugin.trackmate.ctc.model.parameter.DoubleParamSweepModel;
 import fiji.plugin.trackmate.ctc.model.parameter.EnumParamSweepModel;
 import fiji.plugin.trackmate.ctc.model.parameter.IntParamSweepModel;
-import fiji.plugin.trackmate.ctc.model.parameter.StringRangeParamSweepModel;
 import fiji.plugin.trackmate.ctc.model.parameter.NumberParamSweepModel.RangeType;
+import fiji.plugin.trackmate.ctc.model.parameter.StringRangeParamSweepModel;
 import fiji.plugin.trackmate.detection.DetectorKeys;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.detection.ThresholdDetectorFactory;
@@ -93,5 +93,14 @@ public class CellposeOpt
 	public static SpotDetectorFactoryBase< ? > createFactory()
 	{
 		return new CellposeDetectorFactory<>();
+	}
+
+	public static Object castPretrainedModel( final String str )
+	{
+		for ( final PretrainedModel e : PretrainedModel.values() )
+			if ( e.toString().equals( str ) )
+				return e;
+
+		return null;
 	}
 }

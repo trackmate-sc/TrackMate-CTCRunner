@@ -128,7 +128,7 @@ public class ParameterSweepPanel extends JPanel
 		this.logger = panelLog.getLogger();
 		tabbedPane.addTab( "Log", null, panelLog, null );
 
-		final CrawlerResultsPanel bestParamsPanel = new CrawlerResultsPanel( crawler );
+		final CrawlerResultsPanel bestParamsPanel = new CrawlerResultsPanel( crawler, imp );
 		tabbedPane.addTab( "Best params", null, bestParamsPanel, null );
 
 		panelSpotFilters = new FilterConfigPanel( TrackMateObject.SPOTS, Spot.QUALITY, imp, model.getSpotFilters() );

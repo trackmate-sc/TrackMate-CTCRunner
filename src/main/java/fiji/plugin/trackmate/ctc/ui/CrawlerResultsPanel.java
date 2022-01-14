@@ -25,7 +25,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Arrays;
@@ -35,6 +34,9 @@ import java.util.Vector;
 import java.util.function.Function;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -42,6 +44,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
@@ -52,15 +55,25 @@ import javax.swing.table.TableColumnModel;
 
 import com.itextpdf.text.Font;
 
+import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.ctc.CTCMetrics;
 import fiji.plugin.trackmate.ctc.CTCMetricsDescription;
 import fiji.plugin.trackmate.ctc.CTCResults;
 import fiji.plugin.trackmate.ctc.CTCResultsCrawler;
 import fiji.plugin.trackmate.ctc.CTCResultsCrawler.CrawlerListener;
+import fiji.plugin.trackmate.ctc.TrackMateCTCUtils;
+import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.gui.Fonts;
 import fiji.plugin.trackmate.gui.GuiUtils;
+import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.gui.displaysettings.Colormap;
+import fiji.plugin.trackmate.providers.DetectorProvider;
+import fiji.plugin.trackmate.providers.TrackerProvider;
+import fiji.plugin.trackmate.tracking.SpotTrackerFactory;
 import fiji.plugin.trackmate.util.TMUtils;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.gui.GenericDialog;
 import net.imglib2.util.ValuePair;
 
 public class CrawlerResultsPanel extends JPanel
@@ -75,7 +88,7 @@ public class CrawlerResultsPanel extends JPanel
 			CTCMetricsDescription.DETECTION_TIME,
 			CTCMetricsDescription.TRACKING_TIME };
 
-	public CrawlerResultsPanel( final CTCResultsCrawler crawler )
+	public CrawlerResultsPanel( final CTCResultsCrawler crawler, final ImagePlus imp )
 	{
 		final CTCMetricsDescription defaultMetrics = CTCMetricsDescription.DET;
 
@@ -92,18 +105,23 @@ public class CrawlerResultsPanel extends JPanel
 		tabbedPane.addTab( "Best detector and tracker", null, panelBestDT, null );
 
 		final JPanel panelCount = new JPanel();
-		final FlowLayout flowLayout1 = ( FlowLayout ) panelCount.getLayout();
-		flowLayout1.setAlignment( FlowLayout.LEFT );
 		panelBestDT.add( panelCount, BorderLayout.NORTH );
+		panelCount.setLayout( new BoxLayout( panelCount, BoxLayout.X_AXIS ) );
 
 		final JLabel lblCount = new JLabel();
 		lblCount.setFont( Fonts.FONT.deriveFont( Font.BOLD ) );
 		panelCount.add( lblCount );
+		panelCount.add( Box.createHorizontalGlue() );
+
+		final JButton btnLaunchTrackMateDT = new JButton( "Launch TrackMate with selection" );
+		btnLaunchTrackMateDT.setFont( Fonts.SMALL_FONT );
+		btnLaunchTrackMateDT.setIcon( Icons.TRACKMATE_ICON_16x16 );
+		panelCount.add( btnLaunchTrackMateDT );
 
 		final JScrollPane scrollPaneBestDT = new JScrollPane();
 		panelBestDT.add( scrollPaneBestDT, BorderLayout.CENTER );
 
-		final BestDTTableModel bestDTTableModel = new BestDTTableModel( crawler );
+		final BestDTTableModel bestDTTableModel = new BestDTTableModel( crawler, imp );
 		final JTable tableDT = new JTable()
 		{
 
@@ -125,9 +143,10 @@ public class CrawlerResultsPanel extends JPanel
 		tableDT.setAutoResizeMode( JTable.AUTO_RESIZE_OFF );
 		tableDT.setModel( bestDTTableModel );
 		tableDT.getTableHeader().setFont( Fonts.FONT.deriveFont( Font.ITALIC ) );
-		scrollPaneBestDT.setViewportView( tableDT );
 		tableDT.setDefaultRenderer( Double.class, bestDTTableModel );
 		tableDT.setDefaultRenderer( String.class, new MyStringCellRenderer( r -> bestDTTableModel.tooltips[ r ] ) );
+		tableDT.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
+		scrollPaneBestDT.setViewportView( tableDT );
 
 		/*
 		 * Best results for each detector and tracker combination.
@@ -138,9 +157,8 @@ public class CrawlerResultsPanel extends JPanel
 		tabbedPane.addTab( "Best values", null, panelBestVal, null );
 
 		final JPanel panelDescChoice = new JPanel();
-		final FlowLayout flowLayout2 = ( FlowLayout ) panelDescChoice.getLayout();
-		flowLayout2.setAlignment( FlowLayout.LEFT );
 		panelBestVal.add( panelDescChoice, BorderLayout.NORTH );
+		panelDescChoice.setLayout( new BoxLayout( panelDescChoice, BoxLayout.X_AXIS ) );
 
 		final JLabel lblChoice = new JLabel( "Best results for each detector and tracker combination according to:" );
 		lblChoice.setFont( Fonts.FONT.deriveFont( Font.BOLD ) );
@@ -160,11 +178,16 @@ public class CrawlerResultsPanel extends JPanel
 		cmbboxMetrics.setFont( Fonts.FONT );
 		cmbboxMetrics.setSelectedItem( defaultMetrics );
 		panelDescChoice.add( cmbboxMetrics );
+		panelDescChoice.add( Box.createHorizontalGlue() );
+		final JButton btnLaunchTrackMateVal = new JButton( "Launch TrackMate with selection" );
+		btnLaunchTrackMateVal.setFont( Fonts.SMALL_FONT );
+		btnLaunchTrackMateVal.setIcon( Icons.TRACKMATE_ICON_16x16 );
+		panelDescChoice.add( btnLaunchTrackMateVal );
 
 		final JScrollPane scrollPaneBestVal = new JScrollPane();
 		panelBestVal.add( scrollPaneBestVal, BorderLayout.CENTER );
 
-		final BestValTableModel bestValTableModel = new BestValTableModel( crawler, defaultMetrics );
+		final BestValTableModel bestValTableModel = new BestValTableModel( crawler, imp, defaultMetrics );
 		final JTable tableVal = new JTable()
 		{
 
@@ -188,6 +211,7 @@ public class CrawlerResultsPanel extends JPanel
 		tableVal.setDefaultRenderer( Double.class, bestValTableModel );
 		tableVal.setDefaultRenderer( String.class, new MyStringCellRenderer( r -> bestValTableModel.getTooltip( r ) ) );
 		tableVal.getTableHeader().setFont( Fonts.FONT.deriveFont( Font.ITALIC ) );
+		tableVal.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
 		scrollPaneBestVal.setViewportView( tableVal );
 
 		/*
@@ -221,7 +245,24 @@ public class CrawlerResultsPanel extends JPanel
 		crawler.listeners().add( l );
 
 		bestDTTableModel.addTableModelListener( e -> this.repaint() );
+		btnLaunchTrackMateDT.addActionListener( e -> {
+			final int row = tableDT.getSelectedRow();
+			final Settings settings = bestDTTableModel.getSettingsForRow( row );
+			if ( settings == null )
+				return;
+
+			TrackMateCTCUtils.launchTrackMate( settings );
+		} );
+
 		bestValTableModel.addTableModelListener( e -> this.repaint() );
+		btnLaunchTrackMateVal.addActionListener( e -> {
+			final int row = tableVal.getSelectedRow();
+			final Settings settings = bestValTableModel.getSettingsForRow( row );
+			if ( settings == null )
+				return;
+
+			TrackMateCTCUtils.launchTrackMate( settings );
+		} );
 	}
 
 	private static final class BestValTableModel extends AbstractTableModel implements TableCellRenderer
@@ -251,9 +292,12 @@ public class CrawlerResultsPanel extends JPanel
 
 		private final double[] maxt = new double[ 3 ];
 
-		public BestValTableModel( final CTCResultsCrawler crawler, final CTCMetricsDescription target )
+		private final ImagePlus imp;
+
+		public BestValTableModel( final CTCResultsCrawler crawler, final ImagePlus imp, final CTCMetricsDescription target )
 		{
 			this.crawler = crawler;
+			this.imp = imp;
 			this.target = target;
 			this.ncols = descs.length + 2;
 			this.columnNames = new String[ ncols ];
@@ -263,6 +307,69 @@ public class CrawlerResultsPanel extends JPanel
 				columnNames[ i + 2 ] = descs[ i ].ctcName();
 			this.renderer = new DefaultTableCellRenderer();
 			update();
+		}
+
+		public Settings getSettingsForRow( final int row )
+		{
+			if ( row < 0 || row >= objs.length )
+				return null;
+
+			final String detector = ( String ) objs[ row ][ 0 ];
+			final String tracker = ( String ) objs[ row ][ 1 ];
+			final ValuePair< String, Integer > pair = crawler.bestFor( detector, tracker, target );
+			final CTCResults results = crawler.get( pair.getA() );
+			if ( results == null )
+			{
+				IJ.error( "TrackMate CTC helper", "No good settings to optimize " + target.description() );
+				return null;
+			}
+			final int line = pair.getB();
+
+			final String detector2 = results.getDetector( line );
+			final SpotDetectorFactoryBase< ? > detectorFactory = new DetectorProvider().getFactory( detector2 );
+			if ( detectorFactory == null )
+			{
+				IJ.error( "TrackMate CTC helper", "Detector " + detector2
+						+ " is not available in this Fiji installation." );
+				return null;
+			}
+
+			final String tracker2 = results.getTracker( line );
+			final SpotTrackerFactory trackerFactory = new TrackerProvider().getFactory( tracker2 );
+			if ( trackerFactory == null )
+			{
+				IJ.error( "TrackMate CTC helper", "Tracker " + tracker2
+						+ " is not available in this Fiji installation." );
+				return null;
+			}
+
+			final Map< String, String > detectorParamsStr = results.getDetectorParams( line );
+			final Map< String, Object > detectorParams = TrackMateCTCUtils.castToSettings( detectorParamsStr );
+			final Map< String, String > trackerParamsStr = results.getTrackerParams( line );
+			final Map< String, Object > trackerParams = TrackMateCTCUtils.castToSettings( trackerParamsStr );
+
+			final ImagePlus tmp;
+			if ( imp == null )
+			{
+				final GenericDialog dialog = new GenericDialog( "Generate a TrackMate configuration" );
+				dialog.addMessage( "Please select an image" );
+				dialog.addImageChoice( "Target image", null );
+				dialog.showDialog();
+				if ( dialog.wasCanceled() )
+					return null;
+				tmp = dialog.getNextImage();
+			}
+			else
+			{
+				tmp = imp;
+			}
+			final Settings settings = new Settings( tmp );
+			settings.addAllAnalyzers();
+			settings.detectorFactory = detectorFactory;
+			settings.detectorSettings = detectorParams;
+			settings.trackerFactory = trackerFactory;
+			settings.trackerSettings = trackerParams;
+			return settings;
 		}
 
 		public void setMetrics( final CTCMetricsDescription desc )
@@ -492,9 +599,12 @@ public class CrawlerResultsPanel extends JPanel
 
 		private final double[] maxt = new double[ 3 ];
 
-		public BestDTTableModel( final CTCResultsCrawler crawler )
+		private final ImagePlus imp;
+
+		public BestDTTableModel( final CTCResultsCrawler crawler, final ImagePlus imp )
 		{
 			this.crawler = crawler;
+			this.imp = imp;
 			this.nrows = descs.length;
 			this.ncols = descs.length + 4;
 			this.columnNames = new String[ ncols ];
@@ -513,6 +623,71 @@ public class CrawlerResultsPanel extends JPanel
 			this.tooltips = new String[ nrows ];
 			this.renderer = new DefaultTableCellRenderer();
 			update();
+		}
+
+		public Settings getSettingsForRow( final int row )
+		{
+			if ( row < 0 || row >= objs.length )
+				return null;
+
+			final CTCMetricsDescription m = descs[ row ];
+			final ValuePair< String, Integer > pair = crawler.bestFor( m );
+			final CTCResults results = crawler.get( pair.getA() );
+			if ( results == null )
+			{
+				IJ.error( "TrackMate CTC helper", "No good settings to optimize " + m.description() );
+				return null;
+			}
+			else
+			{
+				// Values.
+				final int line = pair.getB();
+				final String detector = results.getDetector( line );
+				final SpotDetectorFactoryBase< ? > detectorFactory = new DetectorProvider().getFactory( detector );
+				if ( detectorFactory == null )
+				{
+					IJ.error( "TrackMate CTC helper", "Detector " + detector
+							+ " is not available in this Fiji installation." );
+					return null;
+				}
+				final String tracker = results.getTracker( line );
+				final SpotTrackerFactory trackerFactory = new TrackerProvider().getFactory( tracker );
+				if ( trackerFactory == null )
+				{
+					IJ.error( "TrackMate CTC helper", "Tracker " + tracker
+							+ " is not available in this Fiji installation." );
+					return null;
+				}
+
+				final Map< String, String > detectorParamsStr = results.getDetectorParams( line );
+				final Map< String, Object > detectorParams = TrackMateCTCUtils.castToSettings( detectorParamsStr );
+				final Map< String, String > trackerParamsStr = results.getTrackerParams( line );
+				final Map< String, Object > trackerParams = TrackMateCTCUtils.castToSettings( trackerParamsStr );
+
+				final ImagePlus tmp;
+				if ( imp == null )
+				{
+					final GenericDialog dialog = new GenericDialog( "Generate a TrackMate configuration" );
+					dialog.addMessage( "Please select an image" );
+					dialog.addImageChoice( "Target image", null );
+					dialog.showDialog();
+					if ( dialog.wasCanceled() )
+						return null;
+					tmp = dialog.getNextImage();
+				}
+				else
+				{
+					tmp = imp;
+				}
+
+				final Settings settings = new Settings( tmp );
+				settings.addAllAnalyzers();
+				settings.detectorFactory = detectorFactory;
+				settings.detectorSettings = detectorParams;
+				settings.trackerFactory = trackerFactory;
+				settings.trackerSettings = trackerParams;
+				return settings;
+			}
 		}
 
 		@SuppressWarnings( { "unchecked", "rawtypes" } )
