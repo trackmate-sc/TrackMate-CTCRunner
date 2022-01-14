@@ -21,14 +21,15 @@
  */
 package fiji.plugin.trackmate.ctc.model.detector;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import fiji.plugin.trackmate.ctc.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.ctc.model.parameter.DoubleParamSweepModel;
-import fiji.plugin.trackmate.ctc.model.parameter.StringRangeParamSweepModel;
+import fiji.plugin.trackmate.ctc.model.parameter.InfoParamSweepModel;
 import fiji.plugin.trackmate.ctc.model.parameter.NumberParamSweepModel.RangeType;
+import fiji.plugin.trackmate.ctc.model.parameter.StringRangeParamSweepModel;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.stardist.StarDistCustomDetectorFactory;
 import fiji.plugin.trackmate.stardist.StarDistDetectorFactory;
@@ -46,7 +47,11 @@ public class StadDistOpt
 
 	public static Map< String, AbstractParamSweepModel< ? > > createModelsBuiltin()
 	{
-		return Collections.emptyMap();
+		final Map< String, AbstractParamSweepModel< ? > > models = new HashMap<>();
+		models.put( "", new InfoParamSweepModel()
+				.info( "The TrackMate-StarDist built-in detector has no parameter to tune." )
+				.url( "" ) );
+		return models;
 	}
 
 	public static SpotDetectorFactoryBase< ? > createFactoryCustom()
