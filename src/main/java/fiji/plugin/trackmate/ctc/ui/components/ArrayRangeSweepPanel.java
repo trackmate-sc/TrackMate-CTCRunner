@@ -199,7 +199,7 @@ public class ArrayRangeSweepPanel< T > extends JPanel
 
 	private void removeEnum()
 	{
-		if ( values.getSelection().isEmpty() )
+		if ( values.getSelection().size() < 2 )
 			return;
 		values.removeValue( values.getSelection().iterator().next() );
 		update();
