@@ -61,7 +61,7 @@ public class TrackMateCTCUtils
 	 * Tries to recreate a settings map (Map &lt; String, Object &gt; ) from its
 	 * string representation.
 	 * 
-	 * @param detectorParamsStr
+	 * @param in
 	 *            a map of strings to strings.
 	 * @return a map of strings to objects.
 	 */

@@ -342,7 +342,7 @@ public class CTCResultsCrawler
 	 * @param validOnly
 	 *            if <code>true</code> will only count combinations that return
 	 *            valid CTC metrics.
-	 * @return
+	 * @return the number of parameter combinations.
 	 */
 	public int count( final boolean validOnly )
 	{
