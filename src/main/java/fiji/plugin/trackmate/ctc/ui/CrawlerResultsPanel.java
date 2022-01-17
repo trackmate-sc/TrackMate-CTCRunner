@@ -25,6 +25,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Arrays;
@@ -52,8 +53,6 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
-
-import com.itextpdf.text.Font;
 
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.ctc.CTCMetrics;
@@ -113,7 +112,17 @@ public class CrawlerResultsPanel extends JPanel
 		panelCount.add( lblCount );
 		panelCount.add( Box.createHorizontalGlue() );
 
-		final JButton btnLaunchTrackMateDT = new JButton( "Launch TrackMate with selection" );
+		final JButton btnLaunchTrackMateDT = new JButton( "Launch TrackMate with selection" )
+		{
+
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public void setEnabled( final boolean b )
+			{
+				// Never disable.
+			}
+		};
 		btnLaunchTrackMateDT.setFont( Fonts.SMALL_FONT );
 		btnLaunchTrackMateDT.setIcon( Icons.TRACKMATE_ICON_16x16 );
 		panelCount.add( btnLaunchTrackMateDT );
@@ -179,7 +188,18 @@ public class CrawlerResultsPanel extends JPanel
 		cmbboxMetrics.setSelectedItem( defaultMetrics );
 		panelDescChoice.add( cmbboxMetrics );
 		panelDescChoice.add( Box.createHorizontalGlue() );
-		final JButton btnLaunchTrackMateVal = new JButton( "Launch TrackMate with selection" );
+		final JButton btnLaunchTrackMateVal = new JButton( "Launch TrackMate with selection" )
+		{
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void setEnabled( final boolean enabled )
+			{
+				// Never disable.
+			}
+
+		};
 		btnLaunchTrackMateVal.setFont( Fonts.SMALL_FONT );
 		btnLaunchTrackMateVal.setIcon( Icons.TRACKMATE_ICON_16x16 );
 		panelDescChoice.add( btnLaunchTrackMateVal );
