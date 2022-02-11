@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import fiji.plugin.trackmate.ctc.ui.ParameterSweepController;
 import fiji.plugin.trackmate.gui.Fonts;
+import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.Icons;
 import fiji.util.gui.GenericDialogPlus;
 import ij.IJ;
@@ -41,6 +42,7 @@ public class TrackMateParameterSweepPlugin implements PlugIn
 	@Override
 	public void run( final String arg )
 	{
+		GuiUtils.setSystemLookAndFeel();
 		if ( arg != null && !arg.isEmpty() )
 		{
 			final List< String > args = Arrays.asList( arg.split( "," ) )
