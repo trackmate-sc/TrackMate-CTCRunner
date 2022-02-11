@@ -97,7 +97,7 @@ public class ParameterSweepController implements Cancelable
 			ParameterSweepModelIO.saveTo( modelFile, model );
 		} );
 
-		frame = new JFrame( "TrackMate parameter sweep" );
+		frame = new JFrame( "TrackMate Helper" );
 		frame.addWindowListener( new WindowAdapter()
 		{
 			@Override
