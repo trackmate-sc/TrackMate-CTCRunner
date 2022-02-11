@@ -54,10 +54,14 @@ public class GuiTestDrive
 //		final String rootFolder = "D:\\Projects\\JYTinevez\\TrackMate-StarDist\\CTCMetrics\\";
 //		final String sourceImagePath = new File( rootFolder, "NMeningitidis/NeisseriaMeningitidisGrowth.tif" ).getAbsolutePath();
 //		final File groundTruthPath = new File( rootFolder, "01_GT" );
+//
+//		final String rootFolder = "/Users/tinevez/Projects/JYTinevez/TrackMateDLPaper/Data/CTCMetrics/CellMigration/";
+//		final File sourceImagePath = new File( rootFolder, "CellMigration.tif" );
+//		final File groundTruthPath = new File( rootFolder, "02_GT" );
 
-		final String rootFolder = "/Users/tinevez/Projects/JYTinevez/TrackMateDLPaper/Data/CTCMetrics/CellMigration/";
-		final File sourceImagePath = new File( rootFolder, "CellMigration.tif" );
-		final File groundTruthPath = new File( rootFolder, "02_GT" );
+		final String rootFolder = "D:\\Projects\\JYTinevez\\TrackMate-StarDist\\CTCMetrics\\Brightfield";
+		final String sourceImagePath = new File( rootFolder, "BrightFieldCells-RawData.tif" ).getAbsolutePath();
+		final File groundTruthPath = new File( rootFolder, "01_GT" );
 
 		final TrackMateParameterSweepPlugin plugin = new TrackMateParameterSweepPlugin();
 		plugin.run( sourceImagePath + ", " + groundTruthPath );
