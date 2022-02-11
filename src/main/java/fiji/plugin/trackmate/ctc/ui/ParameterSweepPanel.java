@@ -29,11 +29,16 @@ import static fiji.plugin.trackmate.gui.Icons.EXECUTE_ICON;
 import static fiji.plugin.trackmate.gui.Icons.TRACKMATE_ICON_16x16;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -50,6 +55,8 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JViewport;
 import javax.swing.border.EmptyBorder;
+
+import org.scijava.util.VersionUtils;
 
 import com.itextpdf.text.Font;
 
@@ -72,6 +79,10 @@ public class ParameterSweepPanel extends JPanel
 {
 
 	private static final long serialVersionUID = 1L;
+
+	private static final String DOC_LINK = "https://imagej.net/plugins/trackmate/extensions/trackmate-helper";
+
+	private static final String DOC_STR = "<html><a href=" + DOC_LINK + ">Documentation</a></html>";
 
 	final JTabbedPane tabbedPane;
 
@@ -154,22 +165,27 @@ public class ParameterSweepPanel extends JPanel
 		topPanel.add( panelTitle, BorderLayout.NORTH );
 		final GridBagLayout gblPanelTitle = new GridBagLayout();
 		gblPanelTitle.columnWidths = new int[] { 137, 0 };
-		gblPanelTitle.rowHeights = new int[] { 14, 0, 0, 0 };
+		gblPanelTitle.rowHeights = new int[] { 14, 0, 0, 0, 0 };
 		gblPanelTitle.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gblPanelTitle.rowWeights = new double[] { 0.0, 1.0, 0.0, Double.MIN_VALUE };
+		gblPanelTitle.rowWeights = new double[] { 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
 		panelTitle.setLayout( gblPanelTitle );
 
-		final JLabel lblTitle = new JLabel( "TrackMate parameter sweep" );
+		final JLabel lblTitle = new JLabel( "<html><center>TrackMate Helper <small>v"
+				+ VersionUtils.getVersion( ParameterSweepPanel.class )
+				+ "</small></center></html>" );
 		lblTitle.setIcon( TRACKMATE_ICON_16x16 );
 		lblTitle.setFont( BIG_FONT );
 		final GridBagConstraints gbcLblTitle = new GridBagConstraints();
 		gbcLblTitle.insets = new Insets( 0, 0, 5, 0 );
-		gbcLblTitle.fill = GridBagConstraints.VERTICAL;
+		gbcLblTitle.fill = GridBagConstraints.BOTH;
 		gbcLblTitle.gridx = 0;
 		gbcLblTitle.gridy = 0;
 		panelTitle.add( lblTitle, gbcLblTitle );
 
-		final JLabel lblDoc = new JLabel( "Doc" );
+		final JLabel lblDoc = new JLabel( "<html>"
+				+ "Runs automated parameter sweeps on a TrackMate image, and compute the Cell-Tracking-Challenge "
+				+ "metrics on all the results."
+				+ "</html>" );
 		lblDoc.setFont( SMALL_FONT );
 		final GridBagConstraints gbcLblDoc = new GridBagConstraints();
 		gbcLblDoc.insets = new Insets( 0, 0, 5, 0 );
@@ -178,10 +194,34 @@ public class ParameterSweepPanel extends JPanel
 		gbcLblDoc.gridy = 1;
 		panelTitle.add( lblDoc, gbcLblDoc );
 
+		final JLabel lblUrl = new JLabel( DOC_STR );
+		lblUrl.addMouseListener( new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked( final java.awt.event.MouseEvent e )
+			{
+				try
+				{
+					Desktop.getDesktop().browse( new URI( DOC_LINK ) );
+				}
+				catch ( URISyntaxException | IOException ex )
+				{
+					ex.printStackTrace();
+				}
+			}
+		} );
+
+		final GridBagConstraints gbc_lblUrl = new GridBagConstraints();
+		gbc_lblUrl.anchor = GridBagConstraints.EAST;
+		gbc_lblUrl.insets = new Insets( 0, 0, 5, 0 );
+		gbc_lblUrl.gridx = 0;
+		gbc_lblUrl.gridy = 2;
+		panelTitle.add( lblUrl, gbc_lblUrl );
+
 		final GridBagConstraints gbcSeparator = new GridBagConstraints();
 		gbcSeparator.fill = GridBagConstraints.BOTH;
 		gbcSeparator.gridx = 0;
-		gbcSeparator.gridy = 2;
+		gbcSeparator.gridy = 3;
 		panelTitle.add( new JSeparator(), gbcSeparator );
 
 		/*
