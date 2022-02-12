@@ -21,14 +21,12 @@
  */
 package fiji.plugin.trackmate.ctc.ui;
 
-import java.io.File;
 import java.io.IOException;
 
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import fiji.plugin.trackmate.ctc.TrackMateParameterSweepResultsPlugin;
-import ij.IJ;
 import net.imagej.ImageJ;
 
 public class CrawlerResultsUITestDrive
@@ -40,11 +38,12 @@ public class CrawlerResultsUITestDrive
 		final ImageJ ij = new ImageJ();
 		ij.launch( args );
 
-		final String resultsFolder = "/Users/tinevez/Projects/JYTinevez/TrackMateDLPaper/Data/CTCMetrics/CellMigration";
-		final String imName = "CellMigration.tif";
+//		final String resultsFolder = "/Users/tinevez/Projects/JYTinevez/TrackMateDLPaper/Data/CTCMetrics/CellMigration";
+//		final String imName = "CellMigration.tif";
 //		final String resultsFolder = "D:\\Projects\\JYTinevez\\TrackMate-StarDist\\CTCMetrics\\CellMigration";
+//		IJ.openImage( new File( resultsFolder, imName ).getAbsolutePath() ).show();
+//		new TrackMateParameterSweepResultsPlugin().run( resultsFolder );
 
-		IJ.openImage( new File( resultsFolder, imName ).getAbsolutePath() ).show();
-		new TrackMateParameterSweepResultsPlugin().run( resultsFolder );
+		new TrackMateParameterSweepResultsPlugin().run( null );
 	}
 }

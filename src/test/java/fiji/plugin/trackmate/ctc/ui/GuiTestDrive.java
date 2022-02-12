@@ -59,8 +59,12 @@ public class GuiTestDrive
 //		final File sourceImagePath = new File( rootFolder, "CellMigration.tif" );
 //		final File groundTruthPath = new File( rootFolder, "02_GT" );
 
-		final String rootFolder = "D:\\Projects\\JYTinevez\\TrackMate-StarDist\\CTCMetrics\\Brightfield";
-		final String sourceImagePath = new File( rootFolder, "BrightFieldCells-RawData.tif" ).getAbsolutePath();
+//		final String rootFolder = "D:\\Projects\\JYTinevez\\TrackMate-StarDist\\CTCMetrics\\Brightfield";
+//		final String sourceImagePath = new File( rootFolder, "BrightFieldCells-RawData.tif" ).getAbsolutePath();
+//		final File groundTruthPath = new File( rootFolder, "01_GT" );
+
+		final String rootFolder = "C:\\Users\\tinevez\\Desktop\\BrightFieldCells";
+		final String sourceImagePath = new File( rootFolder, "BrightFieldCells-VarianceFilterRadius=9pixels.tif" ).getAbsolutePath();
 		final File groundTruthPath = new File( rootFolder, "01_GT" );
 
 		final TrackMateParameterSweepPlugin plugin = new TrackMateParameterSweepPlugin();
