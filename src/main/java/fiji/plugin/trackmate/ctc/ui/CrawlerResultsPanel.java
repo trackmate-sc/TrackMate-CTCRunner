@@ -154,7 +154,7 @@ public class CrawlerResultsPanel extends JPanel
 		tableDT.getTableHeader().setFont( Fonts.FONT.deriveFont( Font.ITALIC ) );
 		tableDT.setDefaultRenderer( Double.class, bestDTTableModel );
 		tableDT.setDefaultRenderer( String.class, new MyStringCellRenderer( r -> bestDTTableModel.tooltips[ r ] ) );
-		tableDT.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
+		tableDT.setSelectionMode( ListSelectionModel.SINGLE_INTERVAL_SELECTION );
 		scrollPaneBestDT.setViewportView( tableDT );
 
 		/*
@@ -231,7 +231,7 @@ public class CrawlerResultsPanel extends JPanel
 		tableVal.setDefaultRenderer( Double.class, bestValTableModel );
 		tableVal.setDefaultRenderer( String.class, new MyStringCellRenderer( r -> bestValTableModel.getTooltip( r ) ) );
 		tableVal.getTableHeader().setFont( Fonts.FONT.deriveFont( Font.ITALIC ) );
-		tableVal.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
+		tableVal.setSelectionMode( ListSelectionModel.SINGLE_INTERVAL_SELECTION );
 		scrollPaneBestVal.setViewportView( tableVal );
 
 		/*
