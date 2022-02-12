@@ -31,6 +31,7 @@ import static fiji.plugin.trackmate.gui.Icons.TRACKMATE_ICON_16x16;
 import java.awt.BorderLayout;
 import java.awt.Desktop;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -39,26 +40,21 @@ import java.awt.event.MouseAdapter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.JViewport;
 import javax.swing.border.EmptyBorder;
 
 import org.scijava.util.VersionUtils;
-
-import com.itextpdf.text.Font;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Spot;
@@ -86,7 +82,11 @@ public class ParameterSweepPanel extends JPanel
 
 	final JTabbedPane tabbedPane;
 
-	final EverythingDisablerAndReenabler enabler;
+	/**
+	 * List of enablers that can disable/enable the parts of the UI that should
+	 * not be touched while a parameter sweep is runing.
+	 */
+	final List< EverythingDisablerAndReenabler > enablers;
 
 	private final FilterConfigPanel panelSpotFilters;
 
@@ -114,15 +114,7 @@ public class ParameterSweepPanel extends JPanel
 	{
 		this.model = model;
 		this.crawler = crawler;
-		enabler = new EverythingDisablerAndReenabler( this, new Class[] {
-				JLabel.class,
-				JTabbedPane.class,
-				LogPanel.class,
-				JTextArea.class,
-				JTextPane.class,
-				JScrollPane.class,
-				JScrollBar.class,
-				JViewport.class } );
+		this.enablers = new ArrayList<>();
 
 		setLayout( new BorderLayout( 5, 5 ) );
 
@@ -144,9 +136,13 @@ public class ParameterSweepPanel extends JPanel
 
 		panelSpotFilters = new FilterConfigPanel( TrackMateObject.SPOTS, Spot.QUALITY, imp, model.getSpotFilters() );
 		tabbedPane.addTab( "Spot filters", null, panelSpotFilters, null );
+		// Enabler.
+		enablers.add( new EverythingDisablerAndReenabler( panelSpotFilters, new Class[] { JLabel.class } ) );
 
 		panelTrackFilters = new FilterConfigPanel( TrackMateObject.TRACKS, TrackBranchingAnalyzer.NUMBER_SPOTS, imp, model.getTrackFilters() );
 		tabbedPane.addTab( "Track filters", null, panelTrackFilters, null );
+		// Enabler.
+		enablers.add( new EverythingDisablerAndReenabler( panelTrackFilters, new Class[] { JLabel.class } ) );
 
 		/*
 		 * Top panel.
@@ -155,6 +151,8 @@ public class ParameterSweepPanel extends JPanel
 		final JPanel topPanel = new JPanel();
 		topPanel.setLayout( new BorderLayout( 5, 5 ) );
 		add( topPanel, BorderLayout.NORTH );
+		// Enabler for the top panel.
+		enablers.add( new EverythingDisablerAndReenabler( topPanel, new Class[] { JLabel.class } ) );
 
 		/*
 		 * Title panel.
@@ -292,6 +290,8 @@ public class ParameterSweepPanel extends JPanel
 				c1.gridy = 8;
 				c1.gridx = 1;
 			}
+			// Enabler.
+			enablers.add( new EverythingDisablerAndReenabler( panel, new Class[] { JLabel.class } ) );
 		}
 
 		// Add tracker checkboxes.
@@ -323,6 +323,8 @@ public class ParameterSweepPanel extends JPanel
 			al.actionPerformed( null );
 			panelChkboxes.add( chkbox, c2 );
 			c2.gridy++;
+			// Enabler.
+			enablers.add( new EverythingDisablerAndReenabler( panel, new Class[] { JLabel.class } ) );
 		}
 		c2.fill = GridBagConstraints.HORIZONTAL;
 		panelChkboxes.add( new JSeparator(), c2 );
