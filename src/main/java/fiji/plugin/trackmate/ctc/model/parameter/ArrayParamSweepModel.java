@@ -31,11 +31,11 @@ import java.util.Set;
 public class ArrayParamSweepModel< T > extends AbstractParamSweepModel< T >
 {
 
-	Set< T > set = new LinkedHashSet<>();
+	protected final Set< T > set = new LinkedHashSet<>();
 
-	RangeType rangeType = RangeType.FIXED;
+	protected RangeType rangeType = RangeType.FIXED;
 
-	T fixedValue;
+	protected T fixedValue;
 
 	private T[] allValues;
 

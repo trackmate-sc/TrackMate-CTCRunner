@@ -46,9 +46,9 @@ public class BooleanParamSweepModel extends AbstractParamSweepModel< Boolean >
 		}
 	}
 
-	RangeType rangeType = RangeType.TEST_ALL;
+	private RangeType rangeType = RangeType.TEST_ALL;
 
-	boolean fixedValue = true;
+	private boolean fixedValue = true;
 
 	@Override
 	public List< Boolean > getRange()
