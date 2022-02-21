@@ -21,6 +21,7 @@
  */
 package fiji.plugin.trackmate.ctc;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.scijava.Context;
@@ -98,21 +99,38 @@ public class CTCMetricsProcessor
 			 */
 		}
 
-		final double traValue = tra.calculate( groundTruthPath, resultsFolder );
-		final TrackDataCache sharedCache = tra.getCache();
-		final double detValue = det.calculate( groundTruthPath, resultsFolder, sharedCache );
-		final double ctValue = ct.calculate( groundTruthPath, resultsFolder, sharedCache );
-		final double tfValue = tf.calculate( groundTruthPath, resultsFolder, sharedCache );
-		double ccaValue;
-		try
+		
+		double traValue = Double.NaN;
+		double detValue = Double.NaN;
+		double ctValue = Double.NaN;
+		double tfValue = Double.NaN;
+		double bciValue = Double.NaN;
+		double ccaValue = Double.NaN;
+		try 
 		{
-			ccaValue = cca.calculate( groundTruthPath, resultsFolder );
+			traValue = tra.calculate( groundTruthPath, resultsFolder );
+			final TrackDataCache sharedCache = tra.getCache();
+			detValue = det.calculate( groundTruthPath, resultsFolder, sharedCache );
+			ctValue = ct.calculate( groundTruthPath, resultsFolder, sharedCache );
+			tfValue = tf.calculate( groundTruthPath, resultsFolder, sharedCache );
+			bciValue = bci.calculate( groundTruthPath, resultsFolder, sharedCache );
+			try
+			{
+				ccaValue = cca.calculate( groundTruthPath, resultsFolder );
+			}
+			catch ( final IllegalArgumentException e )
+			{
+				ccaValue = Double.NaN;
+			}
 		}
-		catch ( final IllegalArgumentException e )
+		catch ( final FileNotFoundException e )
 		{
-			ccaValue = Double.NaN;
+			/*
+			 * Could not find the source to compute TRA metrics. Never-mind,
+			 * return NaN.
+			 */
 		}
-		final double bciValue = bci.calculate( groundTruthPath, resultsFolder, sharedCache );
+
 		return CTCMetrics.create()
 				.seg( segValue )
 				.tra( traValue )
