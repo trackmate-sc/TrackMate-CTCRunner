@@ -29,29 +29,32 @@ import static fiji.plugin.trackmate.gui.Icons.EXECUTE_ICON;
 import static fiji.plugin.trackmate.gui.Icons.TRACKMATE_ICON_16x16;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.JViewport;
 import javax.swing.border.EmptyBorder;
 
-import com.itextpdf.text.Font;
+import org.scijava.util.VersionUtils;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Spot;
@@ -73,9 +76,17 @@ public class ParameterSweepPanel extends JPanel
 
 	private static final long serialVersionUID = 1L;
 
+	private static final String DOC_LINK = "https://imagej.net/plugins/trackmate/extensions/trackmate-helper";
+
+	private static final String DOC_STR = "<html><a href=" + DOC_LINK + ">Documentation</a></html>";
+
 	final JTabbedPane tabbedPane;
 
-	final EverythingDisablerAndReenabler enabler;
+	/**
+	 * List of enablers that can disable/enable the parts of the UI that should
+	 * not be touched while a parameter sweep is runing.
+	 */
+	final List< EverythingDisablerAndReenabler > enablers;
 
 	private final FilterConfigPanel panelSpotFilters;
 
@@ -103,15 +114,7 @@ public class ParameterSweepPanel extends JPanel
 	{
 		this.model = model;
 		this.crawler = crawler;
-		enabler = new EverythingDisablerAndReenabler( this, new Class[] {
-				JLabel.class,
-				JTabbedPane.class,
-				LogPanel.class,
-				JTextArea.class,
-				JTextPane.class,
-				JScrollPane.class,
-				JScrollBar.class,
-				JViewport.class } );
+		this.enablers = new ArrayList<>();
 
 		setLayout( new BorderLayout( 5, 5 ) );
 
@@ -133,9 +136,13 @@ public class ParameterSweepPanel extends JPanel
 
 		panelSpotFilters = new FilterConfigPanel( TrackMateObject.SPOTS, Spot.QUALITY, imp, model.getSpotFilters() );
 		tabbedPane.addTab( "Spot filters", null, panelSpotFilters, null );
+		// Enabler.
+		enablers.add( new EverythingDisablerAndReenabler( panelSpotFilters, new Class[] { JLabel.class } ) );
 
 		panelTrackFilters = new FilterConfigPanel( TrackMateObject.TRACKS, TrackBranchingAnalyzer.NUMBER_SPOTS, imp, model.getTrackFilters() );
 		tabbedPane.addTab( "Track filters", null, panelTrackFilters, null );
+		// Enabler.
+		enablers.add( new EverythingDisablerAndReenabler( panelTrackFilters, new Class[] { JLabel.class } ) );
 
 		/*
 		 * Top panel.
@@ -144,6 +151,8 @@ public class ParameterSweepPanel extends JPanel
 		final JPanel topPanel = new JPanel();
 		topPanel.setLayout( new BorderLayout( 5, 5 ) );
 		add( topPanel, BorderLayout.NORTH );
+		// Enabler for the top panel.
+		enablers.add( new EverythingDisablerAndReenabler( topPanel, new Class[] { JLabel.class } ) );
 
 		/*
 		 * Title panel.
@@ -154,22 +163,27 @@ public class ParameterSweepPanel extends JPanel
 		topPanel.add( panelTitle, BorderLayout.NORTH );
 		final GridBagLayout gblPanelTitle = new GridBagLayout();
 		gblPanelTitle.columnWidths = new int[] { 137, 0 };
-		gblPanelTitle.rowHeights = new int[] { 14, 0, 0, 0 };
+		gblPanelTitle.rowHeights = new int[] { 14, 0, 0, 0, 0 };
 		gblPanelTitle.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gblPanelTitle.rowWeights = new double[] { 0.0, 1.0, 0.0, Double.MIN_VALUE };
+		gblPanelTitle.rowWeights = new double[] { 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
 		panelTitle.setLayout( gblPanelTitle );
 
-		final JLabel lblTitle = new JLabel( "TrackMate parameter sweep" );
+		final JLabel lblTitle = new JLabel( "<html><center>TrackMate Helper <small>v"
+				+ VersionUtils.getVersion( ParameterSweepPanel.class )
+				+ "</small></center></html>" );
 		lblTitle.setIcon( TRACKMATE_ICON_16x16 );
 		lblTitle.setFont( BIG_FONT );
 		final GridBagConstraints gbcLblTitle = new GridBagConstraints();
 		gbcLblTitle.insets = new Insets( 0, 0, 5, 0 );
-		gbcLblTitle.fill = GridBagConstraints.VERTICAL;
+		gbcLblTitle.fill = GridBagConstraints.BOTH;
 		gbcLblTitle.gridx = 0;
 		gbcLblTitle.gridy = 0;
 		panelTitle.add( lblTitle, gbcLblTitle );
 
-		final JLabel lblDoc = new JLabel( "Doc" );
+		final JLabel lblDoc = new JLabel( "<html>"
+				+ "Runs automated parameter sweeps on a TrackMate image, and compute the Cell-Tracking-Challenge "
+				+ "metrics on all the results."
+				+ "</html>" );
 		lblDoc.setFont( SMALL_FONT );
 		final GridBagConstraints gbcLblDoc = new GridBagConstraints();
 		gbcLblDoc.insets = new Insets( 0, 0, 5, 0 );
@@ -178,10 +192,34 @@ public class ParameterSweepPanel extends JPanel
 		gbcLblDoc.gridy = 1;
 		panelTitle.add( lblDoc, gbcLblDoc );
 
+		final JLabel lblUrl = new JLabel( DOC_STR );
+		lblUrl.addMouseListener( new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked( final java.awt.event.MouseEvent e )
+			{
+				try
+				{
+					Desktop.getDesktop().browse( new URI( DOC_LINK ) );
+				}
+				catch ( URISyntaxException | IOException ex )
+				{
+					ex.printStackTrace();
+				}
+			}
+		} );
+
+		final GridBagConstraints gbc_lblUrl = new GridBagConstraints();
+		gbc_lblUrl.anchor = GridBagConstraints.EAST;
+		gbc_lblUrl.insets = new Insets( 0, 0, 5, 0 );
+		gbc_lblUrl.gridx = 0;
+		gbc_lblUrl.gridy = 2;
+		panelTitle.add( lblUrl, gbc_lblUrl );
+
 		final GridBagConstraints gbcSeparator = new GridBagConstraints();
 		gbcSeparator.fill = GridBagConstraints.BOTH;
 		gbcSeparator.gridx = 0;
-		gbcSeparator.gridy = 2;
+		gbcSeparator.gridy = 3;
 		panelTitle.add( new JSeparator(), gbcSeparator );
 
 		/*
@@ -252,6 +290,8 @@ public class ParameterSweepPanel extends JPanel
 				c1.gridy = 8;
 				c1.gridx = 1;
 			}
+			// Enabler.
+			enablers.add( new EverythingDisablerAndReenabler( panel, new Class[] { JLabel.class } ) );
 		}
 
 		// Add tracker checkboxes.
@@ -283,6 +323,8 @@ public class ParameterSweepPanel extends JPanel
 			al.actionPerformed( null );
 			panelChkboxes.add( chkbox, c2 );
 			c2.gridy++;
+			// Enabler.
+			enablers.add( new EverythingDisablerAndReenabler( panel, new Class[] { JLabel.class } ) );
 		}
 		c2.fill = GridBagConstraints.HORIZONTAL;
 		panelChkboxes.add( new JSeparator(), c2 );

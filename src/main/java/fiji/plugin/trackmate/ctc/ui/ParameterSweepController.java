@@ -42,6 +42,7 @@ import fiji.plugin.trackmate.ctc.model.detector.DetectorSweepModel;
 import fiji.plugin.trackmate.ctc.model.tracker.TrackerSweepModel;
 import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.io.TmXmlWriter;
+import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import fiji.plugin.trackmate.util.TMUtils;
 import ij.ImagePlus;
 import net.imglib2.util.ValuePair;
@@ -97,7 +98,7 @@ public class ParameterSweepController implements Cancelable
 			ParameterSweepModelIO.saveTo( modelFile, model );
 		} );
 
-		frame = new JFrame( "TrackMate parameter sweep" );
+		frame = new JFrame( "TrackMate Helper" );
 		frame.addWindowListener( new WindowAdapter()
 		{
 			@Override
@@ -117,7 +118,7 @@ public class ParameterSweepController implements Cancelable
 		cancelReason = null;
 		// Refresh model :(
 		gui.refresh();
-		gui.enabler.disable();
+		gui.enablers.forEach( EverythingDisablerAndReenabler::disable );
 		gui.btnRun.setVisible( false );
 		gui.btnStop.setVisible( true );
 		gui.btnStop.setEnabled( true );
@@ -247,7 +248,7 @@ public class ParameterSweepController implements Cancelable
 				{
 					gui.btnRun.setVisible( true );
 					gui.btnStop.setVisible( false );
-					gui.enabler.reenable();
+					gui.enablers.forEach( EverythingDisablerAndReenabler::reenable );
 				}
 			}
 		}.start();
