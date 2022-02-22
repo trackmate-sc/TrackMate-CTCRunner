@@ -1,0 +1,208 @@
+package fiji.plugin.trackmate.batcher.ui;
+
+import static fiji.plugin.trackmate.gui.Fonts.SMALL_FONT;
+
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.File;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
+import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
+import fiji.plugin.trackmate.util.FileChooser;
+import fiji.plugin.trackmate.util.FileChooser.DialogType;
+import fiji.plugin.trackmate.util.FileChooser.SelectionMode;
+
+public class RunBatchPanel extends JPanel
+{
+	private static final long serialVersionUID = 1L;
+
+	private final JTextField tfOutputPath;
+
+	public RunBatchPanel()
+	{
+		final GridBagLayout gridBagLayout = new GridBagLayout();
+		gridBagLayout.columnWidths = new int[] { 0, 0 };
+		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
+		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		setLayout( gridBagLayout );
+
+		final JLabel lblOutputLocation = new JLabel( "Save output:" );
+		lblOutputLocation.setFont( SMALL_FONT );
+		final GridBagConstraints gbcLblOutputLocation = new GridBagConstraints();
+		gbcLblOutputLocation.insets = new Insets( 0, 0, 5, 0 );
+		gbcLblOutputLocation.fill = GridBagConstraints.HORIZONTAL;
+		gbcLblOutputLocation.gridx = 0;
+		gbcLblOutputLocation.gridy = 0;
+		add( lblOutputLocation, gbcLblOutputLocation );
+
+		final JRadioButton rdbtnSame = new JRadioButton( "In input image folder." );
+		rdbtnSame.setFont( SMALL_FONT );
+		final GridBagConstraints gbc_rdbtnSame = new GridBagConstraints();
+		gbc_rdbtnSame.insets = new Insets( 0, 0, 5, 0 );
+		gbc_rdbtnSame.anchor = GridBagConstraints.WEST;
+		gbc_rdbtnSame.gridx = 0;
+		gbc_rdbtnSame.gridy = 1;
+		add( rdbtnSame, gbc_rdbtnSame );
+
+		final JPanel panelTo = new JPanel();
+		final GridBagConstraints gbcPanelTo = new GridBagConstraints();
+		gbcPanelTo.insets = new Insets( 0, 0, 5, 0 );
+		gbcPanelTo.fill = GridBagConstraints.BOTH;
+		gbcPanelTo.gridx = 0;
+		gbcPanelTo.gridy = 2;
+		add( panelTo, gbcPanelTo );
+		panelTo.setLayout( new BoxLayout( panelTo, BoxLayout.X_AXIS ) );
+
+		final JRadioButton rdbtnTo = new JRadioButton( "To:" );
+		rdbtnTo.setFont( SMALL_FONT );
+		panelTo.add( rdbtnTo );
+
+		tfOutputPath = new JTextField();
+		tfOutputPath.setColumns( 10 );
+		tfOutputPath.setFont( SMALL_FONT );
+		panelTo.add( Box.createHorizontalStrut( 5 ) );
+		panelTo.add( tfOutputPath );
+
+		final JButton btnBrowse = new JButton( "Browse" );
+		btnBrowse.setFont( SMALL_FONT );
+		panelTo.add( Box.createHorizontalStrut( 5 ) );
+		panelTo.add( btnBrowse );
+
+		final JLabel lblExport = new JLabel( "Export:" );
+		lblExport.setFont( SMALL_FONT );
+		final GridBagConstraints gbcLblExport = new GridBagConstraints();
+		gbcLblExport.insets = new Insets( 0, 0, 5, 0 );
+		gbcLblExport.anchor = GridBagConstraints.WEST;
+		gbcLblExport.gridx = 0;
+		gbcLblExport.gridy = 3;
+		add( lblExport, gbcLblExport );
+
+		final JCheckBox chckbxTrackMateFile = new JCheckBox( "TrackMate file." );
+		chckbxTrackMateFile.setFont( SMALL_FONT );
+		final GridBagConstraints gbcChckbxTrackMateFile = new GridBagConstraints();
+		gbcChckbxTrackMateFile.insets = new Insets( 0, 0, 5, 0 );
+		gbcChckbxTrackMateFile.anchor = GridBagConstraints.WEST;
+		gbcChckbxTrackMateFile.gridx = 0;
+		gbcChckbxTrackMateFile.gridy = 4;
+		add( chckbxTrackMateFile, gbcChckbxTrackMateFile );
+
+		final JCheckBox chckbxSpotTable = new JCheckBox( "Spot table (CSV)." );
+		chckbxSpotTable.setFont( SMALL_FONT );
+		final GridBagConstraints gbcChckbxSpotTable = new GridBagConstraints();
+		gbcChckbxSpotTable.insets = new Insets( 0, 0, 5, 0 );
+		gbcChckbxSpotTable.anchor = GridBagConstraints.WEST;
+		gbcChckbxSpotTable.gridx = 0;
+		gbcChckbxSpotTable.gridy = 5;
+		add( chckbxSpotTable, gbcChckbxSpotTable );
+
+		final JCheckBox chckbxEdgeTable = new JCheckBox( "Edge table (CSV)." );
+		chckbxEdgeTable.setFont( SMALL_FONT );
+		final GridBagConstraints gbcChckbxEdgeTable = new GridBagConstraints();
+		gbcChckbxEdgeTable.anchor = GridBagConstraints.WEST;
+		gbcChckbxEdgeTable.insets = new Insets( 0, 0, 5, 0 );
+		gbcChckbxEdgeTable.gridx = 0;
+		gbcChckbxEdgeTable.gridy = 6;
+		add( chckbxEdgeTable, gbcChckbxEdgeTable );
+
+		final JCheckBox chckbxTrackTable = new JCheckBox( "Track table (CSV)." );
+		chckbxTrackTable.setFont( SMALL_FONT );
+		final GridBagConstraints gbcChckbxTrackTable = new GridBagConstraints();
+		gbcChckbxTrackTable.insets = new Insets( 0, 0, 5, 0 );
+		gbcChckbxTrackTable.anchor = GridBagConstraints.WEST;
+		gbcChckbxTrackTable.gridx = 0;
+		gbcChckbxTrackTable.gridy = 7;
+		add( chckbxTrackTable, gbcChckbxTrackTable );
+
+		final JCheckBox chckbxTables = new JCheckBox( "The 3 tables (XLSX)." );
+		chckbxTables.setFont( SMALL_FONT );
+		final GridBagConstraints gbcChckbxNewCheckBox = new GridBagConstraints();
+		gbcChckbxNewCheckBox.insets = new Insets( 0, 0, 5, 0 );
+		gbcChckbxNewCheckBox.anchor = GridBagConstraints.WEST;
+		gbcChckbxNewCheckBox.gridx = 0;
+		gbcChckbxNewCheckBox.gridy = 8;
+		add( chckbxTables, gbcChckbxNewCheckBox );
+
+		final JCheckBox chckbxMovie = new JCheckBox( "Movie (AVI)." );
+		chckbxMovie.setFont( SMALL_FONT );
+		final GridBagConstraints gbcChckbxMovie = new GridBagConstraints();
+		gbcChckbxMovie.anchor = GridBagConstraints.WEST;
+		gbcChckbxMovie.gridx = 0;
+		gbcChckbxMovie.gridy = 9;
+		add( chckbxMovie, gbcChckbxMovie );
+
+		/*
+		 * Listeners and co.
+		 */
+
+		final ButtonGroup buttonGroup = new ButtonGroup();
+		buttonGroup.add( rdbtnTo );
+		buttonGroup.add( rdbtnSame );
+		// Radio buttons listener.
+		final ItemListener il = new ItemListener()
+		{
+
+			@Override
+			public void itemStateChanged( final ItemEvent e )
+			{
+				// Only fire once for the one who gets selected.
+				if ( e.getStateChange() == ItemEvent.SELECTED )
+				{
+					tfOutputPath.setEnabled( rdbtnTo.isSelected() );
+					btnBrowse.setEnabled( rdbtnTo.isSelected() );
+				}
+			}
+		};
+		rdbtnSame.addItemListener( il );
+		rdbtnTo.addItemListener( il );
+
+		final EverythingDisablerAndReenabler enabler = new EverythingDisablerAndReenabler( this, new Class[] { JLabel.class } );
+		btnBrowse.addActionListener( e -> {
+			enabler.disable();
+			try
+			{
+				final File file = FileChooser.chooseFile(
+						this,
+						tfOutputPath.getText(),
+						null,
+						"Browse to a folder",
+						DialogType.SAVE,
+						SelectionMode.DIRECTORIES_ONLY );
+				if ( file != null )
+				{
+					tfOutputPath.setText( file.getAbsolutePath() );
+				}
+			}
+			finally
+			{
+				enabler.reenable();
+			}
+		} );
+	}
+
+	public static void main( final String[] args ) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
+	{
+		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
+		final JPanel panel = new RunBatchPanel();
+		final JFrame frame = new JFrame();
+		frame.getContentPane().add( panel );
+		frame.pack();
+		frame.setLocationRelativeTo( null );
+		frame.setVisible( true );
+	}
+}
