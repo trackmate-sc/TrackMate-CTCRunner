@@ -1,7 +1,5 @@
 package fiji.plugin.trackmate.batcher.ui;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -125,57 +123,13 @@ public class FileListModel
 			}
 			regularFiles.add( path );
 		}
-
-		final List< Path > xmlFiles = filterXMLFiles( regularFiles );
-		final List< Path > tmFiles = filterTrackMateFiles( xmlFiles );
 		final int nFiles = regularFiles.size();
-		final int nXMLFiles = xmlFiles.size();
-		final int nTMFiles = tmFiles.size();
 
 		final StringBuilder str = new StringBuilder( super.toString() );
 		str.append( String.format( "\n - %3d paths specified.", paths.size() ) );
 		str.append( String.format( "\n - %3d are non existent.", nDontExist ) );
-		str.append( String.format( "\n - %3d files.", nFiles ) );
-		str.append( String.format( "\n - %3d XML files.", nXMLFiles ) );
-		str.append( String.format( "\n - %3d TrackMate files.", nTMFiles ) );
+		str.append( String.format( "\n - %3d files total.", nFiles ) );
 		return str.toString();
-	}
-
-	private static List< Path > filterTrackMateFiles( final List< Path > xmlFiles )
-	{
-		final List< Path > tmFiles = new ArrayList<>();
-		for ( final Path path : xmlFiles )
-		{
-			/*
-			 * We do this by plain text matching. Using the SAX parser is way
-			 * too long.
-			 */
-
-			try (BufferedReader br = new BufferedReader( new FileReader( path.toFile() ) ))
-			{
-				final String line1 = br.readLine();
-				if ( !line1.toLowerCase().startsWith( "<?xml" ) )
-					continue;
-				final String line2 = br.readLine();
-				if ( !line2.toLowerCase().startsWith( "<trackmate" ) )
-					continue;
-
-				tmFiles.add( path );
-			}
-			catch ( final IOException e1 )
-			{
-				continue;
-			}
-		}
-		return tmFiles;
-	}
-
-	private static List< Path > filterXMLFiles( final List< Path > files )
-	{
-		return files
-				.stream()
-				.filter( path -> path.toString().toLowerCase().endsWith( ".xml" ) )
-				.collect( Collectors.toList() );
 	}
 
 	private static List< Path > getFilesOf( final Path path )
