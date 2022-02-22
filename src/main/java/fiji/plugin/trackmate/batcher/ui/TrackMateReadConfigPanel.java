@@ -12,6 +12,7 @@ import java.awt.event.FocusAdapter;
 import java.io.File;
 import java.util.List;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -55,7 +56,7 @@ public class TrackMateReadConfigPanel extends JPanel
 	public TrackMateReadConfigPanel( final TrackMateReadConfigModel model )
 	{
 		this.model = model;
-		setLayout( new BorderLayout( 0, 0 ) );
+		setLayout( new BorderLayout( 5, 5 ) );
 
 		final JPanel panelBrowse = new JPanel();
 		add( panelBrowse, BorderLayout.NORTH );
@@ -69,6 +70,7 @@ public class TrackMateReadConfigPanel extends JPanel
 
 		final JButton btnBrowse = new JButton( "Browse" );
 		btnBrowse.setFont( Fonts.SMALL_FONT );
+		panelBrowse.add( Box.createHorizontalStrut( 5 ) );
 		panelBrowse.add( btnBrowse );
 
 		final JScrollPane scrollPane = new JScrollPane();
@@ -193,7 +195,6 @@ public class TrackMateReadConfigPanel extends JPanel
 					{
 						log( "Tracker settings:\n" );
 						log( TMUtils.echoMap( settings.trackerSettings, 2 ) );
-						log( "\n" );
 					}
 				}
 
