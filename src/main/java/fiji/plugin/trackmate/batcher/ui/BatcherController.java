@@ -1,12 +1,16 @@
 package fiji.plugin.trackmate.batcher.ui;
 
 import java.awt.event.WindowAdapter;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.scijava.Cancelable;
 
+import fiji.plugin.trackmate.batcher.BatcherUtils;
 import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.util.TMUtils;
 import net.imagej.ImageJ;
@@ -27,6 +31,29 @@ public class BatcherController implements Cancelable
 		gui.btnRun.addActionListener( e -> run() );
 		gui.btnCancel.addActionListener( e -> cancel( "User pressed the cancel button." ) );
 		gui.btnCancel.setVisible( false );
+
+		// Listen to file list changes.
+		model.getFileListModel().listeners().add( () -> logFileList() );
+	}
+
+	private void logFileList()
+	{
+		new Thread()
+		{
+			@Override
+			public void run()
+			{
+				final List< String > list = model.getFileListModel().getList();
+				final Set< Path > paths = BatcherUtils.collectRegularFiles( list );
+				final Set< Path > imageFiles = BatcherUtils.filterImageFiles( paths );
+
+				gui.logger.log( "\n_______________________________\n" );
+				gui.logger.log( "Input list points to " + paths.size() + " files,\n" );
+				gui.logger.log( "among which there are " + imageFiles.size() + " candidate image files:\n" );
+				for ( final Path im : imageFiles )
+					gui.logger.log( " - " + im.toString() + '\n' );
+			}
+		}.start();
 	}
 
 	private void run()
@@ -47,6 +74,8 @@ public class BatcherController implements Cancelable
 						gui.logger.log( "\n_______________________________\n" );
 						gui.logger.log( TMUtils.getCurrentTimeString() + "\n" );
 						gui.logger.log( "Processing file " + path + '\n' );
+
+						// TODO
 					}
 
 					gui.logger.log( "\n_______________________________\n" );
