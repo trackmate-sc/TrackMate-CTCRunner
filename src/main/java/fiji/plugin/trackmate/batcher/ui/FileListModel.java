@@ -146,7 +146,7 @@ public class FileListModel
 		return null;
 	}
 
-	protected void notifyListeners()
+	private void notifyListeners()
 	{
 		for ( final FileListlListener l : listeners.list )
 			l.fileListChanged();
