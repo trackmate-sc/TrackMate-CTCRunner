@@ -1,10 +1,14 @@
+
 package fiji.plugin.trackmate.batcher.ui;
 
 import static fiji.plugin.trackmate.gui.Fonts.SMALL_FONT;
 
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.FocusAdapter;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
@@ -18,10 +22,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import fiji.plugin.trackmate.batcher.ui.RunParamModel.RunParamListener;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import fiji.plugin.trackmate.util.FileChooser;
 import fiji.plugin.trackmate.util.FileChooser.DialogType;
@@ -33,13 +40,13 @@ public class RunBatchPanel extends JPanel
 
 	private final JTextField tfOutputPath;
 
-	public RunBatchPanel()
+	public RunBatchPanel( final RunParamModel model )
 	{
 		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 0 };
-		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE };
 		setLayout( gridBagLayout );
 
 		final JLabel lblOutputLocation = new JLabel( "Save output:" );
@@ -53,12 +60,12 @@ public class RunBatchPanel extends JPanel
 
 		final JRadioButton rdbtnSame = new JRadioButton( "In input image folder." );
 		rdbtnSame.setFont( SMALL_FONT );
-		final GridBagConstraints gbc_rdbtnSame = new GridBagConstraints();
-		gbc_rdbtnSame.insets = new Insets( 0, 0, 5, 0 );
-		gbc_rdbtnSame.anchor = GridBagConstraints.WEST;
-		gbc_rdbtnSame.gridx = 0;
-		gbc_rdbtnSame.gridy = 1;
-		add( rdbtnSame, gbc_rdbtnSame );
+		final GridBagConstraints gbcRdbtnSame = new GridBagConstraints();
+		gbcRdbtnSame.insets = new Insets( 0, 0, 5, 0 );
+		gbcRdbtnSame.anchor = GridBagConstraints.WEST;
+		gbcRdbtnSame.gridx = 0;
+		gbcRdbtnSame.gridy = 1;
+		add( rdbtnSame, gbcRdbtnSame );
 
 		final JPanel panelTo = new JPanel();
 		final GridBagConstraints gbcPanelTo = new GridBagConstraints();
@@ -138,17 +145,36 @@ public class RunBatchPanel extends JPanel
 		gbcChckbxNewCheckBox.gridy = 8;
 		add( chckbxTables, gbcChckbxNewCheckBox );
 
-		final JCheckBox chckbxMovie = new JCheckBox( "Movie (AVI)." );
+		final JPanel panel = new JPanel();
+		final GridBagConstraints gbcPanel = new GridBagConstraints();
+		gbcPanel.insets = new Insets( 0, 0, 5, 0 );
+		gbcPanel.fill = GridBagConstraints.BOTH;
+		gbcPanel.gridx = 0;
+		gbcPanel.gridy = 9;
+		add( panel, gbcPanel );
+		panel.setLayout( new BoxLayout( panel, BoxLayout.X_AXIS ) );
+
+		final JCheckBox chckbxMovie = new JCheckBox( "Movie (uncompressed AVI)." );
+		panel.add( chckbxMovie );
 		chckbxMovie.setFont( SMALL_FONT );
-		final GridBagConstraints gbcChckbxMovie = new GridBagConstraints();
-		gbcChckbxMovie.anchor = GridBagConstraints.WEST;
-		gbcChckbxMovie.gridx = 0;
-		gbcChckbxMovie.gridy = 9;
-		add( chckbxMovie, gbcChckbxMovie );
+
+		final Component horizontalGlue = Box.createHorizontalGlue();
+		panel.add( horizontalGlue );
+
+		final SpinnerNumberModel spinnerModel = new SpinnerNumberModel( 10, 1, 300, 1 );
+		final JSpinner spinnerFPS = new JSpinner( spinnerModel );
+		spinnerFPS.setMaximumSize( new Dimension( 80, 80 ) );
+		spinnerFPS.setFont( SMALL_FONT );
+		panel.add( spinnerFPS );
+
+		final JLabel lblFps = new JLabel( "fps" );
+		lblFps.setFont( SMALL_FONT );
+		panel.add( lblFps );
 
 		/*
 		 * Listeners and co.
 		 */
+
 
 		final ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add( rdbtnTo );
@@ -165,11 +191,31 @@ public class RunBatchPanel extends JPanel
 				{
 					tfOutputPath.setEnabled( rdbtnTo.isSelected() );
 					btnBrowse.setEnabled( rdbtnTo.isSelected() );
+					model.setSaveToInputFolder( !rdbtnTo.isSelected() );
 				}
 			}
 		};
 		rdbtnSame.addItemListener( il );
 		rdbtnTo.addItemListener( il );
+
+		tfOutputPath.addActionListener( e -> model.setOutputFolderPath( tfOutputPath.getText() ) );
+		final FocusAdapter fa = new FocusAdapter()
+		{
+			@Override
+			public void focusLost( final java.awt.event.FocusEvent e )
+			{
+				model.setOutputFolderPath( tfOutputPath.getText() );
+			}
+		};
+		tfOutputPath.addFocusListener( fa );
+
+		chckbxTrackMateFile.addActionListener( e -> model.setExportTrackMateFile( chckbxTrackMateFile.isSelected() ) );
+		chckbxSpotTable.addActionListener( e -> model.setExportSpotTable( chckbxSpotTable.isSelected() ) );
+		chckbxEdgeTable.addActionListener( e -> model.setExportEdgeTable( chckbxEdgeTable.isSelected() ) );
+		chckbxTrackTable.addActionListener( e -> model.setExportTrackTable( chckbxTrackTable.isSelected() ) );
+		chckbxTables.addActionListener( e -> model.setExportAllTables( chckbxTables.isSelected() ) );
+		chckbxMovie.addActionListener( e -> model.setExportAVIMovie( chckbxMovie.isSelected() ) );
+		spinnerFPS.addChangeListener( e -> model.setMovieFps( ( ( Number ) spinnerModel.getValue() ).intValue() ) );
 
 		final EverythingDisablerAndReenabler enabler = new EverythingDisablerAndReenabler( this, new Class[] { JLabel.class } );
 		btnBrowse.addActionListener( e -> {
@@ -193,12 +239,30 @@ public class RunBatchPanel extends JPanel
 				enabler.reenable();
 			}
 		} );
+
+		final RunParamListener l = () -> {
+			rdbtnSame.setSelected( model.isSaveToInputFolder() );
+			rdbtnTo.setSelected( !model.isSaveToInputFolder() );
+			tfOutputPath.setText( model.getOutputFolderPath() );
+			chckbxTrackMateFile.setSelected( model.isExportTrackMateFile() );
+			chckbxSpotTable.setSelected( model.isExportSpotTable() );
+			chckbxEdgeTable.setSelected( model.isExportEdgeTable() );
+			chckbxTrackTable.setSelected( model.isExportTrackTable() );
+			chckbxTables.setSelected( model.isExportAllTables() );
+			chckbxMovie.setSelected( model.isExportAVIMovie() );
+			spinnerModel.setValue( Integer.valueOf( model.getMovieFps() ) );
+		};
+		model.listeners().add( l );
+		l.runParamChanged();
 	}
 
 	public static void main( final String[] args ) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
 	{
+		final RunParamModel model = new RunParamModel();
+		model.listeners().add( () -> System.out.println( model ) );
+
 		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
-		final JPanel panel = new RunBatchPanel();
+		final JPanel panel = new RunBatchPanel( model );
 		final JFrame frame = new JFrame();
 		frame.getContentPane().add( panel );
 		frame.pack();
