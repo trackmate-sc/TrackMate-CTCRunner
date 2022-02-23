@@ -10,9 +10,15 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import org.scijava.Cancelable;
 
+import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.batcher.BatcherUtils;
+import fiji.plugin.trackmate.batcher.RunParamModel;
+import fiji.plugin.trackmate.batcher.TrackMateBatcher;
+import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.Icons;
+import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings;
 import fiji.plugin.trackmate.util.TMUtils;
+import ij.Prefs;
 import net.imagej.ImageJ;
 
 public class BatcherController implements Cancelable
@@ -23,6 +29,8 @@ public class BatcherController implements Cancelable
 	private final BatcherPanel gui;
 
 	private String cancelReason;
+
+	private TrackMateBatcher runner;
 
 	public BatcherController()
 	{
@@ -69,19 +77,30 @@ public class BatcherController implements Cancelable
 			{
 				try
 				{
-					for ( final String path : model.getFileListModel().getList() )
+					final Set< Path > files = BatcherUtils.collectRegularFiles( model.getFileListModel().getList() );
+					final Set< Path > inputPaths = BatcherUtils.filterImageFiles( files );
+					final Settings settings = model.getTrackMateReadConfigModel().getSettings();
+					final DisplaySettings displaySettings = model.getTrackMateReadConfigModel().getDisplaySettings();
+					final RunParamModel runParams = model.getRunParamModel();
+					runner = new TrackMateBatcher( inputPaths, settings, displaySettings, runParams, gui.logger );
+					runner.setNumThreads( Prefs.getThreads() );
+
+					if ( !runner.checkInput() )
 					{
-						gui.logger.log( "\n_______________________________\n" );
-						gui.logger.log( TMUtils.getCurrentTimeString() + "\n" );
-						gui.logger.log( "Processing file " + path + '\n' );
-
-						// TODO
+						gui.logger.error( runner.getErrorMessage() + '\n' );
+						return;
 					}
-
-					gui.logger.log( "\n_______________________________\n" );
-					gui.logger.log( TMUtils.getCurrentTimeString() + "\n" );
-					gui.logger.log( "Finished!\n" );
-
+					if ( !runner.process() )
+					{
+						gui.logger.error( runner.getErrorMessage() + '\n' );
+						return;
+					}
+				}
+				catch ( final Exception e )
+				{
+					e.printStackTrace();
+					gui.logger.error( "\nError running the batch:\n" );
+					gui.logger.error( e.getMessage() + '\n' );
 				}
 				finally
 				{
@@ -96,7 +115,7 @@ public class BatcherController implements Cancelable
 	{
 		// It still cannot stand the Metal L&F...
 		fiji.plugin.trackmate.gui.GuiUtils.setSystemLookAndFeel();
-		final JFrame frame = new JFrame( "TrackMate Helper" );
+		final JFrame frame = new JFrame( "TrackMate Batcher" );
 		frame.addWindowListener( new WindowAdapter()
 		{
 			@Override
@@ -117,6 +136,8 @@ public class BatcherController implements Cancelable
 	{
 		gui.btnCancel.setEnabled( false );
 		gui.logger.log( TMUtils.getCurrentTimeString() + " - " + cancelReason + '\n' );
+		if ( cancelReason != null )
+			runner.cancel( cancelReason );
 		this.cancelReason = cancelReason;
 	}
 
@@ -137,6 +158,7 @@ public class BatcherController implements Cancelable
 		final ImageJ ij = new ImageJ();
 		ij.launch( args );
 
+		GuiUtils.setSystemLookAndFeel();
 		final BatcherController controller = new BatcherController();
 		controller.show();
 	}

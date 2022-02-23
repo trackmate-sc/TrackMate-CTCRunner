@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import org.scijava.listeners.Listeners;
 
 import fiji.plugin.trackmate.Settings;
+import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings;
 import fiji.plugin.trackmate.io.TmXmlReader;
 
 public class TrackMateReadConfigModel
@@ -192,6 +193,15 @@ public class TrackMateReadConfigModel
 
 		final TmXmlReader reader = new TmXmlReader( new File( trackmateFile ) );
 		return reader.readSettings( null );
+	}
+
+	public DisplaySettings getDisplaySettings()
+	{
+		if ( trackmateFile == null )
+			return null;
+
+		final TmXmlReader reader = new TmXmlReader( new File( trackmateFile ) );
+		return reader.getDisplaySettings();
 	}
 
 	protected void notifyListeners()

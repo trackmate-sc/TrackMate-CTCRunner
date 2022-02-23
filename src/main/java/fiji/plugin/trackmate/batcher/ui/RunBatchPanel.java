@@ -28,7 +28,8 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import fiji.plugin.trackmate.batcher.ui.RunParamModel.RunParamListener;
+import fiji.plugin.trackmate.batcher.RunParamModel;
+import fiji.plugin.trackmate.batcher.RunParamModel.RunParamListener;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import fiji.plugin.trackmate.util.FileChooser;
 import fiji.plugin.trackmate.util.FileChooser.DialogType;
@@ -176,7 +177,6 @@ public class RunBatchPanel extends JPanel
 		 * Listeners and co.
 		 */
 
-
 		final ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add( rdbtnTo );
 		buttonGroup.add( rdbtnSame );
@@ -233,6 +233,7 @@ public class RunBatchPanel extends JPanel
 				if ( file != null )
 				{
 					tfOutputPath.setText( file.getAbsolutePath() );
+					model.setOutputFolderPath( file.getAbsolutePath() );
 				}
 			}
 			finally

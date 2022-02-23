@@ -1,4 +1,4 @@
-package fiji.plugin.trackmate.batcher.ui;
+package fiji.plugin.trackmate.batcher;
 
 import org.scijava.listeners.Listeners;
 

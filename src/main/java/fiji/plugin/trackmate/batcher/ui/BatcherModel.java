@@ -1,5 +1,7 @@
 package fiji.plugin.trackmate.batcher.ui;
 
+import fiji.plugin.trackmate.batcher.RunParamModel;
+
 public class BatcherModel
 {
 

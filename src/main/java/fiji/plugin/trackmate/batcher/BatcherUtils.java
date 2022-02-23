@@ -10,7 +10,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import fiji.plugin.trackmate.TrackMate;
 import loci.formats.ImageReader;
+
 
 public class BatcherUtils
 {
@@ -65,4 +67,8 @@ public class BatcherUtils
 	private BatcherUtils()
 	{}
 
+	public static void toExcelWorkbook( final TrackMate trackmate )
+	{
+		// TODO
+	}
 }
