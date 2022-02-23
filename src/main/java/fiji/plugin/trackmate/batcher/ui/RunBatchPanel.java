@@ -147,8 +147,9 @@ public class RunBatchPanel extends JPanel
 
 		final JPanel panel = new JPanel();
 		final GridBagConstraints gbcPanel = new GridBagConstraints();
+		gbcPanel.anchor = GridBagConstraints.NORTH;
 		gbcPanel.insets = new Insets( 0, 0, 5, 0 );
-		gbcPanel.fill = GridBagConstraints.BOTH;
+		gbcPanel.fill = GridBagConstraints.HORIZONTAL;
 		gbcPanel.gridx = 0;
 		gbcPanel.gridy = 9;
 		add( panel, gbcPanel );
@@ -163,7 +164,7 @@ public class RunBatchPanel extends JPanel
 
 		final SpinnerNumberModel spinnerModel = new SpinnerNumberModel( 10, 1, 300, 1 );
 		final JSpinner spinnerFPS = new JSpinner( spinnerModel );
-		spinnerFPS.setMaximumSize( new Dimension( 80, 80 ) );
+		spinnerFPS.setMaximumSize( new Dimension( 80, 20 ) );
 		spinnerFPS.setFont( SMALL_FONT );
 		panel.add( spinnerFPS );
 
