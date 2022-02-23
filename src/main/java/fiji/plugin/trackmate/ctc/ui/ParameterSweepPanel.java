@@ -78,7 +78,7 @@ public class ParameterSweepPanel extends JPanel
 
 	private static final String DOC_LINK = "https://imagej.net/plugins/trackmate/extensions/trackmate-helper";
 
-	private static final String DOC_STR = "<html><a href=" + DOC_LINK + ">Documentation</a></html>";
+	private static final String DOC_STR = "<html><small><a href=" + DOC_LINK + ">Documentation</a></small></html>";
 
 	final JTabbedPane tabbedPane;
 
@@ -209,12 +209,12 @@ public class ParameterSweepPanel extends JPanel
 			}
 		} );
 
-		final GridBagConstraints gbc_lblUrl = new GridBagConstraints();
-		gbc_lblUrl.anchor = GridBagConstraints.EAST;
-		gbc_lblUrl.insets = new Insets( 0, 0, 5, 0 );
-		gbc_lblUrl.gridx = 0;
-		gbc_lblUrl.gridy = 2;
-		panelTitle.add( lblUrl, gbc_lblUrl );
+		final GridBagConstraints gbcLblUrl = new GridBagConstraints();
+		gbcLblUrl.anchor = GridBagConstraints.EAST;
+		gbcLblUrl.insets = new Insets( 0, 0, 5, 0 );
+		gbcLblUrl.gridx = 0;
+		gbcLblUrl.gridy = 2;
+		panelTitle.add( lblUrl, gbcLblUrl );
 
 		final GridBagConstraints gbcSeparator = new GridBagConstraints();
 		gbcSeparator.fill = GridBagConstraints.BOTH;
