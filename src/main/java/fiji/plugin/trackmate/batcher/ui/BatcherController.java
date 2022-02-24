@@ -160,7 +160,7 @@ public class BatcherController implements Cancelable
 	{
 		gui.btnCancel.setEnabled( false );
 		gui.logger.log( TMUtils.getCurrentTimeString() + " - " + cancelReason + '\n' );
-		if ( cancelReason != null )
+		if ( runner != null )
 			runner.cancel( cancelReason );
 		this.cancelReason = cancelReason;
 	}
