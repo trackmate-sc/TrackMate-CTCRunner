@@ -34,7 +34,10 @@ public class BatcherController implements Cancelable
 
 	public BatcherController()
 	{
-		this.model = new BatcherModel();
+		// Settings persistence.
+		this.model = BatcherModelIO.readFromDefault();
+		model.listeners().add( () -> BatcherModelIO.saveToDefault( model ) );
+
 		this.gui = new BatcherPanel( model );
 		gui.btnRun.addActionListener( e -> run() );
 		gui.btnCancel.addActionListener( e -> cancel( "User pressed the cancel button." ) );
