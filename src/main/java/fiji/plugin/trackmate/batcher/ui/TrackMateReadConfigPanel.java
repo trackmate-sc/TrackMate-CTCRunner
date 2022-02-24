@@ -130,6 +130,9 @@ public class TrackMateReadConfigPanel extends JPanel
 		textPane.setDropTarget( new AddFilesDropTarget() );
 		tfPath.setDropTarget( new AddFilesDropTarget() );
 		btnBrowse.setDropTarget( new AddFilesDropTarget() );
+
+		// Update log
+		fa.focusLost( null );
 	}
 
 	private void updateInfoAndModel( final String pathStr )
