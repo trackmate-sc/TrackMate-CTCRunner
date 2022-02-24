@@ -2,12 +2,14 @@ package fiji.plugin.trackmate.batcher;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.scijava.Cancelable;
 
 import fiji.plugin.trackmate.Logger;
@@ -18,6 +20,7 @@ import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.action.CaptureOverlayAction;
 import fiji.plugin.trackmate.action.ExportStatsTablesAction;
+import fiji.plugin.trackmate.batcher.util.ExcelExporter;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings;
 import fiji.plugin.trackmate.gui.wizard.descriptors.ConfigureViewsDescriptor;
 import fiji.plugin.trackmate.io.TmXmlWriter;
@@ -239,6 +242,8 @@ public class TrackMateBatcher implements Cancelable, MultiThreaded, Algorithm
 		logger.log( "\n_______________________________\n" );
 		logger.log( TMUtils.getCurrentTimeString() + "\n" );
 		logger.log( "Finished!\n" );
+		logger.setProgress( 0. );
+		logger.setStatus( "" );
 
 		return true;
 	}
@@ -275,8 +280,18 @@ public class TrackMateBatcher implements Cancelable, MultiThreaded, Algorithm
 
 	private void exportExcel( final TrackMate trackmate, final Path exportFolder, final String baseName )
 	{
-		BatcherUtils.toExcelWorkbook( trackmate.getModel() );
-		// TODO
+		final XSSFWorkbook wb = ExcelExporter.exportToWorkBook( trackmate.getModel() );
+		final File file = new File( exportFolder.toFile(), baseName + "-table.xlsx" );
+		try (FileOutputStream fileOut = new FileOutputStream( file ))
+		{
+			wb.write( fileOut );
+			wb.close();
+			logger.log( " - Excel tables saved to: " + file.toString() + '\n' );
+		}
+		catch ( final IOException e )
+		{
+			logger.error( " - Input/Output error:\n" + e.getMessage() + '\n' );
+		}
 	}
 
 	private void exportTable( final TablePanel< ? > table, final Path exportFolder, final String baseName, final String suffix )
