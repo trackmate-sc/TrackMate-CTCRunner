@@ -8,10 +8,16 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -41,8 +47,11 @@ public class RunBatchPanel extends JPanel
 
 	private final JTextField tfOutputPath;
 
+	private final RunParamModel model;
+
 	public RunBatchPanel( final RunParamModel model )
 	{
+		this.model = model;
 		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -256,6 +265,37 @@ public class RunBatchPanel extends JPanel
 		};
 		model.listeners().add( l );
 		l.runParamChanged();
+
+		// DnD.
+		tfOutputPath.setDropTarget( new AddFilesDropTarget() );
+		setDropTarget( new AddFilesDropTarget() );
+	}
+
+	private class AddFilesDropTarget extends DropTarget
+	{
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public synchronized void drop( final DropTargetDropEvent evt )
+		{
+			try
+			{
+				evt.acceptDrop( DnDConstants.ACTION_COPY );
+				@SuppressWarnings( "unchecked" )
+				final List< File > droppedFiles = ( List< File > ) evt.getTransferable().getTransferData( DataFlavor.javaFileListFlavor );
+				final List< String > list = droppedFiles.stream().map( File::getAbsolutePath ).collect( Collectors.toList() );
+				if ( !list.isEmpty() )
+				{
+					tfOutputPath.setText( list.get( 0 ) );
+					model.setOutputFolderPath( tfOutputPath.getText() );
+				}
+			}
+			catch ( final Exception ex )
+			{
+				ex.printStackTrace();
+			}
+		}
 	}
 
 	public static void main( final String[] args ) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
