@@ -275,7 +275,7 @@ public class TrackMateBatcher implements Cancelable, MultiThreaded, Algorithm
 
 	private void exportExcel( final TrackMate trackmate, final Path exportFolder, final String baseName )
 	{
-		BatcherUtils.toExcelWorkbook( trackmate );
+		BatcherUtils.toExcelWorkbook( trackmate.getModel() );
 		// TODO
 	}
 
