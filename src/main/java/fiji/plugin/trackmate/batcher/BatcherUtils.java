@@ -195,7 +195,12 @@ public class BatcherUtils
 
 		final List< Spot > objects = new ArrayList<>();
 		for ( final Integer trackID : model.getTrackModel().unsortedTrackIDs( true ) )
-			objects.addAll( model.getTrackModel().trackSpots( trackID ) );
+		{
+			final Set< Spot > set = model.getTrackModel().trackSpots( trackID );
+			final List< Spot > track = new ArrayList<>( set );
+			track.sort( Spot.frameComparator );
+			objects.addAll( track );
+		}
 
 		final int nRows = objects.size();
 		for ( int r = 0; r < nRows; r++ )
