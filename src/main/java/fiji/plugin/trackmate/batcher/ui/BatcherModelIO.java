@@ -25,12 +25,24 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+
+import fiji.plugin.trackmate.batcher.exporter.ExporterParam;
+import fiji.plugin.trackmate.ctc.model.ParameterSweepModelIO.ClassTypeAdapter;
 
 public class BatcherModelIO
 {
@@ -88,7 +100,9 @@ public class BatcherModelIO
 
 	private static Gson getGson()
 	{
-		final GsonBuilder builder = new GsonBuilder();
+		final GsonBuilder builder = new GsonBuilder()
+				.registerTypeAdapter( Class.class, new ClassTypeAdapter() )
+				.registerTypeAdapter( ExporterParam.class, new ExporterParamAdapter() );
 		return builder.setPrettyPrinting().create();
 	}
 
@@ -101,5 +115,35 @@ public class BatcherModelIO
 	{
 		final BatcherModel model = getGson().fromJson( str, BatcherModel.class );
 		return model;
+	}
+
+	private static class ExporterParamAdapter implements JsonSerializer< ExporterParam >, JsonDeserializer< ExporterParam >
+	{
+
+		@Override
+		public ExporterParam deserialize( final JsonElement json, final Type typeOfT, final JsonDeserializationContext context ) throws JsonParseException
+		{
+			final JsonObject jsonObject = json.getAsJsonObject();
+			final String type = jsonObject.get( "type" ).getAsString();
+			final JsonElement element = jsonObject.get( "properties" );
+
+			try
+			{
+				return context.deserialize( element, Class.forName( "fiji.plugin.trackmate.batcher.exporter.ExporterParam$" + type ) );
+			}
+			catch ( final ClassNotFoundException cnfe )
+			{
+				throw new JsonParseException( "Unknown element type: " + type, cnfe );
+			}
+		}
+
+		@Override
+		public JsonElement serialize( final ExporterParam src, final Type typeOfSrc, final JsonSerializationContext context )
+		{
+			final JsonObject result = new JsonObject();
+			result.add( "type", new JsonPrimitive( src.getClass().getSimpleName() ) );
+			result.add( "properties", context.serialize( src, src.getClass() ) );
+			return result;
+		}
 	}
 }

@@ -21,30 +21,40 @@
  */
 package fiji.plugin.trackmate.batcher;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.scijava.Context;
+import org.scijava.InstantiableException;
 import org.scijava.listeners.Listeners;
+import org.scijava.log.LogService;
+import org.scijava.plugin.PluginInfo;
+import org.scijava.plugin.PluginService;
+
+import fiji.plugin.trackmate.batcher.exporter.BatchResultExporter;
+import fiji.plugin.trackmate.batcher.exporter.ExporterParam;
+import fiji.plugin.trackmate.util.TMUtils;
+import net.imagej.ImageJ;
 
 public class RunParamModel
 {
+
+	private final transient Listeners.List< RunParamListener > listeners;
 
 	private boolean saveToInputFolder = true;
 
 	private String outputFolderPath = System.getProperty( "user.home" );
 
-	private boolean exportTrackMateFile = true;
+	private final Map< String, List< String > > exporterKeys;
 
-	private boolean exportSpotTable = false;
+	private final Map< String, Boolean > selectedExporters;
 
-	private boolean exportEdgeTable = false;
-
-	private boolean exportTrackTable = false;
-
-	private boolean exportAllTables = false;
-
-	private boolean exportAVIMovie = false;
-
-	private int fps = 10;
-
-	private final transient Listeners.List< RunParamListener > listeners;
+	private final Map< String, List< ExporterParam > > extraParameters;
 
 	public interface RunParamListener
 	{
@@ -54,6 +64,60 @@ public class RunParamModel
 	public RunParamModel()
 	{
 		this.listeners = new Listeners.SynchronizedList<>();
+		this.exporterKeys = new LinkedHashMap<>();
+		this.selectedExporters = new HashMap<>();
+		this.extraParameters = new HashMap<>();
+		// Discover exporters.
+		final Context context = TMUtils.getContext();
+		final LogService log = context.getService( LogService.class );
+		final PluginService pluginService = context.getService( PluginService.class );
+		final List< PluginInfo< BatchResultExporter > > infos = pluginService.getPluginsOfType( BatchResultExporter.class );
+		for ( final PluginInfo< BatchResultExporter > info : infos )
+		{
+			if ( !info.isEnabled() || !info.isVisible() )
+				continue;
+			try
+			{
+				final BatchResultExporter implementation = info.createInstance();
+				exporterKeys.put( implementation.getKey(), implementation.getExportables() );
+				final List< ExporterParam > ec = implementation.getExtraParameters();
+				extraParameters.put( implementation.getKey(), ec );
+			}
+			catch ( final InstantiableException e )
+			{
+				log.error( "Could not instantiate " + info.getClassName(), e );
+			}
+		}
+	}
+
+	public Set< String > getExporterKeys()
+	{
+		return exporterKeys.keySet();
+	}
+
+	public List< String > getExportables( final String exporterKey )
+	{
+		return exporterKeys.getOrDefault( exporterKey, Collections.emptyList() );
+	}
+
+	public List< ExporterParam > getExporterExtraParameters( final String exporterKey )
+	{
+		return extraParameters.getOrDefault( exporterKey, Collections.emptyList() );
+	}
+
+	public boolean isExportActive( final String key )
+	{
+		return selectedExporters.getOrDefault( key, Boolean.FALSE );
+	}
+
+	public void setExportActive( final String key, final boolean active )
+	{
+		final boolean previousValue = isExportActive( key );
+		if ( previousValue != active )
+		{
+			selectedExporters.put( key, Boolean.valueOf( active ) );
+			notifyListeners();
+		}
 	}
 
 	public boolean isSaveToInputFolder()
@@ -84,121 +148,25 @@ public class RunParamModel
 		}
 	}
 
-	public boolean isExportTrackMateFile()
-	{
-		return exportTrackMateFile;
-	}
-
-	public void setExportTrackMateFile( final boolean exportTrackMateFile )
-	{
-		if ( this.exportTrackMateFile != exportTrackMateFile )
-		{
-			this.exportTrackMateFile = exportTrackMateFile;
-			notifyListeners();
-		}
-	}
-
-	public boolean isExportSpotTable()
-	{
-		return exportSpotTable;
-	}
-
-	public void setExportSpotTable( final boolean exportSpotTable )
-	{
-		if ( this.exportSpotTable != exportSpotTable )
-		{
-			this.exportSpotTable = exportSpotTable;
-			notifyListeners();
-		}
-	}
-
-	public boolean isExportEdgeTable()
-	{
-		return exportEdgeTable;
-	}
-
-	public void setExportEdgeTable( final boolean exportEdgeTable )
-	{
-		if ( this.exportEdgeTable != exportEdgeTable )
-		{
-			this.exportEdgeTable = exportEdgeTable;
-			notifyListeners();
-		}
-	}
-
-	public boolean isExportTrackTable()
-	{
-		return exportTrackTable;
-	}
-
-	public void setExportTrackTable( final boolean exportTrackTable )
-	{
-		if ( this.exportTrackTable != exportTrackTable )
-		{
-			this.exportTrackTable = exportTrackTable;
-			notifyListeners();
-		}
-	}
-
-	public boolean isExportAllTables()
-	{
-		return exportAllTables;
-	}
-
-	public void setExportAllTables( final boolean exportAllTables )
-	{
-		if ( this.exportAllTables != exportAllTables )
-		{
-			this.exportAllTables = exportAllTables;
-			notifyListeners();
-		}
-	}
-
-	public boolean isExportAVIMovie()
-	{
-		return exportAVIMovie;
-	}
-
-	public void setExportAVIMovie( final boolean exportAVIMovie )
-	{
-		if ( this.exportAVIMovie != exportAVIMovie )
-		{
-			this.exportAVIMovie = exportAVIMovie;
-			notifyListeners();
-		}
-	}
-
-	public int getMovieFps()
-	{
-		return fps;
-	}
-
-	public void setMovieFps( final int fps )
-	{
-		if ( this.fps != fps )
-		{
-			this.fps = fps;
-			notifyListeners();
-		}
-	}
-
 	@Override
 	public String toString()
 	{
 		final StringBuilder str = new StringBuilder( super.toString() );
-		final String[][] args = new String[][] {
-				{ "saveToInputFolder", "" + saveToInputFolder },
-				{ "outputFolderPath", "" + outputFolderPath },
-				{ "exportTrackMateFile", "" + exportTrackMateFile },
-				{ "exportSpotTable", "" + exportSpotTable },
-				{ "exportEdgeTable", "" + exportEdgeTable },
-				{ "exportTrackTable", "" + exportTrackTable },
-				{ "exportAllTables", "" + exportAllTables },
-				{ "exportAVIMovie", "" + exportAVIMovie },
-				{ "fps", "" + fps }
-		};
+		final List< String[] > args = new ArrayList<>( 2 + exporterKeys.size() );
+		args.add( new String[] { "saveToInputFolder", "" + saveToInputFolder } );
+		args.add( new String[] { "outputFolderPath", "" + outputFolderPath } );
+		for ( final String exporterKey : exporterKeys.keySet() )
+		{
+			final List< String > exportables = exporterKeys.get( exporterKey );
+			for ( final String exportable : exportables )
+				args.add( new String[] { exportable, "" + isExportActive( exportable ) } );
+			final List< ExporterParam > extra = extraParameters.get( exporterKey );
+			if ( extra != null && !extra.isEmpty() )
+				for ( final ExporterParam paramKey : extra )
+					args.add( new String[] { " + " + paramKey.name(), "" + paramKey.value() } );
+		}
 		for ( final String[] arg : args )
-			str.append( String.format( "\n - %-20s: %s", arg[ 0 ], arg[ 1 ] ) );
+			str.append( String.format( "\n - %-30s: %s", arg[ 0 ], arg[ 1 ] ) );
 
 		return str.toString();
 	}
@@ -208,9 +176,18 @@ public class RunParamModel
 		return listeners;
 	}
 
-	private void notifyListeners()
+	public void notifyListeners()
 	{
 		for ( final RunParamListener l : listeners.list )
 			l.runParamChanged();
+	}
+
+	public static void main( final String[] args )
+	{
+		final ImageJ ij = new ImageJ();
+		ij.launch( args );
+
+		final RunParamModel model = new RunParamModel();
+		System.out.println( model.toString() );
 	}
 }

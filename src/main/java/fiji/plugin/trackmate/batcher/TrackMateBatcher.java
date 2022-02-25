@@ -21,37 +21,22 @@
  */
 package fiji.plugin.trackmate.batcher;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.scijava.Cancelable;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Logger.StringBuilderLogger;
-import fiji.plugin.trackmate.Model;
-import fiji.plugin.trackmate.SelectionModel;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
-import fiji.plugin.trackmate.action.CaptureOverlayAction;
-import fiji.plugin.trackmate.action.ExportStatsTablesAction;
-import fiji.plugin.trackmate.batcher.util.ExcelExporter;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings;
-import fiji.plugin.trackmate.gui.wizard.descriptors.ConfigureViewsDescriptor;
-import fiji.plugin.trackmate.io.TmXmlWriter;
 import fiji.plugin.trackmate.util.TMUtils;
-import fiji.plugin.trackmate.visualization.hyperstack.HyperStackDisplayer;
-import fiji.plugin.trackmate.visualization.table.TablePanel;
-import fiji.plugin.trackmate.visualization.table.TrackTableView;
 import ij.IJ;
 import ij.ImagePlus;
-import ij.plugin.filter.AVI_Writer;
 import loci.formats.FormatException;
 import loci.plugins.BF;
 import net.imglib2.algorithm.Algorithm;
@@ -227,32 +212,32 @@ public class TrackMateBatcher implements Cancelable, MultiThreaded, Algorithm
 				else
 					baseName = FilenameUtils.removeExtension( path.getFileName().toString() );
 
-				// TrackMate files.
-				if ( runParams.isExportTrackMateFile() )
-					exportToTrackMate( trackmate, exportFolder, baseName );
-				
-				// CSV tables.
-				if ( runParams.isExportSpotTable() || runParams.isExportEdgeTable() || runParams.isExportTrackTable() )
-				{
-					final TrackTableView tables = ExportStatsTablesAction.createTrackTables(
-							trackmate.getModel(),
-							new SelectionModel( trackmate.getModel() ),
-							displaySettings );
-					if ( runParams.isExportSpotTable() )
-						exportTable( tables.getSpotTable(), exportFolder, baseName, "spots" );
-					if ( runParams.isExportEdgeTable() )
-						exportTable( tables.getEdgeTable(), exportFolder, baseName, "edges" );
-					if ( runParams.isExportTrackTable() )
-						exportTable( tables.getTrackTable(), exportFolder, baseName, "tracks" );
-				}
-
-				// Excel spreadsheet.
-				if ( runParams.isExportAllTables() )
-					exportExcel( trackmate, exportFolder, baseName );
-				
-				// AVI movie.
-				if (runParams.isExportAVIMovie())
-					exportAVIMovie( trackmate, exportFolder, baseName );
+//				// TrackMate files.
+//				if ( runParams.isExportTrackMateFile() )
+//					exportToTrackMate( trackmate, exportFolder, baseName );
+//				
+//				// CSV tables.
+//				if ( runParams.isExportSpotTable() || runParams.isExportEdgeTable() || runParams.isExportTrackTable() )
+//				{
+//					final TrackTableView tables = ExportStatsTablesAction.createTrackTables(
+//							trackmate.getModel(),
+//							new SelectionModel( trackmate.getModel() ),
+//							displaySettings );
+//					if ( runParams.isExportSpotTable() )
+//						exportTable( tables.getSpotTable(), exportFolder, baseName, "spots" );
+//					if ( runParams.isExportEdgeTable() )
+//						exportTable( tables.getEdgeTable(), exportFolder, baseName, "edges" );
+//					if ( runParams.isExportTrackTable() )
+//						exportTable( tables.getTrackTable(), exportFolder, baseName, "tracks" );
+//				}
+//
+//				// Excel spreadsheet.
+//				if ( runParams.isExportAllTables() )
+//					exportExcel( trackmate, exportFolder, baseName );
+//				
+//				// AVI movie.
+//				if (runParams.isExportAVIMovie())
+//					exportAVIMovie( trackmate, exportFolder, baseName );
 
 				trackmate.getSettings().imp.close();
 				logger.log( "Done.\n" );
@@ -267,91 +252,6 @@ public class TrackMateBatcher implements Cancelable, MultiThreaded, Algorithm
 		logger.setStatus( "" );
 
 		return true;
-	}
-
-	private void exportAVIMovie( final TrackMate trackmate, final Path exportFolder, final String baseName )
-	{
-		final Model model = trackmate.getModel();
-		final SelectionModel selectionModel = new SelectionModel( model );
-		final ImagePlus imp = trackmate.getSettings().imp;
-		final HyperStackDisplayer displayer = new HyperStackDisplayer( model, selectionModel, imp, displaySettings );
-		displayer.render();
-		displayer.refresh();
-
-		final int first = 1;
-		final int last = trackmate.getSettings().imp.getNFrames();
-		trackmate.getSettings().imp.show();
-		final ImagePlus movie = CaptureOverlayAction.capture( trackmate, first, last, Logger.VOID_LOGGER );
-		movie.getCalibration().fps = runParams.getMovieFps();
-
-		try
-		{
-			final AVI_Writer aviWriter = new AVI_Writer();
-			final File file = new File( exportFolder.toFile(), baseName + "-movie.avi" );
-			final int compression = AVI_Writer.NO_COMPRESSION;
-			final int jpegQuality = 100;
-			aviWriter.writeImage( movie, file.getAbsolutePath(), compression, jpegQuality );
-			logger.log( " - Movie saved to: " + file.toString() + '\n' );
-		}
-		catch ( final IOException e )
-		{
-			logger.error( " - Input/Output error:\n" + e.getMessage() + '\n' );
-		}
-	}
-
-	private void exportExcel( final TrackMate trackmate, final Path exportFolder, final String baseName )
-	{
-		final XSSFWorkbook wb = ExcelExporter.exportToWorkBook( trackmate.getModel() );
-		final File file = new File( exportFolder.toFile(), baseName + "-table.xlsx" );
-		try (FileOutputStream fileOut = new FileOutputStream( file ))
-		{
-			wb.write( fileOut );
-			wb.close();
-			logger.log( " - Excel tables saved to: " + file.toString() + '\n' );
-		}
-		catch ( final IOException e )
-		{
-			logger.error( " - Input/Output error:\n" + e.getMessage() + '\n' );
-		}
-	}
-
-	private void exportTable( final TablePanel< ? > table, final Path exportFolder, final String baseName, final String suffix )
-	{
-		final File file = new File( exportFolder.toFile(), baseName + '-' + suffix + ".csv" );
-		try
-		{
-			table.exportToCsv( file );
-			logger.log( " - Table for " + suffix + " saved to: " + file.toString() + '\n' );
-		}
-		catch ( final IOException e )
-		{
-			logger.error( " - Input/Output error:\n" + e.getMessage() + '\n' );
-		}
-	}
-
-	private void exportToTrackMate( final TrackMate trackmate, final Path exportFolder, final String baseName )
-	{
-		final File file = new File( exportFolder.toFile(), baseName + ".xml" );
-		final TmXmlWriter writer = new TmXmlWriter( file );
-		writer.appendLog( trackmate.getModel().getLogger().toString() );
-		writer.appendModel( trackmate.getModel() );
-		writer.appendSettings( trackmate.getSettings() );
-		writer.appendGUIState( ConfigureViewsDescriptor.KEY );
-		writer.appendDisplaySettings( displaySettings );
-
-		try
-		{
-			writer.writeToFile();
-			logger.log( " - TrackMate file saved to: " + file.toString() + '\n' );
-		}
-		catch ( final FileNotFoundException e )
-		{
-			logger.error( " - File not found:\n" + e.getMessage() + '\n' );
-		}
-		catch ( final IOException e )
-		{
-			logger.error( " - Input/Output error:\n" + e.getMessage() + '\n' );
-		}
 	}
 
 	@Override
