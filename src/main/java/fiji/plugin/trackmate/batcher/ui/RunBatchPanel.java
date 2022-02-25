@@ -224,7 +224,6 @@ public class RunBatchPanel extends JPanel
 				al.actionPerformed( null );
 				for ( final JCheckBox chkbox : chkboxes )
 					chkbox.addActionListener( al );
-
 			}
 		}
 

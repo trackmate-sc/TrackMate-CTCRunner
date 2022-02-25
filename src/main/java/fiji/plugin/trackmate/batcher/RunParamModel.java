@@ -46,6 +46,8 @@ public class RunParamModel
 
 	private final transient Listeners.List< RunParamListener > listeners;
 
+	private final transient Map< String, BatchResultExporter > instances;
+
 	private boolean saveToInputFolder = true;
 
 	private String outputFolderPath = System.getProperty( "user.home" );
@@ -67,27 +69,15 @@ public class RunParamModel
 		this.exporterKeys = new LinkedHashMap<>();
 		this.selectedExporters = new HashMap<>();
 		this.extraParameters = new HashMap<>();
-		// Discover exporters.
-		final Context context = TMUtils.getContext();
-		final LogService log = context.getService( LogService.class );
-		final PluginService pluginService = context.getService( PluginService.class );
-		final List< PluginInfo< BatchResultExporter > > infos = pluginService.getPluginsOfType( BatchResultExporter.class );
-		for ( final PluginInfo< BatchResultExporter > info : infos )
-		{
-			if ( !info.isEnabled() || !info.isVisible() )
-				continue;
-			try
-			{
-				final BatchResultExporter implementation = info.createInstance();
-				exporterKeys.put( implementation.getKey(), implementation.getExportables() );
-				final List< ExporterParam > ec = implementation.getExtraParameters();
-				extraParameters.put( implementation.getKey(), ec );
-			}
-			catch ( final InstantiableException e )
-			{
-				log.error( "Could not instantiate " + info.getClassName(), e );
-			}
-		}
+		this.instances = new HashMap<>();
+		discover();
+	}
+
+	public BatchResultExporter getExporter( final String exporterKey )
+	{
+		if ( instances.isEmpty() )
+			discover();
+		return instances.get( exporterKey );
 	}
 
 	public Set< String > getExporterKeys()
@@ -105,17 +95,17 @@ public class RunParamModel
 		return extraParameters.getOrDefault( exporterKey, Collections.emptyList() );
 	}
 
-	public boolean isExportActive( final String key )
+	public boolean isExportActive( final String exportable )
 	{
-		return selectedExporters.getOrDefault( key, Boolean.FALSE );
+		return selectedExporters.getOrDefault( exportable, Boolean.FALSE );
 	}
 
-	public void setExportActive( final String key, final boolean active )
+	public void setExportActive( final String exportable, final boolean active )
 	{
-		final boolean previousValue = isExportActive( key );
+		final boolean previousValue = isExportActive( exportable );
 		if ( previousValue != active )
 		{
-			selectedExporters.put( key, Boolean.valueOf( active ) );
+			selectedExporters.put( exportable, Boolean.valueOf( active ) );
 			notifyListeners();
 		}
 	}
@@ -180,6 +170,32 @@ public class RunParamModel
 	{
 		for ( final RunParamListener l : listeners.list )
 			l.runParamChanged();
+	}
+
+	private final void discover()
+	{
+		// Discover exporters.
+		final Context context = TMUtils.getContext();
+		final LogService log = context.getService( LogService.class );
+		final PluginService pluginService = context.getService( PluginService.class );
+		final List< PluginInfo< BatchResultExporter > > infos = pluginService.getPluginsOfType( BatchResultExporter.class );
+		for ( final PluginInfo< BatchResultExporter > info : infos )
+		{
+			if ( !info.isEnabled() || !info.isVisible() )
+				continue;
+			try
+			{
+				final BatchResultExporter implementation = info.createInstance();
+				instances.put( implementation.getKey(), implementation );
+				exporterKeys.put( implementation.getKey(), implementation.getExportables() );
+				final List< ExporterParam > ec = implementation.getExtraParameters();
+				extraParameters.put( implementation.getKey(), ec );
+			}
+			catch ( final InstantiableException e )
+			{
+				log.error( "Could not instantiate " + info.getClassName(), e );
+			}
+		}
 	}
 
 	public static void main( final String[] args )

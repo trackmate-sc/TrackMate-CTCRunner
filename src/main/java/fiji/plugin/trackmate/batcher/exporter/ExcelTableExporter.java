@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.ImageIcon;
 
@@ -36,7 +35,7 @@ public class ExcelTableExporter implements BatchResultExporter
 			final TrackMate trackmate,
 			final DisplaySettings displaySettings,
 			final List< String > keys,
-			final Map< String, Object > extraParameters,
+			final List< ExporterParam > parameters,
 			final Path exportFolder,
 			final String baseName,
 			final Logger logger )

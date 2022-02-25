@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 import org.scijava.Cancelable;
@@ -33,6 +35,8 @@ import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Logger.StringBuilderLogger;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
+import fiji.plugin.trackmate.batcher.exporter.BatchResultExporter;
+import fiji.plugin.trackmate.batcher.exporter.ExporterParam;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings;
 import fiji.plugin.trackmate.util.TMUtils;
 import ij.IJ;
@@ -212,33 +216,19 @@ public class TrackMateBatcher implements Cancelable, MultiThreaded, Algorithm
 				else
 					baseName = FilenameUtils.removeExtension( path.getFileName().toString() );
 
-//				// TrackMate files.
-//				if ( runParams.isExportTrackMateFile() )
-//					exportToTrackMate( trackmate, exportFolder, baseName );
-//				
-//				// CSV tables.
-//				if ( runParams.isExportSpotTable() || runParams.isExportEdgeTable() || runParams.isExportTrackTable() )
-//				{
-//					final TrackTableView tables = ExportStatsTablesAction.createTrackTables(
-//							trackmate.getModel(),
-//							new SelectionModel( trackmate.getModel() ),
-//							displaySettings );
-//					if ( runParams.isExportSpotTable() )
-//						exportTable( tables.getSpotTable(), exportFolder, baseName, "spots" );
-//					if ( runParams.isExportEdgeTable() )
-//						exportTable( tables.getEdgeTable(), exportFolder, baseName, "edges" );
-//					if ( runParams.isExportTrackTable() )
-//						exportTable( tables.getTrackTable(), exportFolder, baseName, "tracks" );
-//				}
-//
-//				// Excel spreadsheet.
-//				if ( runParams.isExportAllTables() )
-//					exportExcel( trackmate, exportFolder, baseName );
-//				
-//				// AVI movie.
-//				if (runParams.isExportAVIMovie())
-//					exportAVIMovie( trackmate, exportFolder, baseName );
-
+				final Set< String > exporterKeys = runParams.getExporterKeys();
+				for ( final String exporterKey : exporterKeys )
+				{
+					final List< ExporterParam > params = runParams.getExporterExtraParameters( exporterKey );
+					final List< String > exportables = runParams.getExportables( exporterKey );
+					final BatchResultExporter exporter = runParams.getExporter( exporterKey );
+					if ( null == exporter )
+					{
+						logger.error( "Could not find the exporter to export to " + exporterKey + '\n' );
+						continue;
+					}
+					exporter.export( trackmate, displaySettings, exportables, params, exportFolder, baseName, logger );
+				}
 				trackmate.getSettings().imp.close();
 				logger.log( "Done.\n" );
 			}

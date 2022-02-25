@@ -3,7 +3,6 @@ package fiji.plugin.trackmate.batcher.exporter;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.TrackMate;
@@ -50,7 +49,7 @@ public interface BatchResultExporter extends TrackMateModule
 	 * @param keys
 	 *            the list of exportable keys to generate. Will generate one
 	 *            file per key in this list.
-	 * @param extraParameters
+	 * @param parameters
 	 *            the map of extra parameters that this exporter needs.
 	 * @param exportFolder
 	 *            the folder in which to save the files.
@@ -63,7 +62,7 @@ public interface BatchResultExporter extends TrackMateModule
 			TrackMate trackmate,
 			DisplaySettings displaySettings,
 			List< String > keys,
-			Map< String, Object > extraParameters,
+			List< ExporterParam > parameters,
 			Path exportFolder,
 			String baseName,
 			Logger logger );
