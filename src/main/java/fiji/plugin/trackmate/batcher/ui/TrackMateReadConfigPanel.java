@@ -57,6 +57,7 @@ import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.gui.Fonts;
+import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import fiji.plugin.trackmate.util.FileChooser;
 import fiji.plugin.trackmate.util.FileChooser.DialogType;
@@ -172,14 +173,17 @@ public class TrackMateReadConfigPanel extends JPanel
 				}
 				else
 				{
-					log( model.getSettings(), pathStr );
+					log( model.getSettings(), model.getDisplaySettings(), pathStr );
 				}
 			}
 
-			private void log( final Settings settings, final String pathStr )
+
+			private void log( final Settings settings, final DisplaySettings ds, final String pathStr )
 			{
 				log( "TrackMate configuration found in\n" );
 				log( pathStr + '\n', Logger.NORMAL_COLOR, false, true, false );
+
+				log( "\nTracking settings:\n", Logger.GREEN_COLOR, true, false, true );
 
 				log( "\nDetector:\n", Logger.BLUE_COLOR );
 				if ( null == settings.detectorFactory )
@@ -258,6 +262,10 @@ public class TrackMateReadConfigPanel extends JPanel
 				log( "\n" );
 				log( "Feature analyzers:\n", Logger.BLUE_COLOR );
 				log( settings.toStringFeatureAnalyzersInfo() );
+
+				log( "\nDisplay settings:\n", Logger.GREEN_COLOR, true, false, true );
+
+				log( ds.toString() + '\n' );
 			}
 
 			public void error( final String message )
@@ -298,7 +306,7 @@ public class TrackMateReadConfigPanel extends JPanel
 								aset = sc.addAttribute( aset, StyleConstants.Italic, true );
 							if ( underline )
 								aset = sc.addAttribute( aset, StyleConstants.Underline, true );
-							
+
 							try
 							{
 								doc.insertString( doc.getLength(), message, aset );
