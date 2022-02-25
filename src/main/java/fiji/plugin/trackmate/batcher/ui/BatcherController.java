@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextPane;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.scijava.Cancelable;
@@ -38,6 +40,7 @@ import fiji.plugin.trackmate.batcher.TrackMateBatcher;
 import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings;
+import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import fiji.plugin.trackmate.util.TMUtils;
 import ij.Prefs;
 import net.imagej.ImageJ;
@@ -93,12 +96,14 @@ public class BatcherController implements Cancelable
 		cancelReason = null;
 		gui.btnRun.setVisible( false );
 		gui.btnCancel.setVisible( true );
-		gui.btnCancel.setEnabled( true );
 		new Thread( "TrackMate Batcher runner thread" )
 		{
 			@Override
 			public void run()
 			{
+				final EverythingDisablerAndReenabler enabler = new EverythingDisablerAndReenabler( gui, new Class[] { JLabel.class, JTextPane.class } );
+				enabler.disable();
+				gui.btnCancel.setEnabled( true );
 				try
 				{
 					final Set< Path > files = BatcherUtils.collectRegularFiles( model.getFileListModel().getList() );
@@ -128,6 +133,7 @@ public class BatcherController implements Cancelable
 				}
 				finally
 				{
+					enabler.reenable();
 					gui.btnRun.setVisible( true );
 					gui.btnCancel.setVisible( false );
 				}
