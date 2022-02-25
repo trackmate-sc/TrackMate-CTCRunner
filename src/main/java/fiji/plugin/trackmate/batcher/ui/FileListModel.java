@@ -89,9 +89,11 @@ public class FileListModel
 
 	public FileListModel setAll( final List< String > strs )
 	{
+		final ArrayList< String > copy = new ArrayList<>( fileList );
 		fileList.clear();
 		fileList.addAll( strs );
-		notifyListeners();
+		if ( !copy.equals( fileList ) )
+			notifyListeners();
 		return this;
 
 	}
