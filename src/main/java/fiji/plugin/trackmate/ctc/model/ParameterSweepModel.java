@@ -37,6 +37,7 @@ import fiji.plugin.trackmate.ctc.model.AbstractSweepModel.ModelListener;
 import fiji.plugin.trackmate.ctc.model.detector.CellposeDetectorModel;
 import fiji.plugin.trackmate.ctc.model.detector.DetectorSweepModel;
 import fiji.plugin.trackmate.ctc.model.detector.DogDetectorModel;
+import fiji.plugin.trackmate.ctc.model.detector.HessianDetectorModel;
 import fiji.plugin.trackmate.ctc.model.detector.IlastikDetectorModel;
 import fiji.plugin.trackmate.ctc.model.detector.LabelImgDetectorModel;
 import fiji.plugin.trackmate.ctc.model.detector.LogDetectorModel;
@@ -76,6 +77,7 @@ public class ParameterSweepModel
 		// Detectors.
 		add( new LogDetectorModel() );
 		add( new DogDetectorModel() );
+		add( new HessianDetectorModel() );
 		add( new MaskDetectorModel() );
 		add( new ThresholdDetectorModel() );
 		add( new LabelImgDetectorModel() );
