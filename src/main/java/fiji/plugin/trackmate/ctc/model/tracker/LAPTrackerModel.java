@@ -24,6 +24,8 @@ package fiji.plugin.trackmate.ctc.model.tracker;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.scijava.plugin.Plugin;
+
 import fiji.plugin.trackmate.Dimension;
 import fiji.plugin.trackmate.ctc.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.ctc.model.parameter.BooleanParamSweepModel;
@@ -33,6 +35,7 @@ import fiji.plugin.trackmate.ctc.model.parameter.NumberParamSweepModel.RangeType
 import fiji.plugin.trackmate.tracking.TrackerKeys;
 import fiji.plugin.trackmate.tracking.sparselap.SparseLAPTrackerFactory;
 
+@Plugin( type = TrackerSweepModel.class, priority = 1000000 - 2 )
 public class LAPTrackerModel extends TrackerSweepModel
 {
 

@@ -26,6 +26,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.scijava.plugin.Plugin;
+
 import fiji.plugin.trackmate.ctc.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.ctc.model.parameter.ArrayParamSweepModel;
 import fiji.plugin.trackmate.ctc.model.parameter.DoubleParamSweepModel;
@@ -33,6 +35,7 @@ import fiji.plugin.trackmate.ctc.model.parameter.NumberParamSweepModel.RangeType
 import fiji.plugin.trackmate.tracking.overlap.OverlapTracker.IoUCalculation;
 import fiji.plugin.trackmate.tracking.overlap.OverlapTrackerFactory;
 
+@Plugin( type = TrackerSweepModel.class, priority = 1000000 - 4 )
 public class OverlapTrackerModel extends TrackerSweepModel
 {
 

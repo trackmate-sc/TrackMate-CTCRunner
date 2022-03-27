@@ -24,6 +24,8 @@ package fiji.plugin.trackmate.ctc.model.detector;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.scijava.plugin.Plugin;
+
 import fiji.plugin.trackmate.Dimension;
 import fiji.plugin.trackmate.ctc.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.ctc.model.parameter.BooleanParamSweepModel;
@@ -32,6 +34,7 @@ import fiji.plugin.trackmate.ctc.model.parameter.NumberParamSweepModel.RangeType
 import fiji.plugin.trackmate.detection.DetectorKeys;
 import fiji.plugin.trackmate.detection.LogDetectorFactory;
 
+@Plugin( type = DetectorSweepModel.class, priority = 1000000 - 1 )
 public class LogDetectorModel extends DetectorSweepModel
 {
 

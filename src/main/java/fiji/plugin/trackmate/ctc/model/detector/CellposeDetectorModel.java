@@ -24,11 +24,14 @@ package fiji.plugin.trackmate.ctc.model.detector;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.scijava.plugin.Plugin;
+
 import fiji.plugin.trackmate.ctc.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.ctc.model.parameter.InfoParamSweepModel;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.providers.DetectorProvider;
 
+@Plugin( type = DetectorSweepModel.class, priority = 1000000 - 9 )
 public class CellposeDetectorModel extends DetectorSweepModel
 {
 

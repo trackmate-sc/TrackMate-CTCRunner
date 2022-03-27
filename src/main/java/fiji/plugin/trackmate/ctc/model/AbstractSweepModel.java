@@ -25,12 +25,13 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.scijava.listeners.Listeners;
+import org.scijava.plugin.SciJavaPlugin;
 
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMateModule;
 import fiji.plugin.trackmate.ctc.model.parameter.AbstractParamSweepModel;
 
-public abstract class AbstractSweepModel< F extends TrackMateModule >
+public abstract class AbstractSweepModel< F extends TrackMateModule > implements SciJavaPlugin
 {
 
 	public interface ModelListener
@@ -69,7 +70,7 @@ public abstract class AbstractSweepModel< F extends TrackMateModule >
 		return models;
 	}
 
-	public Listeners.List< ModelListener > listeners()
+	public final Listeners.List< ModelListener > listeners()
 	{
 		if ( modelListeners == null )
 		{
@@ -84,7 +85,7 @@ public abstract class AbstractSweepModel< F extends TrackMateModule >
 		return modelListeners;
 	}
 
-	protected void notifyListeners()
+	protected final void notifyListeners()
 	{
 		for ( final ModelListener l : modelListeners.list )
 			l.modelChanged();
