@@ -30,6 +30,7 @@ import static fiji.plugin.trackmate.gui.Icons.TRACKMATE_ICON_16x16;
 
 import java.awt.BorderLayout;
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -351,7 +352,7 @@ public class ParameterSweepPanel extends JPanel
 			panelChkboxes.add( new JSeparator(), c2 );
 
 		/*
-		 * Path panel. Set image and ground-truth path, plus other options.
+		 * Path panel. Show image and ground-truth path, set other options.
 		 */
 
 		final JPanel panelPath = new JPanel();
@@ -374,6 +375,8 @@ public class ParameterSweepPanel extends JPanel
 		panelPath.add( lblSourceImage, gbcLblSourceImage );
 
 		final JLabel lblImageName = new JLabel( imp.getShortTitle() );
+		lblImageName.setMaximumSize( new Dimension( 200, 14 ) );
+		lblImageName.setMinimumSize( new Dimension( 200, 14 ) );
 		lblImageName.setFont( SMALL_FONT );
 		final GridBagConstraints gbc_lblImageName = new GridBagConstraints();
 		gbc_lblImageName.fill = GridBagConstraints.BOTH;
@@ -514,6 +517,7 @@ public class ParameterSweepPanel extends JPanel
 		 */
 
 		final JSplitPane splitPane = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT, panelPath, panelChkboxes );
+		splitPane.setResizeWeight( 0.5 );
 		splitPane.setFont( FONT );
 		splitPane.setDividerSize( 10 );
 		splitPane.setOneTouchExpandable( true );
