@@ -254,6 +254,11 @@ public class ParameterSweepPanel extends JPanel
 		gbcLblTrackers.gridy = 0;
 		panelChkboxes.add( lblTrackers, gbcLblTrackers );
 
+		// Try to balance detector and tracker checkboxes.
+		final int nDetectors = model.detectorModels().size();
+		final int nTrackers = model.trackerModels().size();
+		final int nRows = ( nDetectors + nTrackers + 2 ) / 2;
+
 		// Add detector checkboxes.
 		final String spaceUnits = imp.getCalibration().getUnit();
 		final String timeUnits = imp.getCalibration().getTimeUnit();
@@ -262,6 +267,7 @@ public class ParameterSweepPanel extends JPanel
 		c1.insets = new Insets( 0, 0, 5, 5 );
 		c1.gridx = 0;
 		c1.gridy = 1;
+		boolean addSeparator = true;
 		for ( final DetectorSweepModel dm : model.detectorModels() )
 		{
 			final String name = dm.getName();
@@ -286,16 +292,22 @@ public class ParameterSweepPanel extends JPanel
 			panelChkboxes.add( chkbox, c1 );
 
 			c1.gridy++;
-			if ( c1.gridy > 10 )
+			if ( c1.gridy > nRows )
 			{
-				c1.gridy = 9;
+				// Switch to the other column, aligning with the last row.
 				c1.gridx = 1;
+				c1.gridy = nRows - ( nDetectors - c1.gridy );
+				addSeparator = false;
 			}
 			// Enabler.
 			enablers.add( new EverythingDisablerAndReenabler( panel, new Class[] { JLabel.class } ) );
 		}
+		c1.fill = GridBagConstraints.HORIZONTAL;
+		if ( addSeparator )
+			panelChkboxes.add( new JSeparator(), c1 );
 
 		// Add tracker checkboxes.
+		addSeparator = true;
 		final GridBagConstraints c2 = new GridBagConstraints();
 		c2.anchor = GridBagConstraints.WEST;
 		c2.insets = new Insets( 0, 0, 5, 5 );
@@ -324,11 +336,19 @@ public class ParameterSweepPanel extends JPanel
 			al.actionPerformed( null );
 			panelChkboxes.add( chkbox, c2 );
 			c2.gridy++;
+			if ( c2.gridy > nRows )
+			{
+				// Switch to the other column, aligning with the last row.
+				c2.gridx = 0;
+				c2.gridy = nRows - ( nTrackers - c2.gridy );
+				addSeparator = false;
+			}
 			// Enabler.
 			enablers.add( new EverythingDisablerAndReenabler( panel, new Class[] { JLabel.class } ) );
 		}
 		c2.fill = GridBagConstraints.HORIZONTAL;
-		panelChkboxes.add( new JSeparator(), c2 );
+		if ( addSeparator )
+			panelChkboxes.add( new JSeparator(), c2 );
 
 		/*
 		 * Path panel. Set image and ground-truth path, plus other options.
