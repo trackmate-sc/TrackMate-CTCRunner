@@ -181,7 +181,8 @@ public class ParameterSweepPanel extends JPanel
 		panelTitle.add( lblTitle, gbcLblTitle );
 
 		final JLabel lblDoc = new JLabel( "<html>"
-				+ "Runs automated parameter sweeps on a TrackMate image, and compute the Cell-Tracking-Challenge "
+				+ "Runs automated parameter sweeps on a TrackMate image, "
+				+ "and compute the Cell-Tracking-Challenge "
 				+ "metrics on all the results."
 				+ "</html>" );
 		lblDoc.setFont( SMALL_FONT );
@@ -285,9 +286,9 @@ public class ParameterSweepPanel extends JPanel
 			panelChkboxes.add( chkbox, c1 );
 
 			c1.gridy++;
-			if ( c1.gridy > 9 )
+			if ( c1.gridy > 10 )
 			{
-				c1.gridy = 8;
+				c1.gridy = 9;
 				c1.gridx = 1;
 			}
 			// Enabler.
