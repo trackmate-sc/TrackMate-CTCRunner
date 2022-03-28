@@ -152,10 +152,10 @@ public class CTCMetricsRunner
 
 		batchLogger.log( String.format( "Tracking done in %.1f s.\n", trackingTiming ) );
 		final TrackModel trackModel = trackmate.getModel().getTrackModel();
-		final IntSummaryStatistics stats = trackModel.unsortedTrackIDs( false ).stream()
+		final IntSummaryStatistics stats = trackModel.unsortedTrackIDs( true ).stream()
 				.mapToInt( id -> trackModel.trackSpots( id ).size() )
 				.summaryStatistics();
-		batchLogger.log( "Found " + trackModel.nTracks( false ) + " visible tracks over " 
+		batchLogger.log( "Found " + trackModel.nTracks( true ) + " visible tracks over "
 				+ trackModel.nTracks( false ) + " in total.\n" );
 		batchLogger.log( String.format( "  - avg size: %.1f spots.\n", stats.getAverage() ) );
 		batchLogger.log( String.format( "  - min size: %d spots.\n", stats.getMin() ) );
