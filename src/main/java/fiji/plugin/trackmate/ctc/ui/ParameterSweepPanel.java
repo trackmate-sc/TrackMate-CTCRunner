@@ -30,6 +30,7 @@ import static fiji.plugin.trackmate.gui.Icons.TRACKMATE_ICON_16x16;
 
 import java.awt.BorderLayout;
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -254,6 +255,11 @@ public class ParameterSweepPanel extends JPanel
 		gbcLblTrackers.gridy = 0;
 		panelChkboxes.add( lblTrackers, gbcLblTrackers );
 
+		// Try to balance detector and tracker checkboxes.
+		final int nDetectors = model.detectorModels().size();
+		final int nTrackers = model.trackerModels().size();
+		final int nRows = ( nDetectors + nTrackers + 2 ) / 2;
+
 		// Add detector checkboxes.
 		final String spaceUnits = imp.getCalibration().getUnit();
 		final String timeUnits = imp.getCalibration().getTimeUnit();
@@ -262,6 +268,7 @@ public class ParameterSweepPanel extends JPanel
 		c1.insets = new Insets( 0, 0, 5, 5 );
 		c1.gridx = 0;
 		c1.gridy = 1;
+		boolean addSeparator = true;
 		for ( final DetectorSweepModel dm : model.detectorModels() )
 		{
 			final String name = dm.getName();
@@ -286,16 +293,22 @@ public class ParameterSweepPanel extends JPanel
 			panelChkboxes.add( chkbox, c1 );
 
 			c1.gridy++;
-			if ( c1.gridy > 10 )
+			if ( c1.gridy > nRows )
 			{
-				c1.gridy = 9;
+				// Switch to the other column, aligning with the last row.
 				c1.gridx = 1;
+				c1.gridy = nRows - ( nDetectors - c1.gridy );
+				addSeparator = false;
 			}
 			// Enabler.
 			enablers.add( new EverythingDisablerAndReenabler( panel, new Class[] { JLabel.class } ) );
 		}
+		c1.fill = GridBagConstraints.HORIZONTAL;
+		if ( addSeparator )
+			panelChkboxes.add( new JSeparator(), c1 );
 
 		// Add tracker checkboxes.
+		addSeparator = true;
 		final GridBagConstraints c2 = new GridBagConstraints();
 		c2.anchor = GridBagConstraints.WEST;
 		c2.insets = new Insets( 0, 0, 5, 5 );
@@ -324,14 +337,22 @@ public class ParameterSweepPanel extends JPanel
 			al.actionPerformed( null );
 			panelChkboxes.add( chkbox, c2 );
 			c2.gridy++;
+			if ( c2.gridy > nRows )
+			{
+				// Switch to the other column, aligning with the last row.
+				c2.gridx = 0;
+				c2.gridy = nRows - ( nTrackers - c2.gridy );
+				addSeparator = false;
+			}
 			// Enabler.
 			enablers.add( new EverythingDisablerAndReenabler( panel, new Class[] { JLabel.class } ) );
 		}
 		c2.fill = GridBagConstraints.HORIZONTAL;
-		panelChkboxes.add( new JSeparator(), c2 );
+		if ( addSeparator )
+			panelChkboxes.add( new JSeparator(), c2 );
 
 		/*
-		 * Path panel. Set image and ground-truth path, plus other options.
+		 * Path panel. Show image and ground-truth path, set other options.
 		 */
 
 		final JPanel panelPath = new JPanel();
@@ -354,33 +375,35 @@ public class ParameterSweepPanel extends JPanel
 		panelPath.add( lblSourceImage, gbcLblSourceImage );
 
 		final JLabel lblImageName = new JLabel( imp.getShortTitle() );
+		lblImageName.setMaximumSize( new Dimension( 200, 14 ) );
+		lblImageName.setMinimumSize( new Dimension( 200, 14 ) );
 		lblImageName.setFont( SMALL_FONT );
-		final GridBagConstraints gbc_lblImageName = new GridBagConstraints();
-		gbc_lblImageName.fill = GridBagConstraints.BOTH;
-		gbc_lblImageName.gridwidth = 2;
-		gbc_lblImageName.insets = new Insets( 0, 0, 5, 0 );
-		gbc_lblImageName.gridx = 0;
-		gbc_lblImageName.gridy = 1;
-		panelPath.add( lblImageName, gbc_lblImageName );
+		final GridBagConstraints gbcLblImageName = new GridBagConstraints();
+		gbcLblImageName.fill = GridBagConstraints.BOTH;
+		gbcLblImageName.gridwidth = 2;
+		gbcLblImageName.insets = new Insets( 0, 0, 5, 0 );
+		gbcLblImageName.gridx = 0;
+		gbcLblImageName.gridy = 1;
+		panelPath.add( lblImageName, gbcLblImageName );
 
 		final JLabel lblSegmentInChannel = new JLabel( "Detection in channel:" );
 		lblSegmentInChannel.setFont( SMALL_FONT );
-		final GridBagConstraints gbc_lblDetectioonChannel = new GridBagConstraints();
-		gbc_lblDetectioonChannel.anchor = GridBagConstraints.WEST;
-		gbc_lblDetectioonChannel.gridwidth = 2;
-		gbc_lblDetectioonChannel.insets = new Insets( 0, 0, 5, 0 );
-		gbc_lblDetectioonChannel.gridx = 0;
-		gbc_lblDetectioonChannel.gridy = 2;
-		panelPath.add( lblSegmentInChannel, gbc_lblDetectioonChannel );
+		final GridBagConstraints gbcLblDetectionChannel = new GridBagConstraints();
+		gbcLblDetectionChannel.anchor = GridBagConstraints.WEST;
+		gbcLblDetectionChannel.gridwidth = 2;
+		gbcLblDetectionChannel.insets = new Insets( 0, 0, 5, 0 );
+		gbcLblDetectionChannel.gridx = 0;
+		gbcLblDetectionChannel.gridy = 2;
+		panelPath.add( lblSegmentInChannel, gbcLblDetectionChannel );
 
 		final JPanel panelChannel = new JPanel();
-		final GridBagConstraints gbc_panelChannel = new GridBagConstraints();
-		gbc_panelChannel.gridwidth = 2;
-		gbc_panelChannel.insets = new Insets( 0, 0, 0, 0 );
-		gbc_panelChannel.fill = GridBagConstraints.HORIZONTAL;
-		gbc_panelChannel.gridx = 0;
-		gbc_panelChannel.gridy = 3;
-		panelPath.add( panelChannel, gbc_panelChannel );
+		final GridBagConstraints gbcPanelChannel = new GridBagConstraints();
+		gbcPanelChannel.gridwidth = 2;
+		gbcPanelChannel.insets = new Insets( 0, 0, 0, 0 );
+		gbcPanelChannel.fill = GridBagConstraints.HORIZONTAL;
+		gbcPanelChannel.gridx = 0;
+		gbcPanelChannel.gridy = 3;
+		panelPath.add( panelChannel, gbcPanelChannel );
 
 		sliderChannel = new JSlider();
 		panelChannel.add( sliderChannel );
@@ -494,6 +517,7 @@ public class ParameterSweepPanel extends JPanel
 		 */
 
 		final JSplitPane splitPane = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT, panelPath, panelChkboxes );
+		splitPane.setResizeWeight( 0.5 );
 		splitPane.setFont( FONT );
 		splitPane.setDividerSize( 10 );
 		splitPane.setOneTouchExpandable( true );

@@ -30,39 +30,28 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.scijava.Context;
+import org.scijava.InstantiableException;
 import org.scijava.listeners.Listeners;
+import org.scijava.log.LogService;
+import org.scijava.plugin.PluginInfo;
+import org.scijava.plugin.PluginService;
 
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.ctc.model.AbstractSweepModel.ModelListener;
-import fiji.plugin.trackmate.ctc.model.detector.CellposeDetectorModel;
 import fiji.plugin.trackmate.ctc.model.detector.DetectorSweepModel;
-import fiji.plugin.trackmate.ctc.model.detector.DogDetectorModel;
-import fiji.plugin.trackmate.ctc.model.detector.HessianDetectorModel;
-import fiji.plugin.trackmate.ctc.model.detector.IlastikDetectorModel;
-import fiji.plugin.trackmate.ctc.model.detector.LabelImgDetectorModel;
-import fiji.plugin.trackmate.ctc.model.detector.LogDetectorModel;
-import fiji.plugin.trackmate.ctc.model.detector.MaskDetectorModel;
-import fiji.plugin.trackmate.ctc.model.detector.MorphoLibJDetectorModel;
-import fiji.plugin.trackmate.ctc.model.detector.StarDistCustomDetectorModel;
-import fiji.plugin.trackmate.ctc.model.detector.StarDistDetectorModel;
-import fiji.plugin.trackmate.ctc.model.detector.ThresholdDetectorModel;
-import fiji.plugin.trackmate.ctc.model.detector.WekaDetectorModel;
-import fiji.plugin.trackmate.ctc.model.tracker.KalmanTrackerModel;
-import fiji.plugin.trackmate.ctc.model.tracker.LAPTrackerModel;
-import fiji.plugin.trackmate.ctc.model.tracker.NearestNeighborTrackerModel;
-import fiji.plugin.trackmate.ctc.model.tracker.OverlapTrackerModel;
-import fiji.plugin.trackmate.ctc.model.tracker.SimpleLAPTrackerModel;
 import fiji.plugin.trackmate.ctc.model.tracker.TrackerSweepModel;
 import fiji.plugin.trackmate.features.FeatureFilter;
+import fiji.plugin.trackmate.util.TMUtils;
 
 public class ParameterSweepModel
 {
 
 	private final transient Listeners.List< ModelListener > modelListeners;
 
-	private final Map< String, DetectorSweepModel > detectorModels = new LinkedHashMap<>();
+	private final Map< String, DetectorSweepModel > detectorModels;
 
-	private final Map< String, TrackerSweepModel > trackerModels = new LinkedHashMap<>();
+	private final Map< String, TrackerSweepModel > trackerModels;
 
 	private final Map< String, Boolean > active = new HashMap<>();
 
@@ -74,28 +63,9 @@ public class ParameterSweepModel
 	{
 		modelListeners = new Listeners.SynchronizedList<>();
 
-		// Detectors.
-		add( new LogDetectorModel() );
-		add( new DogDetectorModel() );
-		add( new HessianDetectorModel() );
-		add( new MaskDetectorModel() );
-		add( new ThresholdDetectorModel() );
-		add( new LabelImgDetectorModel() );
-
-		// Optional detector modules. Stuff that might not be installed.
-		add( new MorphoLibJDetectorModel() );
-		add( new IlastikDetectorModel() );
-		add( new CellposeDetectorModel() );
-		add( new WekaDetectorModel() );
-		add( new StarDistDetectorModel() );
-		add( new StarDistCustomDetectorModel() );
-
-		// Trackers.
-		add( new SimpleLAPTrackerModel() );
-		add( new LAPTrackerModel() );
-		add( new KalmanTrackerModel() );
-		add( new OverlapTrackerModel() );
-		add( new NearestNeighborTrackerModel() );
+		// Auto-detect detectors & trackers.
+		detectorModels = autoDetect( DetectorSweepModel.class );
+		trackerModels = autoDetect( TrackerSweepModel.class );
 
 		// Default: everything is inactive.
 		for ( final TrackerSweepModel m : trackerModels.values() )
@@ -111,16 +81,6 @@ public class ParameterSweepModel
 		// Forward component changes to listeners.
 		detectorModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
 		trackerModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
-	}
-
-	private void add( final DetectorSweepModel model )
-	{
-		this.detectorModels.put( model.getName(), model );
-	}
-
-	private void add( final TrackerSweepModel model )
-	{
-		this.trackerModels.put( model.getName(), model );
 	}
 
 	public Collection< DetectorSweepModel > detectorModels()
@@ -257,5 +217,32 @@ public class ParameterSweepModel
 	{
 		for ( final ModelListener l : modelListeners.list )
 			l.modelChanged();
+	}
+
+	private static final < K extends AbstractSweepModel< ? > > Map< String, K > autoDetect( final Class< K > modelClass )
+	{
+		final Context context = TMUtils.getContext();
+		final LogService log = context.getService( LogService.class );
+		final PluginService pluginService = context.getService( PluginService.class );
+		final List< PluginInfo< K > > infos = pluginService.getPluginsOfType( modelClass );
+
+		final LinkedHashMap< String, K > models = new LinkedHashMap<>();
+		for ( final PluginInfo< K > info : infos )
+		{
+			if ( !info.isEnabled() || !info.isVisible() )
+				continue;
+
+			try
+			{
+				final K instance = info.createInstance();
+				final String name = instance.getName();
+				models.put( name, instance );
+			}
+			catch ( final InstantiableException e )
+			{
+				log.error( "Could not instantiate " + info.getClassName(), e );
+			}
+		}
+		return models;
 	}
 }
