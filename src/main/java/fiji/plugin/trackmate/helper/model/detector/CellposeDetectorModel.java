@@ -1,0 +1,68 @@
+/*-
+ * #%L
+ * Fiji distribution of ImageJ for the life sciences.
+ * %%
+ * Copyright (C) 2021 - 2022 The Institut Pasteur.
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+package fiji.plugin.trackmate.helper.model.detector;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.scijava.plugin.Plugin;
+
+import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
+import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.InfoParamSweepModel;
+import fiji.plugin.trackmate.providers.DetectorProvider;
+
+@Plugin( type = DetectorSweepModel.class, priority = 1000000 - 9 )
+public class CellposeDetectorModel extends DetectorSweepModel
+{
+
+	public CellposeDetectorModel()
+	{
+		super( "Cellpose detector", createModels(), createFactory() );
+	}
+
+	private static SpotDetectorFactoryBase< ? > createFactory()
+	{
+		if ( null == new DetectorProvider().getFactory( "CELLPOSE_DETECTOR" ) )
+			return null;
+		else
+			return CellposeOpt.createFactory();
+	}
+
+	private static Map< String, AbstractParamSweepModel< ? > > createModels()
+	{
+		if ( null == new DetectorProvider().getFactory( "CELLPOSE_DETECTOR" ) )
+		{
+			final Map< String, AbstractParamSweepModel< ? > > models = new HashMap<>();
+			models.put( "", new InfoParamSweepModel()
+					.info( "The TrackMate-Cellpose module seems to be missing<br>"
+							+ "from your Fiji installation. Please follow the link<br>"
+							+ "below for installation instructions." )
+					.url( "https://imagej.net/plugins/trackmate/trackmate-cellpose" ) );
+			return models;
+		}
+		else
+		{
+			return CellposeOpt.createModels();
+		}
+	}
+}
