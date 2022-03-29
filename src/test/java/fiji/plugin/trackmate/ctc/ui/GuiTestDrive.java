@@ -26,7 +26,7 @@ import java.io.File;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import fiji.plugin.trackmate.ctc.TrackMateParameterSweepPlugin;
+import fiji.plugin.trackmate.helper.TrackMateParameterSweepPlugin;
 import net.imagej.ImageJ;
 
 public class GuiTestDrive
@@ -55,17 +55,15 @@ public class GuiTestDrive
 //		final String sourceImagePath = new File( rootFolder, "NMeningitidis/NeisseriaMeningitidisGrowth.tif" ).getAbsolutePath();
 //		final File groundTruthPath = new File( rootFolder, "01_GT" );
 //
-//		final String rootFolder = "/Users/tinevez/Projects/JYTinevez/TrackMateDLPaper/Data/CTCMetrics/CellMigration/";
-//		final File sourceImagePath = new File( rootFolder, "CellMigration.tif" );
-//		final File groundTruthPath = new File( rootFolder, "02_GT" );
+		final String rootFolder = "/Users/tinevez/Projects/JYTinevez/TrackMateDLPaper/Data/CTCMetrics/CellMigration/";
+		final File sourceImagePath = new File( rootFolder, "CellMigration.tif" );
+		final File groundTruthPath = new File( rootFolder, "02_GT" );
 
-//		final String rootFolder = "D:\\Projects\\JYTinevez\\TrackMate-StarDist\\CTCMetrics\\Brightfield";
-//		final String sourceImagePath = new File( rootFolder, "BrightFieldCells-RawData.tif" ).getAbsolutePath();
-//		final File groundTruthPath = new File( rootFolder, "01_GT" );
-
-		final String rootFolder = "C:\\Users\\tinevez\\Desktop\\BrightFieldCells";
-		final String sourceImagePath = new File( rootFolder, "BrightFieldCells-VarianceFilterRadius=9pixels.tif" ).getAbsolutePath();
-		final File groundTruthPath = new File( rootFolder, "01_GT" );
+//		final String rootFolder = "/Users/tinevez/Projects/TSabate/Data/GroundTruth/";
+//		final String sourceImagePath = new File( rootFolder, "20220131-1435_Lv4TetOinCuO-C4_t-000-106_p005.ome_ALN_MarginsCropped-cropped2.tif" ).getAbsolutePath();
+//		final File groundTruthPath = new File( rootFolder, "GT_GFP/01_GT" );
+//		final RoiManager roiManager = RoiManager.getRoiManager();
+//		roiManager.runCommand( "Open", new File( rootFolder, "ROIs.zip" ).getAbsolutePath() );
 
 		final TrackMateParameterSweepPlugin plugin = new TrackMateParameterSweepPlugin();
 		plugin.run( sourceImagePath + ", " + groundTruthPath );

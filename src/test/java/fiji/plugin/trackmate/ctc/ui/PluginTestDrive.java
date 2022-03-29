@@ -24,7 +24,7 @@ package fiji.plugin.trackmate.ctc.ui;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import fiji.plugin.trackmate.ctc.TrackMateParameterSweepPlugin;
+import fiji.plugin.trackmate.helper.TrackMateParameterSweepPlugin;
 import net.imagej.ImageJ;
 
 public class PluginTestDrive

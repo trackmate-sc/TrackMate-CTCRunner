@@ -26,7 +26,7 @@ import java.io.IOException;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import fiji.plugin.trackmate.ctc.TrackMateParameterSweepResultsPlugin;
+import fiji.plugin.trackmate.helper.TrackMateParameterSweepResultsPlugin;
 import net.imagej.ImageJ;
 
 public class CrawlerResultsUITestDrive
