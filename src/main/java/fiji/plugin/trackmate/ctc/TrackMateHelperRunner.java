@@ -90,7 +90,7 @@ public class TrackMateHelperRunner
 		}
 		logger.log( str + '\n' );
 
-		final CTCMetricsRunner runner = new CTCMetricsRunner( imp, gtPath, context );
+		final CTCMetricsRunner runner = new CTCMetricsRunner( gtPath, context );
 		runner.setBatchLogger( Logger.DEFAULT_LOGGER );
 
 		final Settings base = new Settings( imp );
@@ -157,7 +157,7 @@ public class TrackMateHelperRunner
 						final double trackingTiming = runner.execTracking( trackmate );
 
 						// Perform and save CTC metrics measurements.
-						runner.performCTCMetricsMeasurements( trackmate, detectionTiming, trackingTiming );
+						runner.performMetricsMeasurements( trackmate, detectionTiming, trackingTiming );
 
 						// Save TrackMate file if required.
 						if ( saveEachTime )

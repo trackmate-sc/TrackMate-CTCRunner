@@ -135,7 +135,7 @@ public class ParameterSweepController implements Cancelable
 				{
 					final int targetChannel = gui.sliderChannel.getValue();
 					final Context context = TMUtils.getContext();
-					final CTCMetricsRunner runner = new CTCMetricsRunner( imp, gtPath, context );
+					final CTCMetricsRunner runner = new CTCMetricsRunner( gtPath, context );
 					runner.setBatchLogger( gui.logger );
 
 					final Settings base = new Settings( imp );
@@ -206,7 +206,7 @@ public class ParameterSweepController implements Cancelable
 									final double trackingTiming = runner.execTracking( trackmate );
 
 									// Perform and save CTC metrics measurements.
-									runner.performCTCMetricsMeasurements( trackmate, detectionTiming, trackingTiming );
+									runner.performMetricsMeasurements( trackmate, detectionTiming, trackingTiming );
 
 									// Save TrackMate file if required.
 									if ( saveEachTime )
