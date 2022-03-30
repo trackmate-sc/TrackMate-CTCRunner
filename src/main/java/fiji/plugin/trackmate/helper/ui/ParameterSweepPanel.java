@@ -64,8 +64,8 @@ import fiji.plugin.trackmate.gui.Fonts;
 import fiji.plugin.trackmate.gui.components.LogPanel;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings.TrackMateObject;
 import fiji.plugin.trackmate.helper.ctc.CTCResultsCrawler;
-import fiji.plugin.trackmate.helper.model.ParameterSweepModel;
 import fiji.plugin.trackmate.helper.model.AbstractSweepModel.ModelListener;
+import fiji.plugin.trackmate.helper.model.ParameterSweepModel;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
 import fiji.plugin.trackmate.helper.model.tracker.TrackerSweepModel;
 import fiji.plugin.trackmate.helper.ui.components.FilterConfigPanel;
@@ -182,9 +182,8 @@ public class ParameterSweepPanel extends JPanel
 		panelTitle.add( lblTitle, gbcLblTitle );
 
 		final JLabel lblDoc = new JLabel( "<html>"
-				+ "Runs automated parameter sweeps on a TrackMate image, "
-				+ "and compute the Cell-Tracking-Challenge "
-				+ "metrics on all the results."
+				+ "Runs automated parameter sweeps on an image using TrackMate, "
+				+ "and compute the tracking metrics on all the results."
 				+ "</html>" );
 		lblDoc.setFont( SMALL_FONT );
 		final GridBagConstraints gbcLblDoc = new GridBagConstraints();

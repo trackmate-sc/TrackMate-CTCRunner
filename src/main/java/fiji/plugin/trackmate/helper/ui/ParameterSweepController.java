@@ -64,7 +64,7 @@ public class ParameterSweepController implements Cancelable
 
 	private final String gtPath;
 
-	public ParameterSweepController( final ImagePlus imp, final String gtPath )
+	public ParameterSweepController( final ImagePlus imp, final String gtPath, final boolean ctcSelected )
 	{
 		this.imp = imp;
 		this.gtPath = gtPath;
