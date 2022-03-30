@@ -83,9 +83,9 @@ public class SPTMetrics
 		final SPTMetricsDescription[] desc = SPTMetricsDescription.values();
 		for ( int i = 0; i < 5; i++ )
 			str.append( String.format( " - %-3s: %.3f\n", desc[ i ].ctcName(), arr[ i ] ) );
-		str.append( String.format( " - %-3s: %.1f s\n", desc[ 7 ].ctcName(), arr[ 5 ] ) );
-		str.append( String.format( " - %-14s: %.1f s\n", desc[ 8 ].ctcName(), arr[ 6 ] ) );
-		str.append( String.format( " - %-14s: %.1f s", desc[ 9 ].ctcName(), arr[ 7 ] ) );
+		str.append( String.format( " - %-3s: %.1f s\n", desc[ 5 ].ctcName(), arr[ 5 ] ) );
+		str.append( String.format( " - %-14s: %.1f s\n", desc[ 6 ].ctcName(), arr[ 6 ] ) );
+		str.append( String.format( " - %-14s: %.1f s", desc[ 7 ].ctcName(), arr[ 7 ] ) );
 		return str.toString();
 	}
 
