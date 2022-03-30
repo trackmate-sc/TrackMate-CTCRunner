@@ -35,12 +35,14 @@ import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.gui.Icons;
+import fiji.plugin.trackmate.helper.MetricsRunner;
 import fiji.plugin.trackmate.helper.ctc.CTCMetricsRunner;
 import fiji.plugin.trackmate.helper.ctc.CTCResultsCrawler;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModel;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModelIO;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
 import fiji.plugin.trackmate.helper.model.tracker.TrackerSweepModel;
+import fiji.plugin.trackmate.helper.spt.SPTMetricsRunner;
 import fiji.plugin.trackmate.io.TmXmlWriter;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import fiji.plugin.trackmate.util.TMUtils;
@@ -64,10 +66,13 @@ public class ParameterSweepController implements Cancelable
 
 	private final String gtPath;
 
+	private final boolean ctcSelected;
+
 	public ParameterSweepController( final ImagePlus imp, final String gtPath, final boolean ctcSelected )
 	{
 		this.imp = imp;
 		this.gtPath = gtPath;
+		this.ctcSelected = ctcSelected;
 		final File modelFile = ParameterSweepModelIO.makeSettingsFileForGTPath( gtPath );
 		final File saveFolder = modelFile.getParentFile();
 		model = ParameterSweepModelIO.readFrom( modelFile );
@@ -133,11 +138,20 @@ public class ParameterSweepController implements Cancelable
 			{
 				try
 				{
-					final int targetChannel = gui.sliderChannel.getValue();
-					final Context context = TMUtils.getContext();
-					final CTCMetricsRunner runner = new CTCMetricsRunner( gtPath, context );
+					final MetricsRunner runner;
+					if ( ctcSelected )
+					{
+						final Context context = TMUtils.getContext();
+						runner = new CTCMetricsRunner( gtPath, context );
+					}
+					else
+					{
+
+						runner = new SPTMetricsRunner( gtPath );
+					}
 					runner.setBatchLogger( gui.logger );
 
+					final int targetChannel = gui.sliderChannel.getValue();
 					final Settings base = new Settings( imp );
 					base.setSpotFilters( model.getSpotFilters() );
 					base.setTrackFilters( model.getTrackFilters() );
