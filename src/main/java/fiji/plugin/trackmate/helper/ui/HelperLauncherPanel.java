@@ -41,6 +41,8 @@ import org.scijava.prefs.PrefService;
 import org.scijava.util.VersionUtils;
 
 import fiji.plugin.trackmate.gui.Icons;
+import fiji.plugin.trackmate.helper.ctc.CTCTrackingMetricsType;
+import fiji.plugin.trackmate.helper.spt.SPTTrackingMetricsType;
 import fiji.plugin.trackmate.util.FileChooser;
 import fiji.plugin.trackmate.util.FileChooser.DialogType;
 import fiji.plugin.trackmate.util.FileChooser.SelectionMode;
@@ -442,30 +444,13 @@ public class HelperLauncherPanel extends JPanel
 
 	private static final String METRICS_TYPE_KEY = "METRICS_TYPE";
 
-	private static final String DOC_CTC = "<html>"
-			+ "The Cell-Tracking challenge (CTC) metrics focus on measuring the performance "
-			+ "of tracking pipelines applied to objects that have a shape, move and possibly "
-			+ "divide, typically cells in Life-Sciences. They include metrics for tracking "
-			+ "accuracy and segmentation accuracy. "
-			+ "The CTC framework supports tracking algorithms that detect object division and "
-			+ "offers metrics to quantify the detection accuracy of such events. "
-			+ "<p>"
-			+ "The CTC metrics are derived from an ISBI Grand Challenge published here:"
-			+ "</html>";
+	private static final String DOC_CTC = CTCTrackingMetricsType.INFO;
 
-	private static final String DOC_SPT = "<html>"
-			+ "The Single-Particle Tracking challenge (SPT) metrics focus on measuring the "
-			+ "performance of tracking pipelines applied to small objects that have no shape "
-			+ "and a possibly complex motion, possibly very dense with overlapping trajectories. "
-			+ "They typically apply to tracking sub-resolved "
-			+ "particles or cell organelles in Life-Sciences. "
-			+ "<p>"
-			+ "The SPT metrics are derived from an ISBI Grand Challenge published here:"
-			+ "</html>";
+	private static final String DOC_SPT = SPTTrackingMetricsType.INFO;
 
-	protected static final String LINK_CTC = "https://doi.org/10.1038/nmeth.4473";
+	protected static final String LINK_CTC = CTCTrackingMetricsType.URL;
 
-	protected static final String LINK_SPT = "https://doi.org/10.1038/nmeth.2808";
+	protected static final String LINK_SPT = SPTTrackingMetricsType.URL;
 
 	private static final String URL_CTC = "<html><small><a href="
 			+ LINK_CTC
