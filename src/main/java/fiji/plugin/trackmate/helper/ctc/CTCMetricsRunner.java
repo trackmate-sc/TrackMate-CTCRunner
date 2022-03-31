@@ -40,7 +40,15 @@ import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.action.CTCExporter;
 import fiji.plugin.trackmate.action.CTCExporter.ExportType;
 import fiji.plugin.trackmate.helper.MetricsRunner;
+import fiji.plugin.trackmate.helper.TrackingMetrics;
+import fiji.plugin.trackmate.helper.TrackingMetricsType;
 
+/**
+ * Performs tracking and all the CTC metrics measurements with a TrackMate
+ * instance.
+ * 
+ * @author Jean-Yves Tinevez
+ */
 public class CTCMetricsRunner extends MetricsRunner
 {
 
@@ -54,9 +62,11 @@ public class CTCMetricsRunner extends MetricsRunner
 	 */
 	private final String gtPath;
 
+	private CTCTrackingMetricsType type;
+
 	public CTCMetricsRunner( final String gtPath, final Context context )
 	{
-		super( Paths.get( gtPath ).getParent(), "CTCMetrics" );
+		super( Paths.get( gtPath ).getParent(), new CTCTrackingMetricsType() );
 		this.gtPath = gtPath;
 		final int logLevel = 0; // silence CTC logging.
 		this.ctc = new CTCMetricsProcessor( context, logLevel );
@@ -79,13 +89,12 @@ public class CTCMetricsRunner extends MetricsRunner
 
 			// Perform CTC measurements.
 			batchLogger.log( "Performing CTC metrics measurements.\n" );
-			final CTCMetrics m = ctc.process( gtPath, resultsFolder );
+			final TrackingMetrics metrics = ctc.process( gtPath, resultsFolder );
 			// Add timing measurements.
-			final CTCMetrics metrics = m.copyEdit()
-					.detectionTime( detectionTiming )
-					.trackingTime( trackingTiming )
-					.tim( detectionTiming + trackingTiming )
-					.get();
+			metrics.set( TrackingMetricsType.TIM, detectionTiming + trackingTiming );
+			metrics.set( TrackingMetricsType.DETECTION_TIME, detectionTiming );
+			metrics.set( TrackingMetricsType.TRACKING_TIME, trackingTiming );
+
 			batchLogger.log( "CTC metrics:\n" );
 			batchLogger.log( metrics.toString() + '\n' );
 
@@ -108,18 +117,8 @@ public class CTCMetricsRunner extends MetricsRunner
 			batchLogger.error( "Could not export tracking data to CTC files:\n" + e.getMessage() + '\n' );
 			// Write default values to CSV.
 			final String[] line1 = toCSVLine( settings, csvHeader1 );
-			final CTCMetrics metrics = CTCMetrics.create()
-					.seg( Double.NaN )
-					.tra( Double.NaN )
-					.det( Double.NaN )
-					.ct( Double.NaN )
-					.tf( Double.NaN )
-					.bci( Double.NaN )
-					.cca( Double.NaN )
-					.tim( Double.NaN )
-					.detectionTime( Double.NaN )
-					.trackingTime( Double.NaN )
-					.get();
+			// all NaNs.
+			final TrackingMetrics metrics = new TrackingMetrics( type );
 			final String[] line = metrics.concatWithCSVLine( line1 );
 			try (CSVWriter csvWriter = new CSVWriter( new FileWriter( csvFile, true ),
 					CSVWriter.DEFAULT_SEPARATOR,

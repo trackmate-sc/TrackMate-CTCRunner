@@ -29,6 +29,7 @@ import java.awt.Font;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -60,12 +61,12 @@ import fiji.plugin.trackmate.gui.Fonts;
 import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.gui.displaysettings.Colormap;
-import fiji.plugin.trackmate.helper.ctc.CTCMetrics;
-import fiji.plugin.trackmate.helper.ctc.CTCMetricsDescription;
-import fiji.plugin.trackmate.helper.ctc.CTCResults;
-import fiji.plugin.trackmate.helper.ctc.CTCResultsCrawler;
+import fiji.plugin.trackmate.helper.ResultsCrawler;
+import fiji.plugin.trackmate.helper.ResultsCrawler.CrawlerListener;
+import fiji.plugin.trackmate.helper.TrackingMetrics;
+import fiji.plugin.trackmate.helper.TrackingMetricsTable;
+import fiji.plugin.trackmate.helper.TrackingMetricsType;
 import fiji.plugin.trackmate.helper.ctc.TrackMateCTCUtils;
-import fiji.plugin.trackmate.helper.ctc.CTCResultsCrawler.CrawlerListener;
 import fiji.plugin.trackmate.providers.DetectorProvider;
 import fiji.plugin.trackmate.providers.TrackerProvider;
 import fiji.plugin.trackmate.tracking.SpotTrackerFactory;
@@ -80,16 +81,9 @@ public class CrawlerResultsPanel extends JPanel
 
 	private static final long serialVersionUID = 1L;
 
-	private final static CTCMetricsDescription[] descs = CTCMetricsDescription.values();
-
-	private final static CTCMetricsDescription[] timingDescs = new CTCMetricsDescription[] {
-			CTCMetricsDescription.TIM,
-			CTCMetricsDescription.DETECTION_TIME,
-			CTCMetricsDescription.TRACKING_TIME };
-
-	public CrawlerResultsPanel( final CTCResultsCrawler crawler, final ImagePlus imp )
+	public CrawlerResultsPanel( final ResultsCrawler crawler, final ImagePlus imp )
 	{
-		final CTCMetricsDescription defaultMetrics = CTCMetricsDescription.DET;
+		final String defaultMetrics = crawler.getType().defaultMetric();
 
 		setLayout( new BorderLayout( 0, 0 ) );
 		final JTabbedPane tabbedPane = new JTabbedPane( JTabbedPane.TOP );
@@ -116,7 +110,7 @@ public class CrawlerResultsPanel extends JPanel
 		{
 
 			private static final long serialVersionUID = 1L;
-			
+
 			@Override
 			public void setEnabled( final boolean b )
 			{
@@ -173,8 +167,8 @@ public class CrawlerResultsPanel extends JPanel
 		lblChoice.setFont( Fonts.FONT.deriveFont( Font.BOLD ) );
 		panelDescChoice.add( lblChoice );
 
-		final JComboBox< CTCMetricsDescription > cmbboxMetrics = new JComboBox< CTCMetricsDescription >(
-				new Vector<>( Arrays.asList( CTCMetricsDescription.values() ) ) )
+		final JComboBox< String > cmbboxMetrics = new JComboBox< String >(
+				new Vector<>( crawler.getType().metrics() ) )
 		{
 
 			private static final long serialVersionUID = 1L;
@@ -250,7 +244,7 @@ public class CrawlerResultsPanel extends JPanel
 		 */
 
 		cmbboxMetrics.addActionListener( e -> bestValTableModel.setMetrics(
-				( CTCMetricsDescription ) cmbboxMetrics.getSelectedItem() ) );
+				( String ) cmbboxMetrics.getSelectedItem() ) );
 
 		final CrawlerListener l = () -> {
 			bestDTTableModel.update();
@@ -290,11 +284,9 @@ public class CrawlerResultsPanel extends JPanel
 
 		private static final long serialVersionUID = 1L;
 
-		private final static CTCMetricsDescription[] descs = CTCMetricsDescription.values();
+		private final ResultsCrawler crawler;
 
-		private final CTCResultsCrawler crawler;
-
-		private CTCMetricsDescription target;
+		private String target;
 
 		private final int ncols;
 
@@ -314,17 +306,23 @@ public class CrawlerResultsPanel extends JPanel
 
 		private final ImagePlus imp;
 
-		public BestValTableModel( final CTCResultsCrawler crawler, final ImagePlus imp, final CTCMetricsDescription target )
+		private final TrackingMetricsType type;
+
+		private final List< String > descs;
+
+		public BestValTableModel( final ResultsCrawler crawler, final ImagePlus imp, final String target )
 		{
 			this.crawler = crawler;
 			this.imp = imp;
 			this.target = target;
-			this.ncols = descs.length + 2;
+			this.type = crawler.getType();
+			this.descs = type.metrics();
+			this.ncols = descs.size() + 2;
 			this.columnNames = new String[ ncols ];
 			columnNames[ 0 ] = "Detector";
 			columnNames[ 1 ] = "Tracker";
-			for ( int i = 0; i < descs.length; i++ )
-				columnNames[ i + 2 ] = descs[ i ].ctcName();
+			for ( int i = 0; i < descs.size(); i++ )
+				columnNames[ i + 2 ] = descs.get( i );
 			this.renderer = new DefaultTableCellRenderer();
 			update();
 		}
@@ -337,10 +335,11 @@ public class CrawlerResultsPanel extends JPanel
 			final String detector = ( String ) objs[ row ][ 0 ];
 			final String tracker = ( String ) objs[ row ][ 1 ];
 			final ValuePair< String, Integer > pair = crawler.bestFor( detector, tracker, target );
-			final CTCResults results = crawler.get( pair.getA() );
+			final TrackingMetricsTable results = crawler.get( pair.getA() );
 			if ( results == null )
 			{
-				IJ.error( "TrackMate CTC helper", "No good settings to optimize " + target.description() );
+				IJ.error( "TrackMate CTC helper", "No good settings to optimize " +
+						type.description( target ) );
 				return null;
 			}
 			final int line = pair.getB();
@@ -392,7 +391,7 @@ public class CrawlerResultsPanel extends JPanel
 			return settings;
 		}
 
-		public void setMetrics( final CTCMetricsDescription desc )
+		public void setMetrics( final String desc )
 		{
 			target = desc;
 			update();
@@ -463,7 +462,7 @@ public class CrawlerResultsPanel extends JPanel
 				final String tracker = ( String ) objs[ r ][ 1 ];
 
 				final ValuePair< String, Integer > pair = crawler.bestFor( detector, tracker, target );
-				final CTCResults results = crawler.get( pair.getA() );
+				final TrackingMetricsTable results = crawler.get( pair.getA() );
 				if ( results == null )
 				{
 					tooltips[ r ] = "No good results";
@@ -473,9 +472,9 @@ public class CrawlerResultsPanel extends JPanel
 				else
 				{
 					final int line = pair.getB();
-					final CTCMetrics metrics = results.getMetrics( line );
-					for ( int i = 0; i < descs.length; i++ )
-						objs[ r ][ 2 + i ] = metrics.get( descs[ i ] );
+					final TrackingMetrics metrics = results.getMetrics( line );
+					for ( int i = 0; i < descs.size(); i++ )
+						objs[ r ][ 2 + i ] = metrics.get( descs.get( i ) );
 
 					// Tooltips.
 					final Map detectorParams = results.getDetectorParams( line );
@@ -492,9 +491,9 @@ public class CrawlerResultsPanel extends JPanel
 					tooltips[ r ] = str.replaceAll( "[\\t|\\n|\\r]", "<br>" );
 
 					// Min & max timings.
-					for ( int i = 0; i < timingDescs.length; i++ )
+					for ( int i = 0; i < TrackingMetricsType.COMMON_KEYS.size(); i++ )
 					{
-						final double t = metrics.get( timingDescs[ i ] );
+						final double t = metrics.get( TrackingMetricsType.COMMON_KEYS.get( i ) );
 						if ( t < mint[ i ] )
 							mint[ i ] = t;
 						if ( t > maxt[ i ] )
@@ -568,7 +567,7 @@ public class CrawlerResultsPanel extends JPanel
 				{
 					// Color code performance from 0 to 1.
 					final double val = ( ( Double ) value ).doubleValue();
-					if ( column >= 2 && column < 2 + descs.length - 3 )
+					if ( column >= 2 && column < 2 + descs.size() - 3 )
 					{
 						// Metrics from 0 to 1.
 						final Color bg = Double.isNaN( val ) ? null : cmap.getPaint( val );
@@ -601,7 +600,7 @@ public class CrawlerResultsPanel extends JPanel
 
 		private static final long serialVersionUID = 1L;
 
-		private final CTCResultsCrawler crawler;
+		private final ResultsCrawler crawler;
 
 		private final int nrows;
 
@@ -621,24 +620,27 @@ public class CrawlerResultsPanel extends JPanel
 
 		private final ImagePlus imp;
 
-		public BestDTTableModel( final CTCResultsCrawler crawler, final ImagePlus imp )
+		private final List< String > metricKeys;
+
+		public BestDTTableModel( final ResultsCrawler crawler, final ImagePlus imp )
 		{
 			this.crawler = crawler;
 			this.imp = imp;
-			this.nrows = descs.length;
-			this.ncols = descs.length + 4;
+			this.metricKeys = crawler.getType().metrics();
+			this.nrows = metricKeys.size();
+			this.ncols = metricKeys.size() + 4;
 			this.columnNames = new String[ ncols ];
 			columnNames[ 0 ] = "Best for";
 			columnNames[ 1 ] = "Value";
 			columnNames[ 2 ] = "Detector";
 			columnNames[ 3 ] = "Tracker";
-			for ( int i = 0; i < descs.length; i++ )
-				columnNames[ i + 4 ] = descs[ i ].ctcName();
+			for ( int i = 0; i < metricKeys.size(); i++ )
+				columnNames[ i + 4 ] = metricKeys.get( i );
 			// Values
 			this.objs = new Object[ nrows ][ ncols ];
 			// Row names.
-			for ( int i = 0; i < descs.length; i++ )
-				objs[ i ][ 0 ] = descs[ i ].description();
+			for ( int i = 0; i < metricKeys.size(); i++ )
+				objs[ i ][ 0 ] = crawler.getType().description( metricKeys.get( i ) );
 			// Tooltips.
 			this.tooltips = new String[ nrows ];
 			this.renderer = new DefaultTableCellRenderer();
@@ -650,12 +652,13 @@ public class CrawlerResultsPanel extends JPanel
 			if ( row < 0 || row >= objs.length )
 				return null;
 
-			final CTCMetricsDescription m = descs[ row ];
+			final String m = metricKeys.get( row );
 			final ValuePair< String, Integer > pair = crawler.bestFor( m );
-			final CTCResults results = crawler.get( pair.getA() );
+			final TrackingMetricsTable results = crawler.get( pair.getA() );
 			if ( results == null )
 			{
-				IJ.error( "TrackMate CTC helper", "No good settings to optimize " + m.description() );
+				IJ.error( "TrackMate CTC helper", "No good settings to optimize "
+						+ crawler.getType().description( m ) );
 				return null;
 			}
 			else
@@ -717,9 +720,9 @@ public class CrawlerResultsPanel extends JPanel
 			Arrays.fill( maxt, Double.NEGATIVE_INFINITY );
 			for ( int r = 0; r < nrows; r++ )
 			{
-				final CTCMetricsDescription m = descs[ r ];
+				final String m = metricKeys.get( r );
 				final ValuePair< String, Integer > pair = crawler.bestFor( m );
-				final CTCResults results = crawler.get( pair.getA() );
+				final TrackingMetricsTable results = crawler.get( pair.getA() );
 				if ( results == null )
 				{
 					tooltips[ r ] = "No good results";
@@ -732,14 +735,14 @@ public class CrawlerResultsPanel extends JPanel
 				{
 					// Values.
 					final int line = pair.getB();
-					final CTCMetrics metrics = results.getMetrics( line );
+					final TrackingMetrics metrics = results.getMetrics( line );
 					final String detector = results.getDetector( line );
 					final String tracker = results.getTracker( line );
 					objs[ r ][ 1 ] = metrics.get( m );
 					objs[ r ][ 2 ] = detector;
 					objs[ r ][ 3 ] = tracker;
-					for ( int i = 0; i < descs.length; i++ )
-						objs[ r ][ 4 + i ] = metrics.get( descs[ i ] );
+					for ( int i = 0; i < metricKeys.size(); i++ )
+						objs[ r ][ 4 + i ] = metrics.get( metricKeys.get( i ) );
 
 					// Tooltips.
 					final Map detectorParams = results.getDetectorParams( line );
@@ -753,9 +756,9 @@ public class CrawlerResultsPanel extends JPanel
 					tooltips[ r ] = str.replaceAll( "[\\t|\\n|\\r]", "<br>" );
 
 					// Min & max timings.
-					for ( int i = 0; i < timingDescs.length; i++ )
+					for ( int i = 0; i < TrackingMetricsType.COMMON_KEYS.size(); i++ )
 					{
-						final double t = metrics.get( timingDescs[ i ] );
+						final double t = metrics.get( TrackingMetricsType.COMMON_KEYS.get( i ) );
 						if ( t < mint[ i ] )
 							mint[ i ] = t;
 						if ( t > maxt[ i ] )
@@ -830,7 +833,7 @@ public class CrawlerResultsPanel extends JPanel
 				{
 					// Color code performance from 0 to 1.
 					final double val = ( ( Double ) value ).doubleValue();
-					if ( ( column >= 4 && column < 4 + descs.length - 3 ) || ( column == 1 && row < 7 ) )
+					if ( ( column >= 4 && column < 4 + metricKeys.size() - 3 ) || ( column == 1 && row < 7 ) )
 					{
 						// Metrics from 0 to 1.
 						final Color bg = Double.isNaN( val ) ? null : cmap.getPaint( val );
@@ -838,12 +841,12 @@ public class CrawlerResultsPanel extends JPanel
 						renderer.setBackground( bg );
 						renderer.setForeground( fg );
 					}
-					else if ( ( column >= 4 + descs.length - 3 ) || ( column == 1 && row >= 7 ) )
+					else if ( ( column >= 4 + metricKeys.size() - 3 ) || ( column == 1 && row >= 7 ) )
 					{
 						// Timings. Shorter is better.
 						final int i = ( column == 1 )
 								? row - 7
-								: column - ( 4 + descs.length - 3 );
+								: column - ( 4 + metricKeys.size() - 3 );
 						final double valt = 1. - ( val - mint[ i ] ) / ( maxt[ i ] - mint[ i ] );
 						final Color bg = Double.isNaN( val ) ? null : cmap.getPaint( valt );
 						final Color fg = ( bg == null ) ? null : GuiUtils.textColorForBackground( bg );

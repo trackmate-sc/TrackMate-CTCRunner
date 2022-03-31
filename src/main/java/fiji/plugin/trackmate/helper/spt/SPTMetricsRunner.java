@@ -43,7 +43,7 @@ public class SPTMetricsRunner extends MetricsRunner
 
 	public SPTMetricsRunner( final String gtPath )
 	{
-		super( Paths.get( gtPath ).getParent(), "SPTMetrics" );
+		super( Paths.get( gtPath ).getParent(), new SPTTrackingMetricsType() );
 		this.referenceTracks = SPTFormatImporter.fromXML( new File( gtPath ) );
 	}
 

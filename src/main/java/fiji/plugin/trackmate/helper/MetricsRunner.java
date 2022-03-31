@@ -19,7 +19,6 @@ import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.TrackModel;
-import fiji.plugin.trackmate.helper.ctc.CTCMetrics;
 import fiji.plugin.trackmate.util.TMUtils;
 import net.imglib2.util.ValuePair;
 
@@ -36,6 +35,8 @@ public abstract class MetricsRunner
 	 */
 	protected Logger trackmateLogger = Logger.VOID_LOGGER;
 
+	protected final TrackingMetricsType type;
+
 	/**
 	 * Where to save metrics results files.
 	 */
@@ -46,10 +47,11 @@ public abstract class MetricsRunner
 	 */
 	private final BiFunction< String, Integer, String > nameGenWithID;
 
-	public MetricsRunner( final Path resultsRootPath, final String resultSuffix )
+	public MetricsRunner( final Path resultsRootPath, final TrackingMetricsType type )
 	{
 		this.resultsRootPath = resultsRootPath;
-		this.nameGenWithID = ( imName, i ) -> String.format( "%s_" + resultSuffix + "_%02d.csv", imName, i );
+		this.type = type;
+		this.nameGenWithID = ( imName, i ) -> String.format( "%s_" + type.csvSuffix() + "_%02d.csv", imName, i );
 	}
 
 	public abstract void performMetricsMeasurements( TrackMate trackmate, double detectionTiming, double trackingTiming );
@@ -128,7 +130,7 @@ public abstract class MetricsRunner
 		final String imFileName = settings.imp.getShortTitle();
 		// Prepare CSV headers.
 		final String[] csvHeader1 = toCSVHeader( settings );
-		final String[] csvHeader = CTCMetrics.concatWithCSVHeader( csvHeader1 );
+		final String[] csvHeader = type.concatWithHeader( csvHeader1 );
 	
 		// Init.
 		int i = 0;
@@ -175,7 +177,7 @@ public abstract class MetricsRunner
 	{
 		// Prepare CSV headers.
 		final String[] csvHeader1 = toCSVHeader( settings );
-		final String[] csvHeader = CTCMetrics.concatWithCSVHeader( csvHeader1 );
+		final String[] csvHeader = type.concatWithHeader( csvHeader1 );
 	
 		try (CSVReader csvReader = new CSVReaderBuilder( new FileReader( csvFile ) ).build())
 		{
@@ -245,5 +247,4 @@ public abstract class MetricsRunner
 		}
 		return out;
 	}
-
 }

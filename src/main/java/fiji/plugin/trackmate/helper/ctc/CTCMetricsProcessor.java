@@ -27,6 +27,7 @@ import java.io.IOException;
 import org.scijava.Context;
 import org.scijava.log.LogService;
 
+import fiji.plugin.trackmate.helper.TrackingMetrics;
 import io.scif.img.ImgIOException;
 import net.celltrackingchallenge.measures.BCi;
 import net.celltrackingchallenge.measures.CCA;
@@ -38,7 +39,8 @@ import net.celltrackingchallenge.measures.TRA;
 import net.celltrackingchallenge.measures.TrackDataCache;
 
 /**
- * Performs all the CTC metrics measurements.
+ * Performs all the CTC metrics measurements from paths to the ground-truth and
+ * to the candidate data files.
  * 
  * @author Jean-Yves Tinevez
  */
@@ -59,8 +61,12 @@ public class CTCMetricsProcessor
 
 	private final CCA cca;
 
+	private final CTCTrackingMetricsType type;
+
 	public CTCMetricsProcessor( final Context context, final int logLevel )
 	{
+		this.type = new CTCTrackingMetricsType();
+
 		// LogService
 		final LogService logService = context.getService( LogService.class );
 		logService.setLevel( logLevel );
@@ -84,7 +90,7 @@ public class CTCMetricsProcessor
 		this.cca = new CCA( logService );
 	}
 
-	public CTCMetrics process( final String groundTruthPath, final String resultsFolder ) throws ImgIOException, IOException
+	public TrackingMetrics process( final String groundTruthPath, final String resultsFolder ) throws ImgIOException, IOException
 	{
 		double segValue = Double.NaN;
 		try
@@ -131,14 +137,14 @@ public class CTCMetricsProcessor
 			 */
 		}
 
-		return CTCMetrics.create()
-				.seg( segValue )
-				.tra( traValue )
-				.det( detValue )
-				.ct( ctValue )
-				.tf( tfValue )
-				.bci( bciValue )
-				.cca( ccaValue )
-				.get();
+		final TrackingMetrics out = new TrackingMetrics( type );
+		out.set( CTCTrackingMetricsType.SEG, segValue );
+		out.set( CTCTrackingMetricsType.TRA, traValue );
+		out.set( CTCTrackingMetricsType.DET, detValue );
+		out.set( CTCTrackingMetricsType.CT, ctValue );
+		out.set( CTCTrackingMetricsType.TF, tfValue );
+		out.set( CTCTrackingMetricsType.CCA, ccaValue );
+		out.set( CTCTrackingMetricsType.BC, bciValue );
+		return out;
 	}
 }

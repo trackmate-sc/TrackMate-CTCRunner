@@ -7,13 +7,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import gnu.trove.map.hash.TObjectIntHashMap;
+
 public abstract class TrackingMetricsType
 {
 
+	public static final String TIM = "TIM";
+
+	public static final String DETECTION_TIME = "DETECTION_TIME";
+
+	public static final String TRACKING_TIME = "TRACKING_TIME";
+
 	public static final List< String > COMMON_KEYS = Arrays.asList( new String[] {
-			"TIM",
-			"DETECTION_TIME",
-			"TRACKING_TIME" } );
+			TIM, DETECTION_TIME, TRACKING_TIME } );
 
 	private static final List< String > COMMON_DESCRIPTIONS = Arrays.asList( new String[] {
 			"Execution time",
@@ -23,6 +29,8 @@ public abstract class TrackingMetricsType
 	private final List< String > metrics;
 
 	private final Map< String, String > descriptions;
+
+	private final TObjectIntHashMap< String > idMap;
 
 	protected TrackingMetricsType( final List< String > specificKeys, final List< String > specificDescriptions )
 	{
@@ -36,6 +44,10 @@ public abstract class TrackingMetricsType
 		for ( int i = 0; i < COMMON_KEYS.size(); i++ )
 			dm.put( COMMON_KEYS.get( i ), COMMON_DESCRIPTIONS.get( i ) );
 		this.descriptions = Collections.unmodifiableMap( dm );
+		// id map.
+		this.idMap = new TObjectIntHashMap<>( metrics.size(), 0.5f, -1 );
+		for ( int i = 0; i < metrics.size(); i++ )
+			idMap.put( metrics.get( i ), i );
 	}
 
 	/**
@@ -62,11 +74,33 @@ public abstract class TrackingMetricsType
 	}
 
 	/**
+	 * Returns the integer id of the specified key. This id is used to index the
+	 * metric with the specified key e.g. in an array.
+	 * 
+	 * @param key
+	 *            the key of the metric.
+	 * @return its id, or -1 if the specified key is unknown to this metric
+	 *         type.
+	 */
+	public int id( final String key )
+	{
+		return idMap.get( key );
+	}
+
+	/**
 	 * Returns the name of this metric type.
 	 * 
 	 * @return the metric type name.
 	 */
 	public abstract String name();
+
+	/**
+	 * Returns the suffix to append to file names when saving results of this
+	 * metric type.
+	 * 
+	 * @return a short suffix.
+	 */
+	public abstract String csvSuffix();
 
 	/**
 	 * Returns the URL of the publication where this metric type is described.
@@ -81,6 +115,24 @@ public abstract class TrackingMetricsType
 	 * @return a string.
 	 */
 	public abstract String info();
+
+	/**
+	 * Returns the key of the default metric in this type.
+	 * 
+	 * @return the default key.
+	 */
+	public abstract String defaultMetric();
+
+	/**
+	 * Creates a new {@link MetricsRunner} that can perform performance metrics
+	 * measurement for this type.
+	 * 
+	 * @param gtPath
+	 *            the path to the ground-truth folder or file compatible with
+	 *            this metrics type.
+	 * @return a new {@link MetricsRunner}.
+	 */
+	public abstract MetricsRunner runner( String gtPath );
 
 	public TrackingMetricsTableBuilder tableBuilder()
 	{
@@ -115,5 +167,32 @@ public abstract class TrackingMetricsType
 		return true;
 	}
 
-	protected abstract TrackingMetrics fromCSVLine( String[] line );
+	/**
+	 * Prepend the specified header with this metrics header.
+	 * 
+	 * @param header
+	 *            the header to preprint.
+	 * @return a new String array.
+	 */
+	public String[] concatWithHeader( final String[] header )
+	{
+		final String[] out = new String[ header.length + metrics.size() ];
+		for ( int i = 0; i < metrics.size(); i++ )
+			out[ i ] = metrics.get( i );
+
+		for ( int i = 0; i < header.length; i++ )
+			out[ metrics.size() + i ] = header[ i ];
+
+		return out;
+	}
+
+	protected TrackingMetrics fromCSVLine( final String[] line )
+	{
+		final TrackingMetrics out = new TrackingMetrics( this );
+		// Order is important but is validated with header elsewhere.
+		for ( int i = 0; i < metrics.size(); i++ )
+			out.set( i, Double.valueOf( line[ i ] ) );
+
+		return out;
+	}
 }

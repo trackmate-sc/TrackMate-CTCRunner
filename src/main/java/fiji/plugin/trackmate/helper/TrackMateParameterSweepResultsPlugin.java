@@ -33,7 +33,8 @@ import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.gui.Fonts;
 import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.Icons;
-import fiji.plugin.trackmate.helper.ctc.CTCResultsCrawler;
+import fiji.plugin.trackmate.helper.ctc.CTCTrackingMetricsType;
+import fiji.plugin.trackmate.helper.spt.SPTTrackingMetricsType;
 import fiji.plugin.trackmate.helper.ui.CrawlerResultsPanel;
 import fiji.plugin.trackmate.util.TMUtils;
 import fiji.util.gui.GenericDialogPlus;
@@ -45,15 +46,18 @@ public class TrackMateParameterSweepResultsPlugin implements PlugIn
 
 	private static final String RESULT_FOLDER_KEY = "RESULT_FOLDER";
 
+	private static final String METRICS_TYPE_KEY = "METRICS_TYPE";
+
 	@Override
 	public void run( final String arg )
 	{
 		GuiUtils.setSystemLookAndFeel();
-		final CTCResultsCrawler crawler = new CTCResultsCrawler( Logger.IJ_LOGGER );
 		final String resultsFolder;
-		if ( arg != null && !arg.isEmpty() )
+		final TrackingMetricsType type;
+		if ( arg != null && arg.isEmpty() )
 		{
 			resultsFolder = arg;
+			type = new CTCTrackingMetricsType(); // TODO
 		}
 		else
 		{
@@ -76,13 +80,35 @@ public class TrackMateParameterSweepResultsPlugin implements PlugIn
 					RESULT_FOLDER_KEY, System.getProperty( "user.home" ) );
 			dialog.addDirectoryField( "", lastUsedGtFolder, 50 );
 
+			final String lastUsedMetrics = prefService.get( TrackMateParameterSweepResultsPlugin.class,
+					METRICS_TYPE_KEY, "CTC" );
+			dialog.addChoice( "What metrics type was used?", new String[] { "CTC", "SPT" }, lastUsedMetrics );
+
 			dialog.showDialog();
 			if ( dialog.wasCanceled() )
 				return;
 
 			resultsFolder = dialog.getNextString();
 			prefService.put( TrackMateParameterSweepResultsPlugin.class, RESULT_FOLDER_KEY, resultsFolder );
+
+			final String typeStr = dialog.getNextChoice();
+			if ( typeStr.equals( "CTC" ) )
+			{
+				type = new CTCTrackingMetricsType();
+			}
+			else if ( typeStr.equals( "SPT" ) )
+			{
+				type = new SPTTrackingMetricsType();
+			}
+			else
+			{
+				System.err.println( "Unknown metrics type:  " + typeStr + ". Please specify CTC or SPT." );
+				return;
+			}
+			prefService.put( TrackMateParameterSweepResultsPlugin.class, METRICS_TYPE_KEY, typeStr );
+
 		}
+		final ResultsCrawler crawler = new ResultsCrawler( type, Logger.IJ_LOGGER );
 		try
 		{
 			crawler.crawl( resultsFolder );

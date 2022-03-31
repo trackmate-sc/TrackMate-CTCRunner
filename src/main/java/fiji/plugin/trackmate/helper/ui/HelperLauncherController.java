@@ -3,6 +3,9 @@ package fiji.plugin.trackmate.helper.ui;
 import javax.swing.JFrame;
 
 import fiji.plugin.trackmate.gui.Icons;
+import fiji.plugin.trackmate.helper.TrackingMetricsType;
+import fiji.plugin.trackmate.helper.ctc.CTCTrackingMetricsType;
+import fiji.plugin.trackmate.helper.spt.SPTTrackingMetricsType;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
@@ -49,7 +52,10 @@ public class HelperLauncherController
 			}
 
 			frame.dispose();
-			final ParameterSweepController controller = new ParameterSweepController( imp, gtPath, ctcSelected );
+			final TrackingMetricsType type = ctcSelected
+					? new CTCTrackingMetricsType()
+					: new SPTTrackingMetricsType();
+			final ParameterSweepController controller = new ParameterSweepController( imp, gtPath, type );
 			controller.show();
 		} );
 

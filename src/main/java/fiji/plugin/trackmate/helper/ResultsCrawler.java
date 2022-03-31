@@ -352,7 +352,7 @@ public class ResultsCrawler
 		int count = 0;
 		for ( final TrackingMetricsTable results : tables.values() )
 			for ( int i = 0; i < results.size(); i++ )
-				if ( !Double.isNaN( results.getMetrics( i ).isNaN() ) )
+				if ( !results.getMetrics( i ).isNaN() )
 					count++;
 
 		return count;
@@ -442,5 +442,10 @@ public class ResultsCrawler
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public TrackingMetricsType getType()
+	{
+		return type;
 	}
 }

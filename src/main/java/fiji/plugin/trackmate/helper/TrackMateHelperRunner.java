@@ -1,23 +1,22 @@
-package fiji.plugin.trackmate.helper.ctc;
+package fiji.plugin.trackmate.helper;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.scijava.Context;
-
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
+import fiji.plugin.trackmate.helper.ctc.CTCTrackingMetricsType;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModel;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModelIO;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
 import fiji.plugin.trackmate.helper.model.tracker.TrackerSweepModel;
+import fiji.plugin.trackmate.helper.spt.SPTTrackingMetricsType;
 import fiji.plugin.trackmate.io.TmXmlWriter;
 import fiji.plugin.trackmate.util.TMUtils;
 import ij.IJ;
 import ij.ImagePlus;
-import net.imagej.ImageJ;
 import net.imglib2.util.ValuePair;
 
 public class TrackMateHelperRunner
@@ -28,38 +27,54 @@ public class TrackMateHelperRunner
 			+ "-----------------------\n"
 			+ "Syntax:\n"
 			+ "> java -cp path/to/TrackMate-CTCRunner-x.y.z.jar fiji.plugin.trackmate.ctc.TrackMateHelperRunner "
-			+ "/path/to/ground-truth/folder /path/to/image/file target_channel\n";
+			+ "MetricsType /path/to/ground-truth/folder /path/to/image/file target_channel\n"
+			+ "\n"
+			+ "'MetricsType' can be either:\n"
+			+ " - CTC - to use the Cell-Tracking Challenge metrics;\n"
+			+ " - SPT - to use the Single-Particle-Tracking Challenge metrics.\n";
 
 	public static void main( final String[] args )
 	{
-		final ImageJ ij = new ImageJ();
-		final Context context = ij.getContext();
 		final Logger logger = Logger.DEFAULT_LOGGER;
 
-		if ( args.length < 3 )
+		if ( args.length < 4 )
 		{
 			logger.error( DOC_STR );
 			return;
 		}
 		boolean saveEachTime = false;
-		if ( args.length > 3 )
-			saveEachTime = Boolean.parseBoolean( args[ 3 ] );
+		if ( args.length > 4 )
+			saveEachTime = Boolean.parseBoolean( args[ 4 ] );
 		
+		final TrackingMetricsType type;
+		if ( args[ 0 ].equals( "CTC" ) )
+		{
+			type = new CTCTrackingMetricsType();
+		}
+		else if ( args[ 0 ].equals( "SPT" ) )
+		{
+			type = new SPTTrackingMetricsType();
+		}
+		else
+		{
+			System.err.println( "Unknown metrics type:  " + args[ 0 ] + ". Please specify CTC or SPT." );
+			return;
+		}
 
-		logger.log( "Opening image file " + args[ 0 ] + '\n' );
-		final ImagePlus imp = IJ.openImage( args[ 0 ] );
+		logger.log( "Opening image file " + args[ 1 ] + '\n' );
+		final ImagePlus imp = IJ.openImage( args[ 1 ] );
 		logger.log( "Done." + '\n' );
 		
-		final int targetChannel = Integer.parseInt( args[2] );
+		final int targetChannel = Integer.parseInt( args[ 3 ] );
 		logger.log( "Target channel selected: " + targetChannel + '\n' );
 
-		final String gtPath = args[ 1 ];
+		final String gtPath = args[ 2 ];
 
 		final File modelFile = ParameterSweepModelIO.makeSettingsFileForGTPath( gtPath );
 		final File saveFolder = modelFile.getParentFile();
 		final ParameterSweepModel model = ParameterSweepModelIO.readFrom( modelFile );
 
-		final CTCResultsCrawler crawler = new CTCResultsCrawler( Logger.DEFAULT_LOGGER );
+		final ResultsCrawler crawler = new ResultsCrawler( type, Logger.DEFAULT_LOGGER );
 		crawler.reset();
 		try
 		{
@@ -90,7 +105,7 @@ public class TrackMateHelperRunner
 		}
 		logger.log( str + '\n' );
 
-		final CTCMetricsRunner runner = new CTCMetricsRunner( gtPath, context );
+		final MetricsRunner runner = type.runner( gtPath );
 		runner.setBatchLogger( Logger.DEFAULT_LOGGER );
 
 		final Settings base = new Settings( imp );

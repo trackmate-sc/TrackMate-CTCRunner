@@ -63,7 +63,7 @@ import fiji.plugin.trackmate.features.track.TrackBranchingAnalyzer;
 import fiji.plugin.trackmate.gui.Fonts;
 import fiji.plugin.trackmate.gui.components.LogPanel;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings.TrackMateObject;
-import fiji.plugin.trackmate.helper.ctc.CTCResultsCrawler;
+import fiji.plugin.trackmate.helper.ResultsCrawler;
 import fiji.plugin.trackmate.helper.model.AbstractSweepModel.ModelListener;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModel;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
@@ -105,12 +105,12 @@ public class ParameterSweepPanel extends JPanel
 
 	final Logger logger;
 
-	final CTCResultsCrawler crawler;
+	final ResultsCrawler crawler;
 
 	public ParameterSweepPanel(
 			final ImagePlus imp,
 			final ParameterSweepModel model,
-			final CTCResultsCrawler crawler,
+			final ResultsCrawler crawler,
 			final String gtPath )
 	{
 		this.model = model;

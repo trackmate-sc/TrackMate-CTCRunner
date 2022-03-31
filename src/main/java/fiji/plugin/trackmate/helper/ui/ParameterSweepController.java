@@ -29,20 +29,18 @@ import java.util.Iterator;
 import javax.swing.JFrame;
 
 import org.scijava.Cancelable;
-import org.scijava.Context;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.helper.MetricsRunner;
-import fiji.plugin.trackmate.helper.ctc.CTCMetricsRunner;
-import fiji.plugin.trackmate.helper.ctc.CTCResultsCrawler;
+import fiji.plugin.trackmate.helper.ResultsCrawler;
+import fiji.plugin.trackmate.helper.TrackingMetricsType;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModel;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModelIO;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
 import fiji.plugin.trackmate.helper.model.tracker.TrackerSweepModel;
-import fiji.plugin.trackmate.helper.spt.SPTMetricsRunner;
 import fiji.plugin.trackmate.io.TmXmlWriter;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import fiji.plugin.trackmate.util.TMUtils;
@@ -60,23 +58,23 @@ public class ParameterSweepController implements Cancelable
 
 	private String cancelReason;
 
-	private final CTCResultsCrawler crawler;
+	private final ResultsCrawler crawler;
 
 	private final ImagePlus imp;
 
 	private final String gtPath;
 
-	private final boolean ctcSelected;
+	private final TrackingMetricsType type;
 
-	public ParameterSweepController( final ImagePlus imp, final String gtPath, final boolean ctcSelected )
+	public ParameterSweepController( final ImagePlus imp, final String gtPath, final TrackingMetricsType type )
 	{
 		this.imp = imp;
 		this.gtPath = gtPath;
-		this.ctcSelected = ctcSelected;
+		this.type = type;
 		final File modelFile = ParameterSweepModelIO.makeSettingsFileForGTPath( gtPath );
 		final File saveFolder = modelFile.getParentFile();
 		model = ParameterSweepModelIO.readFrom( modelFile );
-		crawler = new CTCResultsCrawler( Logger.DEFAULT_LOGGER );
+		crawler = new ResultsCrawler( type, Logger.DEFAULT_LOGGER );
 
 		gui = new ParameterSweepPanel( imp, model, crawler, gtPath );
 		gui.btnRun.addActionListener( e -> run() );
@@ -138,17 +136,7 @@ public class ParameterSweepController implements Cancelable
 			{
 				try
 				{
-					final MetricsRunner runner;
-					if ( ctcSelected )
-					{
-						final Context context = TMUtils.getContext();
-						runner = new CTCMetricsRunner( gtPath, context );
-					}
-					else
-					{
-
-						runner = new SPTMetricsRunner( gtPath );
-					}
+					final MetricsRunner runner = type.runner( gtPath );
 					runner.setBatchLogger( gui.logger );
 
 					final int targetChannel = gui.sliderChannel.getValue();
