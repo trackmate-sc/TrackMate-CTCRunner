@@ -144,7 +144,8 @@ public class ParameterSweepController implements Cancelable
 					base.setSpotFilters( model.getSpotFilters() );
 					base.setTrackFilters( model.getTrackFilters() );
 					int progress = 0;
-					for ( final DetectorSweepModel detectorModel : model.getActiveDetectors() )
+
+					DETECTOR_SETTINGS_LOOP: for ( final DetectorSweepModel detectorModel : model.getActiveDetectors() )
 					{
 						final Iterator< Settings > dit = detectorModel.iterator( base, targetChannel );
 						while ( dit.hasNext() )
@@ -153,30 +154,10 @@ public class ParameterSweepController implements Cancelable
 							if ( isCanceled() )
 								return;
 
-							gui.logger.log( "\n________________________________________\n" );
-							gui.logger.log( TMUtils.getCurrentTimeString() + "\n" );
-							gui.logger.setStatus( ds.detectorFactory.getName() );
-
-							final ValuePair< TrackMate, Double > detectionResult = runner.execDetection( ds );
-							final TrackMate trackmate = detectionResult.getA();
-							// Detection failed?
-							if ( null == trackmate )
-							{
-								gui.logger.error( "Error running TrackMate with these parameters.\nSkipping.\n" );
-								progress += model.countTrackerSettings();
-								gui.logger.setProgress( ( double ) ++progress / count );
-								continue;
-							}
-							// Got 0 spots to track?
-							if ( trackmate.getModel().getSpots().getNSpots( true ) == 0 )
-							{
-								gui.logger.log( "Settings result in having 0 spots to track.\nSkipping.\n" );
-								progress += model.countTrackerSettings();
-								gui.logger.setProgress( ( double ) ++progress / count );
-								continue;
-							}
-							final double detectionTiming = detectionResult.getB();
-
+							boolean detectionDone = false;
+							TrackMate trackmate = null;
+							double detectionTiming = Double.NaN;
+							
 							for ( final TrackerSweepModel trackerModel : model.getActiveTracker() )
 							{
 								final Iterator< Settings > tit = trackerModel.iterator( ds, targetChannel );
@@ -197,6 +178,35 @@ public class ParameterSweepController implements Cancelable
 										gui.logger.log( TMUtils.echoMap( dts.trackerSettings, 2 ) );
 										gui.logger.log( "were already tested. Skipping.\n" );
 										continue;
+									}
+
+									if ( !detectionDone )
+									{
+										gui.logger.log( "\n________________________________________\n" );
+										gui.logger.log( TMUtils.getCurrentTimeString() + "\n" );
+										gui.logger.setStatus( ds.detectorFactory.getName() );
+
+										final ValuePair< TrackMate, Double > detectionResult = runner.execDetection( ds );
+										trackmate = detectionResult.getA();
+										detectionTiming = detectionResult.getB();
+										detectionDone = true;
+
+										// Detection failed?
+										if ( null == trackmate )
+										{
+											gui.logger.error( "Error running TrackMate with these parameters.\nSkipping.\n" );
+											progress += model.countTrackerSettings();
+											gui.logger.setProgress( ( double ) ++progress / count );
+											continue DETECTOR_SETTINGS_LOOP;
+										}
+										// Got 0 spots to track?
+										if ( trackmate.getModel().getSpots().getNSpots( true ) == 0 )
+										{
+											gui.logger.log( "Settings result in having 0 spots to track.\nSkipping.\n" );
+											progress += model.countTrackerSettings();
+											gui.logger.setProgress( ( double ) ++progress / count );
+											continue DETECTOR_SETTINGS_LOOP;
+										}
 									}
 
 									final Settings settings = trackmate.getSettings();
@@ -243,6 +253,7 @@ public class ParameterSweepController implements Cancelable
 									}
 								}
 							}
+
 						}
 					}
 				}
