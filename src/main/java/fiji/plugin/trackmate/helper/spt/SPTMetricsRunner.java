@@ -34,11 +34,13 @@ import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.helper.MetricsRunner;
 import fiji.plugin.trackmate.helper.spt.importer.SPTFormatImporter;
+import fiji.plugin.trackmate.helper.spt.measure.DistanceTypes;
 import fiji.plugin.trackmate.helper.spt.measure.TrackSegment;
 
 public class SPTMetricsRunner extends MetricsRunner
 {
 
+	private static final double maxDist = 1.; // whatever units!
 	private final List< TrackSegment > referenceTracks;
 
 	public SPTMetricsRunner( final String gtPath )
@@ -58,11 +60,11 @@ public class SPTMetricsRunner extends MetricsRunner
 
 		try
 		{
-			final List< TrackSegment > candidateTrackss = SPTFormatImporter.fromTrackMate( model );
+			final List< TrackSegment > candidateTracks = SPTFormatImporter.fromTrackMate( model );
 
 			// Perform SPT measurements.
 			batchLogger.log( "Performing SPT metrics measurements.\n" );
-			final double[] score = ISBIScoring.score( referenceTracks, candidateTrackss );
+			final double[] score = ISBIScoring.score( referenceTracks, candidateTracks, maxDist, DistanceTypes.DISTANCE_EUCLIDIAN );
 			final SPTMetrics m = SPTMetrics.fromArray( score );
 
 			// Add timing measurements.

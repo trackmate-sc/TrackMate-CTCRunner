@@ -56,15 +56,11 @@ import fiji.plugin.trackmate.helper.spt.measure.TrackSegment;
 public class ISBIScoring
 {
 
-	private static final double maxDist = 5.; // pixels!
-
-	private static final DistanceTypes distType = DistanceTypes.DISTANCE_EUCLIDIAN;
-
-	public static final double[] score( final String referenceTrackPath, final String candidateTrackPath )
+	public static final double[] score( final String referenceTrackPath, final String candidateTrackPath, final double maxDist, final DistanceTypes distType )
 	{
 		final List< TrackSegment > references = SPTFormatImporter.fromXML( new File( referenceTrackPath ) );
 		final List< TrackSegment > candidates = SPTFormatImporter.fromXML( new File( candidateTrackPath ) );
-		return score( references, candidates );
+		return score( references, candidates, maxDist, distType );
 	}
 
 	/**
@@ -77,7 +73,7 @@ public class ISBIScoring
 	 *            the list of candidate track segments.
 	 * @return the ISBI SPT scores.
 	 */
-	public static final double[] score( final List< TrackSegment > references, final List< TrackSegment > candidates )
+	public static final double[] score( final List< TrackSegment > references, final List< TrackSegment > candidates, final double maxDist, final DistanceTypes distType )
 	{
 		/*
 		 * Alpha, beta and RMSE.
@@ -104,7 +100,7 @@ public class ISBIScoring
 		return new double[] { alpha, beta, detectionsSimilarity, tracksSimilarity, rmse };
 	}
 
-	public static final void batch( final String referenceTrackPath, final String candidatesFolder )
+	public static final void batch( final String referenceTrackPath, final String candidatesFolder, final double maxDist, final DistanceTypes distType )
 	{
 		System.out.println( "Processing " + candidatesFolder );
 		final File folder = new File( candidatesFolder );
@@ -168,7 +164,7 @@ public class ISBIScoring
 			try
 			{
 				final long start = System.currentTimeMillis();
-				final double[] score = score( referenceTrackPath, file.getAbsolutePath() );
+				final double[] score = score( referenceTrackPath, file.getAbsolutePath(), maxDist, distType );
 				try (FileWriter fw = new FileWriter( outputFile, true ))
 				{
 					fw.write( String.format( "%s, %f, %f, %f, %f, %f\n", file.getName(), score[ 0 ], score[ 1 ], score[ 2 ], score[ 3 ], score[ 4 ] ) );
@@ -186,15 +182,15 @@ public class ISBIScoring
 		System.out.println( "Finished processing " + candidatesFolder );
 	}
 
-	public static final void parallelise( final Map< String, String > refToFolders, final int nThreads )
+	public static final void parallelise( final Map< String, String > refToFolders, final int nThreads, final double maxDist, final DistanceTypes distType )
 	{
 		final ExecutorService service = Executors.newFixedThreadPool( nThreads );
 
-		refToFolders.forEach( ( ref, folder ) -> service.submit( () -> batch( ref, folder ) ) );
+		refToFolders.forEach( ( ref, folder ) -> service.submit( () -> batch( ref, folder, maxDist, distType ) ) );
 		service.shutdown();
 	}
 
-	public static void main( final String[] args )
+	public static void main( final String[] args, final double maxDist, final DistanceTypes distType )
 	{
 		final String gtFolder = ( args.length < 1 )
 				? "/Users/tinevez/Desktop/TrackMatePaper/Data/ISBIChallengeAccuracy/gt/"
@@ -236,17 +232,6 @@ public class ISBIScoring
 			}
 		}
 
-		parallelise( map, map.size() );
-	}
-
-	public static void main2( final String[] args ) throws Exception
-	{
-		final String referenceTrackPath = "C:/Users/tinevez/Desktop/TrackMatePaper/Data/ISBIChallengeAccuracy/gt/"
-				+ "RECEPTOR/RECEPTOR snr 1 density high.xml";
-		final String candidateFolder = "C:/Users/tinevez/Desktop/TrackMatePaper/Data/ISBIChallengeAccuracy/results/"
-				+ "RECEPTOR/"
-				+ "RECEPTOR snr 1 density high.xml/";
-
-		batch( referenceTrackPath, candidateFolder );
+		parallelise( map, map.size(), maxDist, distType );
 	}
 }
