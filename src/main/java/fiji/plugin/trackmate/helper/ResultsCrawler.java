@@ -236,7 +236,8 @@ public class ResultsCrawler
 
 	public synchronized boolean isSettingsPresent( final Settings settings )
 	{
-		for ( final TrackingMetricsTable results : tables.values() )
+		final List< TrackingMetricsTable > list = new ArrayList<>( tables.values() );
+		for ( final TrackingMetricsTable results : list )
 		{
 			// Test detector.
 			final int ntests = results.size();
