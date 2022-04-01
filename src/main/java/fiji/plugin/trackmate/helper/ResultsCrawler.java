@@ -38,12 +38,12 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
 import org.scijava.listeners.Listeners;
@@ -78,7 +78,7 @@ public class ResultsCrawler
 	{
 		this.type = type;
 		this.batchLogger = batchLogger;
-		this.tables = new HashMap<>();
+		this.tables = new ConcurrentHashMap<>();
 	}
 
 	public void watch( final String folder )
@@ -172,6 +172,8 @@ public class ResultsCrawler
 
 	public TrackingMetricsTable get( final String csvFile )
 	{
+		if ( csvFile == null )
+			return null;
 		return tables.get( csvFile );
 	}
 
