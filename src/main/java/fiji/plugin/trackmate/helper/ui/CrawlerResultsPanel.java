@@ -28,7 +28,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -66,6 +65,9 @@ import fiji.plugin.trackmate.helper.ResultsCrawler.CrawlerListener;
 import fiji.plugin.trackmate.helper.TrackingMetrics;
 import fiji.plugin.trackmate.helper.TrackingMetricsTable;
 import fiji.plugin.trackmate.helper.TrackingMetricsType;
+import fiji.plugin.trackmate.helper.TrackingMetricsType.MetricValue;
+import fiji.plugin.trackmate.helper.TrackingMetricsType.MetricValueBound;
+import fiji.plugin.trackmate.helper.TrackingMetricsType.MetricValueOptimum;
 import fiji.plugin.trackmate.helper.ctc.TrackMateCTCUtils;
 import fiji.plugin.trackmate.providers.DetectorProvider;
 import fiji.plugin.trackmate.providers.TrackerProvider;
@@ -83,7 +85,7 @@ public class CrawlerResultsPanel extends JPanel
 
 	public CrawlerResultsPanel( final ResultsCrawler crawler, final ImagePlus imp )
 	{
-		final String defaultMetrics = crawler.getType().defaultMetric();
+		final MetricValue defaultMetrics = crawler.getType().defaultMetric();
 
 		setLayout( new BorderLayout( 0, 0 ) );
 		final JTabbedPane tabbedPane = new JTabbedPane( JTabbedPane.TOP );
@@ -167,7 +169,7 @@ public class CrawlerResultsPanel extends JPanel
 		lblChoice.setFont( Fonts.FONT.deriveFont( Font.BOLD ) );
 		panelDescChoice.add( lblChoice );
 
-		final JComboBox< String > cmbboxMetrics = new JComboBox< String >(
+		final JComboBox< MetricValue > cmbboxMetrics = new JComboBox< MetricValue >(
 				new Vector<>( crawler.getType().metrics() ) )
 		{
 
@@ -244,7 +246,7 @@ public class CrawlerResultsPanel extends JPanel
 		 */
 
 		cmbboxMetrics.addActionListener( e -> bestValTableModel.setMetrics(
-				( String ) cmbboxMetrics.getSelectedItem() ) );
+				( MetricValue ) cmbboxMetrics.getSelectedItem() ) );
 
 		final CrawlerListener l = () -> {
 			bestDTTableModel.update();
@@ -286,7 +288,7 @@ public class CrawlerResultsPanel extends JPanel
 
 		private final ResultsCrawler crawler;
 
-		private String target;
+		private MetricValue target;
 
 		private final int ncols;
 
@@ -300,29 +302,31 @@ public class CrawlerResultsPanel extends JPanel
 
 		private final DefaultTableCellRenderer renderer;
 
-		private final double[] mint = new double[ 3 ];
+		private final double[] mint;
 
-		private final double[] maxt = new double[ 3 ];
+		private final double[] maxt;
 
 		private final ImagePlus imp;
 
 		private final TrackingMetricsType type;
 
-		private final List< String > descs;
+		private final List< MetricValue > metricKeys;
 
-		public BestValTableModel( final ResultsCrawler crawler, final ImagePlus imp, final String target )
+		public BestValTableModel( final ResultsCrawler crawler, final ImagePlus imp, final MetricValue target )
 		{
 			this.crawler = crawler;
 			this.imp = imp;
 			this.target = target;
 			this.type = crawler.getType();
-			this.descs = type.metrics();
-			this.ncols = descs.size() + 2;
+			this.metricKeys = type.metrics();
+			this.mint = new double[ metricKeys.size() ];
+			this.maxt = new double[ metricKeys.size() ];
+			this.ncols = metricKeys.size() + 2;
 			this.columnNames = new String[ ncols ];
 			columnNames[ 0 ] = "Detector";
 			columnNames[ 1 ] = "Tracker";
-			for ( int i = 0; i < descs.size(); i++ )
-				columnNames[ i + 2 ] = descs.get( i );
+			for ( int i = 0; i < metricKeys.size(); i++ )
+				columnNames[ i + 2 ] = metricKeys.get( i ).key;
 			this.renderer = new DefaultTableCellRenderer();
 			update();
 		}
@@ -338,8 +342,7 @@ public class CrawlerResultsPanel extends JPanel
 			final TrackingMetricsTable results = crawler.get( pair.getA() );
 			if ( results == null )
 			{
-				IJ.error( "TrackMate CTC helper", "No good settings to optimize " +
-						type.description( target ) );
+				IJ.error( "TrackMate CTC helper", "No good settings to optimize " + target.description );
 				return null;
 			}
 			final int line = pair.getB();
@@ -348,7 +351,7 @@ public class CrawlerResultsPanel extends JPanel
 			final SpotDetectorFactoryBase< ? > detectorFactory = new DetectorProvider().getFactory( detector2 );
 			if ( detectorFactory == null )
 			{
-				IJ.error( "TrackMate CTC helper", "Detector " + detector2
+				IJ.error( "TrackMate-Helper", "Detector " + detector2
 						+ " is not available in this Fiji installation." );
 				return null;
 			}
@@ -391,7 +394,7 @@ public class CrawlerResultsPanel extends JPanel
 			return settings;
 		}
 
-		public void setMetrics( final String desc )
+		public void setMetrics( final MetricValue desc )
 		{
 			target = desc;
 			update();
@@ -454,8 +457,28 @@ public class CrawlerResultsPanel extends JPanel
 			}
 
 			this.tooltips = new String[ nrows ];
-			Arrays.fill( mint, Double.POSITIVE_INFINITY );
-			Arrays.fill( maxt, Double.NEGATIVE_INFINITY );
+
+			// Min & max.
+			for ( int i = 0; i < metricKeys.size(); i++ )
+			{
+				final MetricValue mv = metricKeys.get( i );
+				if ( mv.boundType == MetricValueBound.ZERO_TO_ONE )
+				{
+					mint[ i ] = 0.;
+					maxt[ i ] = 1.;
+				}
+				else if ( mv.boundType == MetricValueBound.UNBOUNDED )
+				{
+					// initialize so that we can compute true min & max later.
+					mint[ i ] = Double.POSITIVE_INFINITY;
+					maxt[ i ] = Double.NEGATIVE_INFINITY;
+				}
+				else
+				{
+					throw new IllegalArgumentException( "Unknown bound type for metric value: " + mv.boundType );
+				}
+			}
+
 			for ( int r = 0; r < nrows; r++ )
 			{
 				final String detector = ( String ) objs[ r ][ 0 ];
@@ -473,8 +496,8 @@ public class CrawlerResultsPanel extends JPanel
 				{
 					final int line = pair.getB();
 					final TrackingMetrics metrics = results.getMetrics( line );
-					for ( int i = 0; i < descs.size(); i++ )
-						objs[ r ][ 2 + i ] = metrics.get( descs.get( i ) );
+					for ( int i = 0; i < metricKeys.size(); i++ )
+						objs[ r ][ 2 + i ] = metrics.get( metricKeys.get( i ) );
 
 					// Tooltips.
 					final Map detectorParams = results.getDetectorParams( line );
@@ -490,14 +513,18 @@ public class CrawlerResultsPanel extends JPanel
 							+ "</html>";
 					tooltips[ r ] = str.replaceAll( "[\\t|\\n|\\r]", "<br>" );
 
-					// Min & max timings.
-					for ( int i = 0; i < TrackingMetricsType.COMMON_KEYS.size(); i++ )
+					// Min & max for unbounded values.
+					for ( int i = 0; i < metricKeys.size(); i++ )
 					{
-						final double t = metrics.get( TrackingMetricsType.COMMON_KEYS.get( i ) );
-						if ( t < mint[ i ] )
-							mint[ i ] = t;
-						if ( t > maxt[ i ] )
-							maxt[ i ] = t;
+						final MetricValue mv = metricKeys.get( i );
+						if ( mv.boundType != MetricValueBound.UNBOUNDED )
+							continue;
+
+						final double val = metrics.get( mv );
+						if ( val > maxt[ i ] )
+							maxt[ i ] = val;
+						if ( val < mint[ i ] )
+							mint[ i ] = val;
 					}
 				}
 			}
@@ -565,21 +592,18 @@ public class CrawlerResultsPanel extends JPanel
 				}
 				else
 				{
-					// Color code performance from 0 to 1.
-					final double val = ( ( Double ) value ).doubleValue();
-					if ( column >= 2 && column < 2 + descs.size() - 3 )
+					// Color code performance.
+					if ( column >= 2 && column < 2 + metricKeys.size() )
 					{
-						// Metrics from 0 to 1.
-						final Color bg = Double.isNaN( val ) ? null : cmap.getPaint( val );
-						final Color fg = ( bg == null ) ? null : GuiUtils.textColorForBackground( bg );
-						renderer.setBackground( bg );
-						renderer.setForeground( fg );
-					}
-					else if ( column >= 9 )
-					{
-						// Timings. Shorter is better.
-						final int i = column - 9;
-						final double valt = 1. - ( val - mint[ i ] ) / ( maxt[ i ] - mint[ i ] );
+						// Corresponding metric value
+						final int i = column - 2;
+						final double val = ( ( Double ) value ).doubleValue();
+						double valt = ( val - mint[ i ] ) / ( maxt[ i ] - mint[ i ] );
+
+						final MetricValue mv = metricKeys.get( i );
+						if ( mv.optimumType == MetricValueOptimum.LOWER_IS_BETTER )
+							valt = 1. - valt;
+
 						final Color bg = Double.isNaN( val ) ? null : cmap.getPaint( valt );
 						final Color fg = ( bg == null ) ? null : GuiUtils.textColorForBackground( bg );
 						renderer.setBackground( bg );
@@ -614,19 +638,21 @@ public class CrawlerResultsPanel extends JPanel
 
 		private final DefaultTableCellRenderer renderer;
 
-		private final double[] mint = new double[ 3 ];
+		private final double[] mint;
 
-		private final double[] maxt = new double[ 3 ];
+		private final double[] maxt;
 
 		private final ImagePlus imp;
 
-		private final List< String > metricKeys;
+		private final List< MetricValue > metricKeys;
 
 		public BestDTTableModel( final ResultsCrawler crawler, final ImagePlus imp )
 		{
 			this.crawler = crawler;
 			this.imp = imp;
 			this.metricKeys = crawler.getType().metrics();
+			this.mint = new double[ metricKeys.size() ];
+			this.maxt = new double[ metricKeys.size() ];
 			this.nrows = metricKeys.size();
 			this.ncols = metricKeys.size() + 4;
 			this.columnNames = new String[ ncols ];
@@ -635,12 +661,12 @@ public class CrawlerResultsPanel extends JPanel
 			columnNames[ 2 ] = "Detector";
 			columnNames[ 3 ] = "Tracker";
 			for ( int i = 0; i < metricKeys.size(); i++ )
-				columnNames[ i + 4 ] = metricKeys.get( i );
+				columnNames[ i + 4 ] = metricKeys.get( i ).key;
 			// Values
 			this.objs = new Object[ nrows ][ ncols ];
 			// Row names.
 			for ( int i = 0; i < metricKeys.size(); i++ )
-				objs[ i ][ 0 ] = crawler.getType().description( metricKeys.get( i ) );
+				objs[ i ][ 0 ] = metricKeys.get( i ).description;
 			// Tooltips.
 			this.tooltips = new String[ nrows ];
 			this.renderer = new DefaultTableCellRenderer();
@@ -652,13 +678,13 @@ public class CrawlerResultsPanel extends JPanel
 			if ( row < 0 || row >= objs.length )
 				return null;
 
-			final String m = metricKeys.get( row );
+			final MetricValue m = metricKeys.get( row );
 			final ValuePair< String, Integer > pair = crawler.bestFor( m );
 			final TrackingMetricsTable results = crawler.get( pair.getA() );
 			if ( results == null )
 			{
 				IJ.error( "TrackMate CTC helper", "No good settings to optimize "
-						+ crawler.getType().description( m ) );
+						+ m.description );
 				return null;
 			}
 			else
@@ -716,11 +742,30 @@ public class CrawlerResultsPanel extends JPanel
 		@SuppressWarnings( { "unchecked", "rawtypes" } )
 		private void update()
 		{
-			Arrays.fill( mint, Double.POSITIVE_INFINITY );
-			Arrays.fill( maxt, Double.NEGATIVE_INFINITY );
+			// Min & max.
+			for ( int i = 0; i < metricKeys.size(); i++ )
+			{
+				final MetricValue mv = metricKeys.get( i );
+				if ( mv.boundType == MetricValueBound.ZERO_TO_ONE )
+				{
+					mint[ i ] = 0.;
+					maxt[ i ] = 1.;
+				}
+				else if ( mv.boundType == MetricValueBound.UNBOUNDED )
+				{
+					// initialize so that we can compute true min & max later.
+					mint[ i ] = Double.POSITIVE_INFINITY;
+					maxt[ i ] = Double.NEGATIVE_INFINITY;
+				}
+				else
+				{
+					throw new IllegalArgumentException( "Unknown bound type for metric value: " + mv.boundType );
+				}
+			}
+
 			for ( int r = 0; r < nrows; r++ )
 			{
-				final String m = metricKeys.get( r );
+				final MetricValue m = metricKeys.get( r );
 				final ValuePair< String, Integer > pair = crawler.bestFor( m );
 				final TrackingMetricsTable results = crawler.get( pair.getA() );
 				if ( results == null )
@@ -755,14 +800,18 @@ public class CrawlerResultsPanel extends JPanel
 							+ "</html>";
 					tooltips[ r ] = str.replaceAll( "[\\t|\\n|\\r]", "<br>" );
 
-					// Min & max timings.
-					for ( int i = 0; i < TrackingMetricsType.COMMON_KEYS.size(); i++ )
+					// Min & max for unbounded values.
+					for ( int i = 0; i < metricKeys.size(); i++ )
 					{
-						final double t = metrics.get( TrackingMetricsType.COMMON_KEYS.get( i ) );
-						if ( t < mint[ i ] )
-							mint[ i ] = t;
-						if ( t > maxt[ i ] )
-							maxt[ i ] = t;
+						final MetricValue mv = metricKeys.get( i );
+						if ( mv.boundType != MetricValueBound.UNBOUNDED )
+							continue;
+
+						final double val = metrics.get( mv );
+						if ( val > maxt[ i ] )
+							maxt[ i ] = val;
+						if ( val < mint[ i ] )
+							mint[ i ] = val;
 					}
 				}
 			}
@@ -831,23 +880,22 @@ public class CrawlerResultsPanel extends JPanel
 				}
 				else
 				{
-					// Color code performance from 0 to 1.
-					final double val = ( ( Double ) value ).doubleValue();
-					if ( ( column >= 4 && column < 4 + metricKeys.size() - 3 ) || ( column == 1 && row < 7 ) )
+					// Color code performance.
+					if ( ( column >= 4 && column < 4 + metricKeys.size() ) || ( column == 1 ) )
 					{
-						// Metrics from 0 to 1.
-						final Color bg = Double.isNaN( val ) ? null : cmap.getPaint( val );
-						final Color fg = ( bg == null ) ? null : GuiUtils.textColorForBackground( bg );
-						renderer.setBackground( bg );
-						renderer.setForeground( fg );
-					}
-					else if ( ( column >= 4 + metricKeys.size() - 3 ) || ( column == 1 && row >= 7 ) )
-					{
-						// Timings. Shorter is better.
-						final int i = ( column == 1 )
-								? row - 7
-								: column - ( 4 + metricKeys.size() - 3 );
-						final double valt = 1. - ( val - mint[ i ] ) / ( maxt[ i ] - mint[ i ] );
+						final double val = ( ( Double ) value ).doubleValue();
+						// Corresponding metric value
+						final int i;
+						if ( column >= 4 && column < 4 + metricKeys.size() )
+							i = column - 4;
+						else
+							i = row;
+						double valt = ( val - mint[ i ] ) / ( maxt[ i ] - mint[ i ] );
+
+						final MetricValue mv = metricKeys.get( i );
+						if ( mv.optimumType == MetricValueOptimum.LOWER_IS_BETTER )
+							valt = 1. - valt;
+
 						final Color bg = Double.isNaN( val ) ? null : cmap.getPaint( valt );
 						final Color fg = ( bg == null ) ? null : GuiUtils.textColorForBackground( bg );
 						renderer.setBackground( bg );

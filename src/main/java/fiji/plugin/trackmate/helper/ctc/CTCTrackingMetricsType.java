@@ -10,31 +10,21 @@ import fiji.plugin.trackmate.util.TMUtils;
 public class CTCTrackingMetricsType extends TrackingMetricsType
 {
 
-	public static final String SEG = "SEG";
+	public static final MetricValue SEG = new MetricValue( "SEG", "Segmentation accuracy", MetricValueOptimum.HIGHER_IS_BETTER, MetricValueBound.ZERO_TO_ONE );
 
-	public static final String TRA = "TRA";
+	public static final MetricValue TRA = new MetricValue( "TRA", "Tracking accuracy", MetricValueOptimum.HIGHER_IS_BETTER, MetricValueBound.ZERO_TO_ONE );
 
-	public static final String DET = "DET";
+	public static final MetricValue DET = new MetricValue( "DET", "Detection quality", MetricValueOptimum.HIGHER_IS_BETTER, MetricValueBound.ZERO_TO_ONE );
 
-	public static final String CT = "CT";
+	public static final MetricValue CT = new MetricValue( "CT", "Complete tracks", MetricValueOptimum.HIGHER_IS_BETTER, MetricValueBound.ZERO_TO_ONE );
 
-	public static final String TF = "TF";
+	public static final MetricValue TF = new MetricValue( "TF", "Track fractions", MetricValueOptimum.HIGHER_IS_BETTER, MetricValueBound.ZERO_TO_ONE );
 
-	public static final String CCA = "CCA";
+	public static final MetricValue CCA = new MetricValue( "CCA", "Cell-cycle accuracy", MetricValueOptimum.HIGHER_IS_BETTER, MetricValueBound.ZERO_TO_ONE );
 
-	public static final String BC = "BC";
+	public static final MetricValue BC = new MetricValue( "BC", "Branching correctness", MetricValueOptimum.HIGHER_IS_BETTER, MetricValueBound.ZERO_TO_ONE );
 
-	private static final List< String > KEYS = Arrays.asList( new String[] {
-			SEG, TRA, DET, CT, TF, CCA, BC } );
-
-	private static final List< String > DESCRIPTIONS = Arrays.asList( new String[] {
-			"Segmentation accuracy",
-			"Tracking accuracy",
-			"Detection quality",
-			"Complete tracks",
-			"Track fractions",
-			"Cell-cycle accuracy",
-			"Branching correctness" } );
+	private static final List< MetricValue > KEYS = Arrays.asList( new MetricValue[] { SEG, TRA, DET, CT, TF, CCA, BC } );
 
 	public static final String NAME = "Cell-Tracking challenge (CTC) metrics";
 
@@ -55,7 +45,7 @@ public class CTCTrackingMetricsType extends TrackingMetricsType
 
 	public CTCTrackingMetricsType()
 	{
-		super( KEYS, DESCRIPTIONS );
+		super( KEYS );
 	}
 
 	@Override
@@ -89,7 +79,7 @@ public class CTCTrackingMetricsType extends TrackingMetricsType
 	}
 
 	@Override
-	public String defaultMetric()
+	public MetricValue defaultMetric()
 	{
 		return DET;
 	}

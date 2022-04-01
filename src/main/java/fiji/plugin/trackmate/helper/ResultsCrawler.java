@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiFunction;
 
 import org.scijava.listeners.Listeners;
 
@@ -54,6 +53,7 @@ import com.opencsv.exceptions.CsvValidationException;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Settings;
+import fiji.plugin.trackmate.helper.TrackingMetricsType.MetricValue;
 import net.imglib2.util.ValuePair;
 
 public class ResultsCrawler
@@ -105,19 +105,19 @@ public class ResultsCrawler
 		str.append( "Optimum for each " + type.name() + " metrics, over " + count( true )
 				+ " valid results and " + count( false ) + " different tests." );
 		str.append( "\n\n________________________________________________________________\n" );
-		for ( final String key : type.metrics() )
+		for ( final MetricValue key : type.metrics() )
 		{
 			final ValuePair< String, Integer > pair = bestFor( key );
 			final TrackingMetricsTable results = get( pair.getA() );
 			if ( results == null )
 			{
-				str.append( "There is no good configuration for " + type.description( key ) );
+				str.append( "There is no good configuration for " + key.description );
 			}
 			else
 			{
 				final String s = results.printLine( pair.getB() );
 				str.append( String.format( "Best configuration for %s with a score of %.3f\n",
-						type.description( key ),
+						key.description,
 						results.getMetrics( pair.getB() ).get( key ) ) );
 				str.append( s );
 			}
@@ -127,25 +127,11 @@ public class ResultsCrawler
 		return str.toString();
 	}
 
-	public ValuePair< String, Integer > bestFor( final String detector, final String tracker, final String key )
+	public ValuePair< String, Integer > bestFor( final String detector, final String tracker, final MetricValue key )
 	{
-		final BiFunction< Double, Double, Boolean > betterThan;
-		double best;
+		TrackingMetrics best = null;
 		int bestLine = -1;
 		String bestCSVFile = null;
-		if ( TrackingMetricsType.COMMON_KEYS.contains( key ) )
-		{
-			// We assume that for the common keys (timing), faster is better.
-			betterThan = ( val, b ) -> val < b;
-			best = Double.POSITIVE_INFINITY;
-		}
-		else
-		{
-			// For the rest, we assume higher score is better.
-			betterThan = ( val, b ) -> val > b;
-			best = Double.NEGATIVE_INFINITY;
-		}
-
 		for ( final String csvFile : tables.keySet() )
 		{
 			final TrackingMetricsTable results = tables.get( csvFile );
@@ -154,10 +140,9 @@ public class ResultsCrawler
 				continue;
 
 			final TrackingMetrics m = results.getMetrics( line );
-			final double val = m.get( key );
-			if ( betterThan.apply( val, best ) )
+			if ( m.isBetterThan( best, key ) )
 			{
-				best = val;
+				best = m;
 				bestLine = line;
 				bestCSVFile = csvFile;
 			}
@@ -165,7 +150,7 @@ public class ResultsCrawler
 		return new ValuePair<>( bestCSVFile, bestLine );
 	}
 
-	public ValuePair< String, Integer > bestFor( final String key )
+	public ValuePair< String, Integer > bestFor( final MetricValue key )
 	{
 		return bestFor( null, null, key );
 	}

@@ -3,51 +3,108 @@ package fiji.plugin.trackmate.helper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.function.BiPredicate;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
 
 public abstract class TrackingMetricsType
 {
 
-	public static final String TIM = "TIM";
-
-	public static final String DETECTION_TIME = "DETECTION_TIME";
-
-	public static final String TRACKING_TIME = "TRACKING_TIME";
-
-	public static final List< String > COMMON_KEYS = Arrays.asList( new String[] {
-			TIM, DETECTION_TIME, TRACKING_TIME } );
-
-	private static final List< String > COMMON_DESCRIPTIONS = Arrays.asList( new String[] {
-			"Execution time",
-			"Detection time",
-			"Tracking time" } );
-
-	private final List< String > metrics;
-
-	private final Map< String, String > descriptions;
-
-	private final TObjectIntHashMap< String > idMap;
-
-	protected TrackingMetricsType( final List< String > specificKeys, final List< String > specificDescriptions )
+	public static enum MetricValueBound
 	{
-		final List< String > ml = new ArrayList<>();
-		ml.addAll( specificKeys );
-		ml.addAll( COMMON_KEYS );
+		ZERO_TO_ONE,
+		UNBOUNDED;
+	}
+
+	public static enum MetricValueOptimum
+	{
+		HIGHER_IS_BETTER( ( v1, v2 ) -> v1 > v2 ),
+		LOWER_IS_BETTER( ( v1, v2 ) -> v1 < v2 );
+
+		private final BiPredicate< Double, Double > comparator;
+
+		private MetricValueOptimum( final BiPredicate< Double, Double > comparator )
+		{
+			this.comparator = comparator;
+		}
+
+		/**
+		 * Returns <code>true</code> if the first metric value is 'better than'
+		 * the second one, in the sense of this optimum type.
+		 * 
+		 * @param val1
+		 *            the first metric value.
+		 * @param val2
+		 *            the second metric value.
+		 * @return <code>true</code> if the first value is better than the
+		 *         second one.
+		 */
+		public boolean isBetterThan( final double val1, final double val2 )
+		{
+			return comparator.test( val1, val2 );
+		}
+	}
+
+	public static class MetricValue
+	{
+		public final String key;
+
+		public final String description;
+
+		public final MetricValueOptimum optimumType;
+
+		public final MetricValueBound boundType;
+
+		public MetricValue( final String key, final String description, final MetricValueOptimum optimumType, final MetricValueBound boundType )
+		{
+			this.key = key;
+			this.description = description;
+			this.optimumType = optimumType;
+			this.boundType = boundType;
+		}
+
+		@Override
+		public String toString()
+		{
+			return key;
+		}
+	}
+
+	public static final MetricValue TIM = new MetricValue(
+			"TIM",
+			"Execution time",
+			MetricValueOptimum.LOWER_IS_BETTER,
+			MetricValueBound.UNBOUNDED );
+
+	public static final MetricValue DETECTION_TIME = new MetricValue(
+			"DETECTION_TIME",
+			"Detection time",
+			MetricValueOptimum.LOWER_IS_BETTER,
+			MetricValueBound.UNBOUNDED );
+
+	public static final MetricValue TRACKING_TIME = new MetricValue(
+			"TRACKING_TIME",
+			"Tracking time",
+			MetricValueOptimum.LOWER_IS_BETTER,
+			MetricValueBound.UNBOUNDED );
+
+	private final List< MetricValue > metrics;
+
+	private final TObjectIntHashMap< MetricValue > idMap;
+
+	protected TrackingMetricsType( final List< MetricValue > metrics )
+	{
+		final List< MetricValue > ml = new ArrayList<>();
+		ml.addAll( metrics );
+		ml.add( TIM );
+		ml.add( DETECTION_TIME );
+		ml.add( TRACKING_TIME );
 		this.metrics = Collections.unmodifiableList( ml );
-		final Map< String, String > dm = new HashMap<>();
-		for ( int i = 0; i < specificKeys.size(); i++ )
-			dm.put( specificKeys.get( i ), specificDescriptions.get( i ) );
-		for ( int i = 0; i < COMMON_KEYS.size(); i++ )
-			dm.put( COMMON_KEYS.get( i ), COMMON_DESCRIPTIONS.get( i ) );
-		this.descriptions = Collections.unmodifiableMap( dm );
 		// id map.
-		this.idMap = new TObjectIntHashMap<>( metrics.size(), 0.5f, -1 );
-		for ( int i = 0; i < metrics.size(); i++ )
-			idMap.put( metrics.get( i ), i );
+		this.idMap = new TObjectIntHashMap<>( ml.size(), 0.5f, -1 );
+		for ( int i = 0; i < ml.size(); i++ )
+			idMap.put( ml.get( i ), i );
 	}
 
 	/**
@@ -55,22 +112,9 @@ public abstract class TrackingMetricsType
 	 * 
 	 * @return
 	 */
-	public List< String > metrics()
+	public List< MetricValue > metrics()
 	{
 		return metrics;
-	}
-
-	/**
-	 * Returns the description of the metric with the specific key, or
-	 * <code>null</code> if the key is unknown.
-	 * 
-	 * @param key
-	 *            the metric key.
-	 * @return the metric description.
-	 */
-	public String description( final String key)
-	{
-		return descriptions.get( key );
 	}
 
 	/**
@@ -82,7 +126,7 @@ public abstract class TrackingMetricsType
 	 * @return its id, or -1 if the specified key is unknown to this metric
 	 *         type.
 	 */
-	public int id( final String key )
+	public int id( final MetricValue key )
 	{
 		return idMap.get( key );
 	}
@@ -121,7 +165,7 @@ public abstract class TrackingMetricsType
 	 * 
 	 * @return the default key.
 	 */
-	public abstract String defaultMetric();
+	public abstract MetricValue defaultMetric();
 
 	/**
 	 * Creates a new {@link MetricsRunner} that can perform performance metrics
@@ -152,7 +196,7 @@ public abstract class TrackingMetricsType
 		// Order is important.
 		for ( int i = 0; i < metrics.size(); i++ )
 		{
-			if ( !metrics.get( i ).equals( header[ i ] ) )
+			if ( !metrics.get( i ).key.equals( header[ i ] ) )
 				return false;
 		}
 
@@ -178,7 +222,7 @@ public abstract class TrackingMetricsType
 	{
 		final String[] out = new String[ header.length + metrics.size() ];
 		for ( int i = 0; i < metrics.size(); i++ )
-			out[ i ] = metrics.get( i );
+			out[ i ] = metrics.get( i ).key;
 
 		for ( int i = 0; i < header.length; i++ )
 			out[ metrics.size() + i ] = header[ i ];

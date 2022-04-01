@@ -3,8 +3,8 @@ package fiji.plugin.trackmate.helper;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiFunction;
 
+import fiji.plugin.trackmate.helper.TrackingMetricsType.MetricValue;
 import fiji.plugin.trackmate.util.TMUtils;
 
 public class TrackingMetricsTable
@@ -68,24 +68,10 @@ public class TrackingMetricsTable
 		return metrics.get( i );
 	}
 
-	public int bestFor( final String detector, final String tracker, final String key )
+	public int bestFor( final String detector, final String tracker, final MetricValue key )
 	{
-		final BiFunction< Double, Double, Boolean > betterThan;
-		double best;
-		if ( TrackingMetricsType.COMMON_KEYS.contains( key ) )
-		{
-			// Faster is better.
-			betterThan = ( val, b ) -> val < b;
-			best = Double.POSITIVE_INFINITY;
-		}
-		else
-		{
-			// Higher score is better.
-			betterThan = ( val, b ) -> val > b;
-			best = Double.NEGATIVE_INFINITY;
-		}
-
 		int bestLine = -1;
+		TrackingMetrics best = null;
 		for ( int i = 0; i < metrics.size(); i++ )
 		{
 			if ( ( null != detector && !detectors.get( i ).equals( detector ) )
@@ -93,10 +79,9 @@ public class TrackingMetricsTable
 				continue;
 
 			final TrackingMetrics c = metrics.get( i );
-			final double val = c.get( key );
-			if ( betterThan.apply( val, best ) )
+			if ( c.isBetterThan( best, key ) )
 			{
-				best = val;
+				best = c;
 				bestLine = i;
 			}
 		}
@@ -123,14 +108,14 @@ public class TrackingMetricsTable
 		int id = 0;
 
 		// Cols.
-		final List< String > descs = type.metrics();
+		final List< MetricValue > descs = type.metrics();
 		final int[] colWidths =
 				new int[ descs.size()
 						+ 2
 						+ detectorParams.get( 0 ).size()
 						+ trackerParams.get( 0 ).size() ];
 		for ( int i = 0; i < descs.size(); i++ )
-			colWidths[ id++ ] = Math.max( 5, descs.get( i ).length() );
+			colWidths[ id++ ] = Math.max( 5, descs.get( i ).key.length() );
 
 		// Detector col.
 		colWidths[ id++ ] = detectors.stream()
@@ -165,8 +150,8 @@ public class TrackingMetricsTable
 		final StringBuilder str = new StringBuilder( type.name() + ":\n" );
 		id = 0;
 
-		for ( final String desc : descs )
-			str.append( String.format( "%" + colWidths[ id++ ] + "s", desc ) );
+		for ( final MetricValue desc : descs )
+			str.append( String.format( "%" + colWidths[ id++ ] + "s", desc.key ) );
 
 		str.append( String.format( "%" + colWidths[ id++ ] + "s", "DETECTOR" ) );
 

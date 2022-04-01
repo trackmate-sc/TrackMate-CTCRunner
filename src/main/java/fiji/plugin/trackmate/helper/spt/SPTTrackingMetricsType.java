@@ -9,25 +9,17 @@ import fiji.plugin.trackmate.helper.TrackingMetricsType;
 public class SPTTrackingMetricsType extends TrackingMetricsType
 {
 
-	public static final String ALPHA = "alpha";
+	public static final MetricValue ALPHA = new MetricValue( "alpha", "Matching score against ground-truth", MetricValueOptimum.HIGHER_IS_BETTER, MetricValueBound.ZERO_TO_ONE );
 
-	public static final String BETA = "beta";
+	public static final MetricValue BETA = new MetricValue( "beta", "Matching score against ground-truth, penalizing spurious tracks", MetricValueOptimum.HIGHER_IS_BETTER, MetricValueBound.ZERO_TO_ONE );
 
-	public static final String JSC = "JSC";
+	public static final MetricValue JSC = new MetricValue( "JSC", "Jaccard similarity coefficient for track points", MetricValueOptimum.HIGHER_IS_BETTER, MetricValueBound.ZERO_TO_ONE );
 
-	public static final String JSCTHETA = "JSCtheta";
+	public static final MetricValue JSCTHETA = new MetricValue( "JSCtheta", "Jaccard similarity coefficient for whole tracks", MetricValueOptimum.HIGHER_IS_BETTER, MetricValueBound.ZERO_TO_ONE );
 
-	public static final String RMSE = "RMSE";
+	public static final MetricValue RMSE = new MetricValue( "RMSE", "Overall localization accuracy", MetricValueOptimum.LOWER_IS_BETTER, MetricValueBound.UNBOUNDED );
 
-	private static final List< String > KEYS = Arrays.asList( new String[] {
-			ALPHA, BETA, JSC, JSCTHETA, RMSE } );
-
-	private static final List< String > DESCRIPTIONS = Arrays.asList( new String[] {
-			"Matching score against ground-truth",
-			"Matching score against ground-truth, penalizing spurious tracks",
-			"Jaccard similarity coefficient for track points",
-			"Jaccard similarity coefficient for whole tracks",
-			"Overall localization accuracy" } );
+	private static final List< MetricValue > KEYS = Arrays.asList( new MetricValue[] { ALPHA, BETA, JSC, JSCTHETA, RMSE } );
 
 	public static final String NAME = "Single-Particle Tracking (SPT) Challenge metrics";
 
@@ -47,7 +39,7 @@ public class SPTTrackingMetricsType extends TrackingMetricsType
 
 	public SPTTrackingMetricsType()
 	{
-		super( KEYS, DESCRIPTIONS );
+		super( KEYS );
 	}
 
 	@Override
@@ -81,7 +73,7 @@ public class SPTTrackingMetricsType extends TrackingMetricsType
 	}
 
 	@Override
-	public String defaultMetric()
+	public MetricValue defaultMetric()
 	{
 		return ALPHA;
 	}
