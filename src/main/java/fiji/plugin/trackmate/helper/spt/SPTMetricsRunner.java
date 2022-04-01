@@ -33,6 +33,8 @@ import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.helper.MetricsRunner;
+import fiji.plugin.trackmate.helper.TrackingMetrics;
+import fiji.plugin.trackmate.helper.TrackingMetricsType;
 import fiji.plugin.trackmate.helper.spt.importer.SPTFormatImporter;
 import fiji.plugin.trackmate.helper.spt.measure.DistanceTypes;
 import fiji.plugin.trackmate.helper.spt.measure.TrackSegment;
@@ -65,14 +67,15 @@ public class SPTMetricsRunner extends MetricsRunner
 			// Perform SPT measurements.
 			batchLogger.log( "Performing SPT metrics measurements.\n" );
 			final double[] score = ISBIScoring.score( referenceTracks, candidateTracks, maxDist, DistanceTypes.DISTANCE_EUCLIDIAN );
-			final SPTMetrics m = SPTMetrics.fromArray( score );
+
+			final TrackingMetrics metrics = new TrackingMetrics( type );
+			for ( int i = 0; i < score.length; i++ )
+				metrics.set( i, score[ i ] );
 
 			// Add timing measurements.
-			final SPTMetrics metrics = m.copyEdit()
-					.detectionTime( detectionTiming )
-					.trackingTime( trackingTiming )
-					.tim( detectionTiming + trackingTiming )
-					.get();
+			metrics.set( TrackingMetricsType.TIM, detectionTiming + trackingTiming );
+			metrics.set( TrackingMetricsType.DETECTION_TIME, detectionTiming );
+			metrics.set( TrackingMetricsType.TRACKING_TIME, trackingTiming );
 			batchLogger.log( "SPT metrics:\n" );
 			batchLogger.log( metrics.toString() + '\n' );
 
@@ -95,16 +98,8 @@ public class SPTMetricsRunner extends MetricsRunner
 			batchLogger.error( "Could not export tracking data to SPT files:\n" + e.getMessage() + '\n' );
 			// Write default values to CSV.
 			final String[] line1 = toCSVLine( settings, csvHeader1 );
-			final SPTMetrics metrics = SPTMetrics.create()
-					.alpha( Double.NaN )
-					.beta( Double.NaN )
-					.jsc( Double.NaN )
-					.jscTheta( Double.NaN )
-					.rmse( Double.NaN )
-					.tim( Double.NaN )
-					.detectionTime( Double.NaN )
-					.trackingTime( Double.NaN )
-					.get();
+			// all NaNs.
+			final TrackingMetrics metrics = new TrackingMetrics( type );
 			final String[] line = metrics.concatWithCSVLine( line1 );
 			try (CSVWriter csvWriter = new CSVWriter( new FileWriter( csvFile, true ),
 					CSVWriter.DEFAULT_SEPARATOR,
