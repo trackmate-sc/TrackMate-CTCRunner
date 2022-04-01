@@ -121,7 +121,8 @@ public class CrawlerResultsPanel extends JPanel
 		};
 		btnLaunchTrackMateDT.setFont( Fonts.SMALL_FONT );
 		btnLaunchTrackMateDT.setIcon( Icons.TRACKMATE_ICON_16x16 );
-		panelCount.add( btnLaunchTrackMateDT );
+		if ( imp != null )
+			panelCount.add( btnLaunchTrackMateDT );
 
 		final JScrollPane scrollPaneBestDT = new JScrollPane();
 		panelBestDT.add( scrollPaneBestDT, BorderLayout.CENTER );
@@ -198,7 +199,8 @@ public class CrawlerResultsPanel extends JPanel
 		};
 		btnLaunchTrackMateVal.setFont( Fonts.SMALL_FONT );
 		btnLaunchTrackMateVal.setIcon( Icons.TRACKMATE_ICON_16x16 );
-		panelDescChoice.add( btnLaunchTrackMateVal );
+		if ( imp != null )
+			panelDescChoice.add( btnLaunchTrackMateVal );
 
 		final JScrollPane scrollPaneBestVal = new JScrollPane();
 		panelBestVal.add( scrollPaneBestVal, BorderLayout.CENTER );
