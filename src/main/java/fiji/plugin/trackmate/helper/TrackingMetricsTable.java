@@ -96,7 +96,7 @@ public class TrackingMetricsTable
 		str.append( "\n" + TMUtils.echoMap( ( Map ) detectorParams.get( i ), 2 ) );
 		str.append( "And tracker: " + trackers.get( i ) + " with settings:" );
 		str.append( "\n" + TMUtils.echoMap( ( Map ) trackerParams.get( i ), 2 ) );
-		str.append( "CTC metrics:\n" );
+		str.append( type.name() + " metrics:\n" );
 		str.append( metrics.get( i ).toString() );
 		return str.toString();
 	}

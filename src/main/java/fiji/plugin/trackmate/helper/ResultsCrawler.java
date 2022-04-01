@@ -173,7 +173,7 @@ public class ResultsCrawler
 				if ( !type.isHeader( readHeader ) )
 				{
 					batchLogger.log( String.format(
-							"CSV file %s is not a CTC results file. Skipping.\n", csvFile ) );
+							"CSV file %s is not a " + type.name() + " results file. Skipping.\n", csvFile ) );
 					continue;
 				}
 
