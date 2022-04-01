@@ -92,7 +92,7 @@ public class CrawlerResultsPanel extends JPanel
 		add( tabbedPane, BorderLayout.CENTER );
 
 		/*
-		 * Best detector and tracker for each CTC metric.
+		 * Best detector and tracker for each metric.
 		 */
 
 		final JPanel panelBestDT = new JPanel();
@@ -108,17 +108,7 @@ public class CrawlerResultsPanel extends JPanel
 		panelCount.add( lblCount );
 		panelCount.add( Box.createHorizontalGlue() );
 
-		final JButton btnLaunchTrackMateDT = new JButton( "Launch TrackMate with selection" )
-		{
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void setEnabled( final boolean b )
-			{
-				// Never disable.
-			}
-		};
+		final JButton btnLaunchTrackMateDT = new JButton( "Launch TrackMate with selection" );
 		btnLaunchTrackMateDT.setFont( Fonts.SMALL_FONT );
 		btnLaunchTrackMateDT.setIcon( Icons.TRACKMATE_ICON_16x16 );
 		if ( imp != null )
@@ -128,17 +118,7 @@ public class CrawlerResultsPanel extends JPanel
 		panelBestDT.add( scrollPaneBestDT, BorderLayout.CENTER );
 
 		final BestDTTableModel bestDTTableModel = new BestDTTableModel( crawler, imp );
-		final JTable tableDT = new JTable()
-		{
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void setEnabled( final boolean enabled )
-			{
-				// Never disable.
-			}
-		};
+		final JTable tableDT = new JTable();
 		tableDT.setFont( Fonts.FONT );
 		tableDT.setBackground( getBackground() );
 		tableDT.getTableHeader().setOpaque( false );
@@ -171,32 +151,12 @@ public class CrawlerResultsPanel extends JPanel
 		panelDescChoice.add( lblChoice );
 
 		final JComboBox< MetricValue > cmbboxMetrics = new JComboBox< MetricValue >(
-				new Vector<>( crawler.getType().metrics() ) )
-		{
-
-			private static final long serialVersionUID = 1L;
-
-			// Never disable.
-			@Override
-			public void setEnabled( final boolean enabled )
-			{}
-		};
+				new Vector<>( crawler.getType().metrics() ) );
 		cmbboxMetrics.setFont( Fonts.FONT );
 		cmbboxMetrics.setSelectedItem( defaultMetrics );
 		panelDescChoice.add( cmbboxMetrics );
 		panelDescChoice.add( Box.createHorizontalGlue() );
-		final JButton btnLaunchTrackMateVal = new JButton( "Launch TrackMate with selection" )
-		{
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void setEnabled( final boolean enabled )
-			{
-				// Never disable.
-			}
-
-		};
+		final JButton btnLaunchTrackMateVal = new JButton( "Launch TrackMate with selection" );
 		btnLaunchTrackMateVal.setFont( Fonts.SMALL_FONT );
 		btnLaunchTrackMateVal.setIcon( Icons.TRACKMATE_ICON_16x16 );
 		if ( imp != null )
@@ -206,17 +166,7 @@ public class CrawlerResultsPanel extends JPanel
 		panelBestVal.add( scrollPaneBestVal, BorderLayout.CENTER );
 
 		final BestValTableModel bestValTableModel = new BestValTableModel( crawler, imp, defaultMetrics );
-		final JTable tableVal = new JTable()
-		{
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void setEnabled( final boolean enabled )
-			{
-				// Never disable.
-			}
-		};
+		final JTable tableVal = new JTable();
 		tableVal.setFont( Fonts.FONT );
 		tableVal.setRowHeight( 24 );
 		tableVal.setBackground( getBackground() );
