@@ -111,8 +111,7 @@ public class CrawlerResultsPanel extends JPanel
 		final JButton btnLaunchTrackMateDT = new JButton( "Launch TrackMate with selection" );
 		btnLaunchTrackMateDT.setFont( Fonts.SMALL_FONT );
 		btnLaunchTrackMateDT.setIcon( Icons.TRACKMATE_ICON_16x16 );
-		if ( imp != null )
-			panelCount.add( btnLaunchTrackMateDT );
+		panelCount.add( btnLaunchTrackMateDT );
 
 		final JScrollPane scrollPaneBestDT = new JScrollPane();
 		panelBestDT.add( scrollPaneBestDT, BorderLayout.CENTER );
@@ -159,8 +158,7 @@ public class CrawlerResultsPanel extends JPanel
 		final JButton btnLaunchTrackMateVal = new JButton( "Launch TrackMate with selection" );
 		btnLaunchTrackMateVal.setFont( Fonts.SMALL_FONT );
 		btnLaunchTrackMateVal.setIcon( Icons.TRACKMATE_ICON_16x16 );
-		if ( imp != null )
-			panelDescChoice.add( btnLaunchTrackMateVal );
+		panelDescChoice.add( btnLaunchTrackMateVal );
 
 		final JScrollPane scrollPaneBestVal = new JScrollPane();
 		panelBestVal.add( scrollPaneBestVal, BorderLayout.CENTER );
