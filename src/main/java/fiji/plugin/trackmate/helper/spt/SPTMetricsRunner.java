@@ -41,9 +41,9 @@ public class SPTMetricsRunner extends MetricsRunner
 
 	private final List< TrackSegment > referenceTracks;
 
-	public SPTMetricsRunner( final String gtPath )
+	public SPTMetricsRunner( final String gtPath, final String saveFolder )
 	{
-		super( Paths.get( gtPath ).getParent(), new SPTTrackingMetricsType() );
+		super( Paths.get( saveFolder ), new SPTTrackingMetricsType() );
 		this.referenceTracks = SPTFormatImporter.fromXML( new File( gtPath ) );
 	}
 

@@ -200,7 +200,7 @@ public class HelperRunner implements Runnable, Cancelable
 		cancelReason = null;
 		final int count = model.count();
 
-		final MetricsRunner runner = type.runner( gtPath );
+		final MetricsRunner runner = type.runner( gtPath, savePath );
 		runner.setBatchLogger( batchLogger );
 		runner.setTrackmateLogger( trackmateLogger );
 

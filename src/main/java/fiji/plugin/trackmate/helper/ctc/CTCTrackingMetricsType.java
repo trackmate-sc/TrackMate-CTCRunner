@@ -49,9 +49,9 @@ public class CTCTrackingMetricsType extends TrackingMetricsType
 	}
 
 	@Override
-	public MetricsRunner runner( final String gtPath )
+	public MetricsRunner runner( final String gtPath, final String saveFolder )
 	{
-		return new CTCMetricsRunner( gtPath, TMUtils.getContext() );
+		return new CTCMetricsRunner( gtPath, saveFolder, TMUtils.getContext() );
 	}
 
 	@Override

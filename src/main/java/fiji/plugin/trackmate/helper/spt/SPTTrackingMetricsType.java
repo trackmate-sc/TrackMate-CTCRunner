@@ -43,9 +43,9 @@ public class SPTTrackingMetricsType extends TrackingMetricsType
 	}
 
 	@Override
-	public MetricsRunner runner( final String gtPath )
+	public MetricsRunner runner( final String gtPath, final String saveFolder )
 	{
-		return new SPTMetricsRunner( gtPath );
+		return new SPTMetricsRunner( gtPath, saveFolder );
 	}
 
 	@Override

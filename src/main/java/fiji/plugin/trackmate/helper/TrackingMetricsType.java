@@ -174,9 +174,11 @@ public abstract class TrackingMetricsType
 	 * @param gtPath
 	 *            the path to the ground-truth folder or file compatible with
 	 *            this metrics type.
+	 * @param the
+	 *            path to the folder where results CSV files will be written.
 	 * @return a new {@link MetricsRunner}.
 	 */
-	public abstract MetricsRunner runner( String gtPath );
+	public abstract MetricsRunner runner( String gtPath, String saveFolder );
 
 	public TrackingMetricsTableBuilder tableBuilder()
 	{

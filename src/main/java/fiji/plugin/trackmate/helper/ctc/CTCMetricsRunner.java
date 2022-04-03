@@ -58,11 +58,9 @@ public class CTCMetricsRunner extends MetricsRunner
 	 */
 	private final String gtPath;
 
-	private CTCTrackingMetricsType type;
-
-	public CTCMetricsRunner( final String gtPath, final Context context )
+	public CTCMetricsRunner( final String gtPath, final String saveFolder, final Context context )
 	{
-		super( Paths.get( gtPath ).getParent(), new CTCTrackingMetricsType() );
+		super( Paths.get( saveFolder ), new CTCTrackingMetricsType() );
 		this.gtPath = gtPath;
 		final int logLevel = 0; // silence CTC logging.
 		this.ctc = new CTCMetricsProcessor( context, logLevel );
