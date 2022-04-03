@@ -1,10 +1,16 @@
 package fiji.plugin.trackmate.helper.ui;
 
+import java.io.File;
+
 import javax.swing.JFrame;
 
 import fiji.plugin.trackmate.gui.Icons;
+import fiji.plugin.trackmate.helper.HelperRunner;
+import fiji.plugin.trackmate.helper.HelperRunner.Builder;
 import fiji.plugin.trackmate.helper.TrackingMetricsType;
 import fiji.plugin.trackmate.helper.ctc.CTCTrackingMetricsType;
+import fiji.plugin.trackmate.helper.model.ParameterSweepModel;
+import fiji.plugin.trackmate.helper.model.ParameterSweepModelIO;
 import fiji.plugin.trackmate.helper.spt.SPTTrackingMetricsType;
 import ij.IJ;
 import ij.ImagePlus;
@@ -55,7 +61,29 @@ public class HelperLauncherController
 			final TrackingMetricsType type = ctcSelected
 					? new CTCTrackingMetricsType()
 					: new SPTTrackingMetricsType();
-			final ParameterSweepController controller = new ParameterSweepController( imp, gtPath, type );
+
+			final File modelFile = ParameterSweepModelIO.makeSettingsFileForGTPath( gtPath );
+			if ( !modelFile.exists() )
+				ParameterSweepModelIO.saveTo( modelFile, new ParameterSweepModel() );
+
+			final File saveFolder = modelFile.getParentFile();
+
+			final Builder builder = HelperRunner.create();
+			final HelperRunner runner = builder 
+					.trackingMetricsType( type )
+					.groundTruth( gtPath )
+					.image( imp )
+					.runSettings( ParameterSweepModelIO.makeSettingsFileForGTPath( gtPath ).getAbsolutePath() )
+					.savePath( saveFolder.getAbsolutePath() )
+					.get();
+			
+			if ( runner == null )
+			{
+				IJ.error( "TrackMate Helper", builder.getErrorMessage() );
+				return;
+			}
+
+			final ParameterSweepController controller = new ParameterSweepController( runner );
 			controller.show();
 		} );
 

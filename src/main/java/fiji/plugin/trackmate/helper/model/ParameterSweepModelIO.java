@@ -57,7 +57,9 @@ import fiji.plugin.trackmate.tracking.SpotTrackerFactory;
 public class ParameterSweepModelIO
 {
 
-	private static File defaultSaveFile = new File( new File( System.getProperty( "user.home" ), ".trackmate" ), "ctcrunnersettings.json" );
+	private static final String CONFIG_FILENAME = "helperrunnersettings.json";
+
+	private static File defaultSaveFile = new File( new File( System.getProperty( "user.home" ), ".trackmate" ), CONFIG_FILENAME );
 
 	/**
 	 * Makes a file object that will save settings in the folder containing the
@@ -69,7 +71,7 @@ public class ParameterSweepModelIO
 	 */
 	public static File makeSettingsFileForGTPath( final String groundTruthPath )
 	{
-		return new File( new File( groundTruthPath ).getParent(), "ctcrunnersettings.json" );
+		return new File( new File( groundTruthPath ).getParent(), CONFIG_FILENAME );
 	}
 
 	public static void saveTo( final File modelFile, final ParameterSweepModel model )
