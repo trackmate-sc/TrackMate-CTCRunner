@@ -22,19 +22,14 @@
 package fiji.plugin.trackmate.helper.spt;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
-
-import com.opencsv.CSVWriter;
 
 import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.helper.MetricsRunner;
 import fiji.plugin.trackmate.helper.TrackingMetrics;
-import fiji.plugin.trackmate.helper.TrackingMetricsType;
 import fiji.plugin.trackmate.helper.spt.importer.SPTFormatImporter;
 import fiji.plugin.trackmate.helper.spt.measure.DistanceTypes;
 import fiji.plugin.trackmate.helper.spt.measure.TrackSegment;
@@ -43,6 +38,7 @@ public class SPTMetricsRunner extends MetricsRunner
 {
 
 	private static final double maxDist = 1.; // whatever units!
+
 	private final List< TrackSegment > referenceTracks;
 
 	public SPTMetricsRunner( final String gtPath )
@@ -54,66 +50,21 @@ public class SPTMetricsRunner extends MetricsRunner
 	@Override
 	public void performMetricsMeasurements( final TrackMate trackmate, final double detectionTiming, final double trackingTiming )
 	{
-		batchLogger.log( "Exporting as ISBI-SPT results.\n" );
 		final Settings settings = trackmate.getSettings();
 		final Model model = trackmate.getModel();
 		final File csvFile = findSuitableCSVFile( settings );
 		final String[] csvHeader1 = toCSVHeader( settings );
 
-		try
-		{
-			final List< TrackSegment > candidateTracks = SPTFormatImporter.fromTrackMate( model );
+		final List< TrackSegment > candidateTracks = SPTFormatImporter.fromTrackMate( model );
 
-			// Perform SPT measurements.
-			batchLogger.log( "Performing SPT metrics measurements.\n" );
-			final double[] score = ISBIScoring.score( referenceTracks, candidateTracks, maxDist, DistanceTypes.DISTANCE_EUCLIDIAN );
+		// Perform SPT measurements.
+		batchLogger.log( "Performing SPT metrics measurements.\n" );
+		final double[] score = ISBIScoring.score( referenceTracks, candidateTracks, maxDist, DistanceTypes.DISTANCE_EUCLIDIAN );
 
-			final TrackingMetrics metrics = new TrackingMetrics( type );
-			for ( int i = 0; i < score.length; i++ )
-				metrics.set( i, score[ i ] );
+		final TrackingMetrics metrics = new TrackingMetrics( type );
+		for ( int i = 0; i < score.length; i++ )
+			metrics.set( i, score[ i ] );
 
-			// Add timing measurements.
-			metrics.set( TrackingMetricsType.TIM, detectionTiming + trackingTiming );
-			metrics.set( TrackingMetricsType.DETECTION_TIME, detectionTiming );
-			metrics.set( TrackingMetricsType.TRACKING_TIME, trackingTiming );
-			batchLogger.log( "SPT metrics:\n" );
-			batchLogger.log( metrics.toString() + '\n' );
-
-			// Write to CSV.
-			final String[] line1 = toCSVLine( settings, csvHeader1 );
-			final String[] line = metrics.concatWithCSVLine( line1 );
-
-			try (CSVWriter csvWriter = new CSVWriter( new FileWriter( csvFile, true ),
-					CSVWriter.DEFAULT_SEPARATOR,
-					CSVWriter.NO_QUOTE_CHARACTER,
-					CSVWriter.DEFAULT_ESCAPE_CHARACTER,
-					CSVWriter.DEFAULT_LINE_END ))
-			{
-				csvWriter.writeNext( line );
-			}
-
-		}
-		catch ( final IOException | IllegalArgumentException e )
-		{
-			batchLogger.error( "Could not export tracking data to SPT files:\n" + e.getMessage() + '\n' );
-			// Write default values to CSV.
-			final String[] line1 = toCSVLine( settings, csvHeader1 );
-			// all NaNs.
-			final TrackingMetrics metrics = new TrackingMetrics( type );
-			final String[] line = metrics.concatWithCSVLine( line1 );
-			try (CSVWriter csvWriter = new CSVWriter( new FileWriter( csvFile, true ),
-					CSVWriter.DEFAULT_SEPARATOR,
-					CSVWriter.NO_QUOTE_CHARACTER,
-					CSVWriter.DEFAULT_ESCAPE_CHARACTER,
-					CSVWriter.DEFAULT_LINE_END ))
-			{
-				csvWriter.writeNext( line );
-			}
-			catch ( final IOException e1 )
-			{
-				batchLogger.error( "Could not write failed results to CSV file:\n" + e1.getMessage() + '\n' );
-				e1.printStackTrace();
-			}
-		}
+		writeResults( csvFile, metrics, detectionTiming, trackingTiming, settings, csvHeader1 );
 	}
 }

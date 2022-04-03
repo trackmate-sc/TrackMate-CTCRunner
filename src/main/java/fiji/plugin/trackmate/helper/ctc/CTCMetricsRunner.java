@@ -22,7 +22,6 @@
 package fiji.plugin.trackmate.helper.ctc;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -33,15 +32,12 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import org.scijava.Context;
 
-import com.opencsv.CSVWriter;
-
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.action.CTCExporter;
 import fiji.plugin.trackmate.action.CTCExporter.ExportType;
 import fiji.plugin.trackmate.helper.MetricsRunner;
 import fiji.plugin.trackmate.helper.TrackingMetrics;
-import fiji.plugin.trackmate.helper.TrackingMetricsType;
 
 /**
  * Performs tracking and all the CTC metrics measurements with a TrackMate
@@ -90,49 +86,13 @@ public class CTCMetricsRunner extends MetricsRunner
 			// Perform CTC measurements.
 			batchLogger.log( "Performing CTC metrics measurements.\n" );
 			final TrackingMetrics metrics = ctc.process( gtPath, resultsFolder );
-			// Add timing measurements.
-			metrics.set( TrackingMetricsType.TIM, detectionTiming + trackingTiming );
-			metrics.set( TrackingMetricsType.DETECTION_TIME, detectionTiming );
-			metrics.set( TrackingMetricsType.TRACKING_TIME, trackingTiming );
 
-			batchLogger.log( "CTC metrics:\n" );
-			batchLogger.log( metrics.toString() + '\n' );
-
-			// Write to CSV.
-			final String[] line1 = toCSVLine( settings, csvHeader1 );
-			final String[] line = metrics.concatWithCSVLine( line1 );
-
-			try (CSVWriter csvWriter = new CSVWriter( new FileWriter( csvFile, true ),
-					CSVWriter.DEFAULT_SEPARATOR,
-					CSVWriter.NO_QUOTE_CHARACTER,
-					CSVWriter.DEFAULT_ESCAPE_CHARACTER,
-					CSVWriter.DEFAULT_LINE_END ))
-			{
-				csvWriter.writeNext( line );
-			}
-
+			writeResults( csvFile, metrics, detectionTiming, trackingTiming, settings, csvHeader1 );
 		}
 		catch ( final IOException | IllegalArgumentException e )
 		{
 			batchLogger.error( "Could not export tracking data to CTC files:\n" + e.getMessage() + '\n' );
-			// Write default values to CSV.
-			final String[] line1 = toCSVLine( settings, csvHeader1 );
-			// all NaNs.
-			final TrackingMetrics metrics = new TrackingMetrics( type );
-			final String[] line = metrics.concatWithCSVLine( line1 );
-			try (CSVWriter csvWriter = new CSVWriter( new FileWriter( csvFile, true ),
-					CSVWriter.DEFAULT_SEPARATOR,
-					CSVWriter.NO_QUOTE_CHARACTER,
-					CSVWriter.DEFAULT_ESCAPE_CHARACTER,
-					CSVWriter.DEFAULT_LINE_END ))
-			{
-				csvWriter.writeNext( line );
-			}
-			catch ( final IOException e1 )
-			{
-				batchLogger.error( "Could not write failed results to CSV file:\n" + e1.getMessage() + '\n' );
-				e1.printStackTrace();
-			}
+			writeFailedResults( csvFile, settings, csvHeader1 );
 		}
 		finally
 		{
