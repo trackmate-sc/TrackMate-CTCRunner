@@ -78,10 +78,18 @@ public abstract class MetricsRunner
 		final long end = System.currentTimeMillis();
 		final double detectionTiming = ( end - start ) / 1000.;
 	
+		final int nVisibleSpots = trackmate.getModel().getSpots().getNSpots( true );
+		final int nTotalSpots = trackmate.getModel().getSpots().getNSpots( false );
 		batchLogger.log( String.format( "Detection done in %.1f s.\n", ( end - start ) / 1e3f ) );
 		batchLogger.log( String.format( "Found %d visible spots over %d in total.\n",
-				trackmate.getModel().getSpots().getNSpots( true ),
-				trackmate.getModel().getSpots().getNSpots( false ) ) );
+				nVisibleSpots, nTotalSpots ) );
+
+		if ( nVisibleSpots == 0 )
+		{
+			final File csvFile = findSuitableCSVFile( settings );
+			final String[] csvHeader1 = toCSVHeader( settings );
+			writeFailedResults( csvFile, settings, csvHeader1 );
+		}
 	
 		return new ValuePair<>( trackmate, detectionTiming );
 	}
