@@ -75,6 +75,7 @@ import fiji.plugin.trackmate.tracking.SpotTrackerFactory;
 import fiji.plugin.trackmate.util.TMUtils;
 import ij.IJ;
 import ij.ImagePlus;
+import ij.WindowManager;
 import ij.gui.GenericDialog;
 import net.imglib2.util.ValuePair;
 
@@ -666,6 +667,12 @@ public class CrawlerResultsPanel extends JPanel
 				final ImagePlus tmp;
 				if ( imp == null )
 				{
+					if ( WindowManager.getImageCount() == 0 )
+					{
+						IJ.error( "TrackMate CTC helper", "Please open an image first." );
+						return null;
+					}
+
 					final GenericDialog dialog = new GenericDialog( "Generate a TrackMate configuration" );
 					dialog.addMessage( "Please select an image" );
 					dialog.addImageChoice( "Target image", null );
