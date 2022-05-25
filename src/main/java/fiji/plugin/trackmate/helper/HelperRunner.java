@@ -250,7 +250,7 @@ public class HelperRunner implements Runnable, Cancelable
 							batchLogger.log( TMUtils.getCurrentTimeString() + "\n" );
 							batchLogger.setStatus( ds.detectorFactory.getName() );
 
-							final ValuePair< TrackMate, Double > detectionResult = runner.execDetection( ds );
+							final ValuePair< TrackMate, Double > detectionResult = runner.execDetection( dts );
 							trackmate = detectionResult.getA();
 							detectionTiming = detectionResult.getB();
 							detectionDone = true;
