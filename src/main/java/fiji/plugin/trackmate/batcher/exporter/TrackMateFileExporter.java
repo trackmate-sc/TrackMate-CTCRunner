@@ -30,12 +30,16 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 
+import org.scijava.Priority;
+import org.scijava.plugin.Plugin;
+
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings;
 import fiji.plugin.trackmate.gui.wizard.descriptors.ConfigureViewsDescriptor;
 import fiji.plugin.trackmate.io.TmXmlWriter;
 
+@Plugin( type = BatchResultExporter.class, priority = Priority.HIGH )
 public class TrackMateFileExporter implements BatchResultExporter
 {
 

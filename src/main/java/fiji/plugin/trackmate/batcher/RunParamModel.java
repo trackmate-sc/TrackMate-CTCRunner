@@ -90,6 +90,17 @@ public class RunParamModel
 		return exporterKeys.getOrDefault( exporterKey, Collections.emptyList() );
 	}
 
+	public List< String > getSelectedExportables( final String exporterKey )
+	{
+		final List< String > out = new ArrayList<>();
+		for ( final String exportable : getExportables( exporterKey ) )
+		{
+			if ( isExportActive( exportable ) )
+				out.add( exportable );
+		}
+		return out;
+	}
+
 	public List< ExporterParam > getExporterExtraParameters( final String exporterKey )
 	{
 		return extraParameters.getOrDefault( exporterKey, Collections.emptyList() );

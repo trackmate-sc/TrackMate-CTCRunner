@@ -220,7 +220,7 @@ public class TrackMateBatcher implements Cancelable, MultiThreaded, Algorithm
 				for ( final String exporterKey : exporterKeys )
 				{
 					final List< ExporterParam > params = runParams.getExporterExtraParameters( exporterKey );
-					final List< String > exportables = runParams.getExportables( exporterKey );
+					final List< String > exportables = runParams.getSelectedExportables( exporterKey );
 					final BatchResultExporter exporter = runParams.getExporter( exporterKey );
 					if ( null == exporter )
 					{
