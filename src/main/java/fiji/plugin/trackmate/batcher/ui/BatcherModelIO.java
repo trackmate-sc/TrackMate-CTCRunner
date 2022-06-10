@@ -42,7 +42,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import fiji.plugin.trackmate.batcher.exporter.ExporterParam;
-import fiji.plugin.trackmate.ctc.model.ParameterSweepModelIO.ClassTypeAdapter;
+import fiji.plugin.trackmate.helper.model.ParameterSweepModelIO.ClassTypeAdapter;
 
 public class BatcherModelIO
 {

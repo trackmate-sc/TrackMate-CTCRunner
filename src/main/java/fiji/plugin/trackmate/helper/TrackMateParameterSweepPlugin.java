@@ -19,23 +19,17 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package fiji.plugin.trackmate.ctc.ui;
+package fiji.plugin.trackmate.helper;
 
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import fiji.plugin.trackmate.helper.ui.HelperLauncherController;
+import ij.plugin.PlugIn;
 
-import fiji.plugin.trackmate.helper.TrackMateParameterSweepPlugin;
-import net.imagej.ImageJ;
-
-public class PluginTestDrive
+public class TrackMateParameterSweepPlugin implements PlugIn
 {
 
-	public static void main( final String[] args ) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
+	@Override
+	public void run( final String arg )
 	{
-//		Debug.runPlugIn( TrackMateParameterSweepPlugin.class.getCanonicalName(), null, false );
-		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
-		final ImageJ ij = new ImageJ();
-		ij.launch( args );
-		new TrackMateParameterSweepPlugin().run( null );
+		new HelperLauncherController();
 	}
 }
