@@ -64,7 +64,7 @@ public class HungarianMatchingNew
 	 * 
 	 * @param values
 	 *            table of assignment costs. The number of lines has to be less
-	 *            are equal to the number of columns (i.e., costs.length <=
+	 *            are equal to the number of columns (i.e., costs.length &lt;=
 	 *            costs[0]. length == true).
 	 */
 	public HungarianMatchingNew( final double[][] values )

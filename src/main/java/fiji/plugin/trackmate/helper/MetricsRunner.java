@@ -217,7 +217,7 @@ public abstract class MetricsRunner
 	 *            the tracking time in seconds.
 	 * @param settings
 	 *            the tracking settings used to generate these metrics values.
-	 * @param csvHeader1
+	 * @param csvHeader
 	 *            the header name for each setting value.
 	 */
 	protected void writeResults(

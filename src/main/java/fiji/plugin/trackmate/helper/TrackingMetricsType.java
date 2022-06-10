@@ -195,8 +195,9 @@ public abstract class TrackingMetricsType
 	 * @param gtPath
 	 *            the path to the ground-truth folder or file compatible with
 	 *            this metrics type.
-	 * @param the
-	 *            path to the folder where results CSV files will be written.
+	 * @param saveFolder
+	 *            the path to the folder where results CSV files will be
+	 *            written.
 	 * @return a new {@link MetricsRunner}.
 	 */
 	public abstract MetricsRunner runner( String gtPath, String saveFolder );
@@ -210,7 +211,7 @@ public abstract class TrackingMetricsType
 	 * Returns <code>true</code> if the header (specified as a String array) of
 	 * a CSV file comes from a metric table file of this concrete type.
 	 * 
-	 * @param readHeader
+	 * @param header
 	 *            the header read from the CSV file to inspect.
 	 * @return <code>true</code> if the file is for the metrics of this type.
 	 */

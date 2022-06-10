@@ -425,18 +425,19 @@ public class StringUtil
     }
 
     /**
-     * Truncate the text to a specific size, according a keyword.<br>
-     * The text will be truncated around the place where the keyword is found.<br>
-     * If the string is found at the beginning, the text will be like this:<br/>
-     * <b><center>Lorem ipsum dolor sit amet, consec...</center><b/>
-     * 
-     * @param fullText
-     *        : text to be truncated.
-     * @param keyword
-     *        : string to be found in the text and truncated around.
-     * @param maxSize
-     *        : max size of the string
-     */
+	 * Truncate the text to a specific size, according a keyword.<br>
+	 * The text will be truncated around the place where the keyword is
+	 * found.<br>
+	 * If the string is found at the beginning, the text will be like this:<br>
+	 * <center><b>Lorem ipsum dolor sit amet, consec...</b></center>
+	 * 
+	 * @param fullText
+	 *            : text to be truncated.
+	 * @param keyword
+	 *            : string to be found in the text and truncated around.
+	 * @param maxSize
+	 *            : max size of the string
+	 */
     public static String trunc(final String fullText, final String keyword, final int maxSize)
     {
         final int idx = fullText.toLowerCase().indexOf(keyword.toLowerCase());
@@ -754,21 +755,24 @@ public class StringUtil
     }
 
     /**
-     * Creates a flattened version of the provided String. The flattening operation splits the
-     * string by inserting spaces between words starting with an upper case letter, and converts
-     * upper case letters to lower case (with the exception of the first word). Note that
-     * <b>consecutive upper case letters will remain grouped</b>, as they are considered to
-     * represent an acronym.<br/>
-     * <br/>
-     * <u>NOTE:</u> This method is optimized for class names that follow the Java naming convention. <br/>
-     * Examples:<br/>
-     * MyGreatClass -> "My great class"<br/>
-     * MyXYZClass -> "My XYZ class"
-     * 
-     * @param string
-     *        the string to flatten
-     * @return a flattened (i.e. pretty-printed) String based on the name of the string
-     */
+	 * Creates a flattened version of the provided String. The flattening
+	 * operation splits the string by inserting spaces between words starting
+	 * with an upper case letter, and converts upper case letters to lower case
+	 * (with the exception of the first word). Note that <b>consecutive upper
+	 * case letters will remain grouped</b>, as they are considered to represent
+	 * an acronym.<br>
+	 * <br>
+	 * <u>NOTE:</u> This method is optimized for class names that follow the
+	 * Java naming convention. <br>
+	 * Examples:<br>
+	 * MyGreatClass -&gt; "My great class"<br>
+	 * MyXYZClass -&gt; "My XYZ class"
+	 * 
+	 * @param string
+	 *            the string to flatten
+	 * @return a flattened (i.e. pretty-printed) String based on the name of the
+	 *         string
+	 */
     public static String getFlattened(final String string)
     {
         final String[] words = string.split("(?=[A-Z])");
@@ -882,19 +886,22 @@ public class StringUtil
     }
 
     /**
-     * Split a text into word based on space character while preserving quoted sentences.
-     * 
-     * @param text
-     *        text to split into word.<br>
-     *        Example:<br>
-     *        <i>this book is named "the red cat"</i> --> <br>
-     *        <li>this</li>
-     *        <li>book</li>
-     *        <li>is</li>
-     *        <li>named</li>
-     *        <li>the red cat</li>
-     * @return String array representing words
-     */
+	 * Split a text into word based on space character while preserving quoted
+	 * sentences.
+	 * 
+	 * @param text
+	 *            text to split into word.<br>
+	 *            Example:<br>
+	 *            <i>this book is named "the red cat"</i> --&gt; <br>
+	 *            <ul>
+	 *            <li>this</li>
+	 *            <li>book</li>
+	 *            <li>is</li>
+	 *            <li>named</li>
+	 *            <li>the red cat</li>
+	 *            </ul>
+	 * @return String array representing words
+	 */
     public static List<String> split(final String text)
     {
         // want to preserve quoted string as single words
