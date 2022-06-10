@@ -32,7 +32,9 @@ import javax.swing.JTextPane;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.scijava.Cancelable;
+import org.scijava.util.VersionUtils;
 
+import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.batcher.BatcherUtils;
 import fiji.plugin.trackmate.batcher.RunParamModel;
@@ -40,6 +42,7 @@ import fiji.plugin.trackmate.batcher.TrackMateBatcher;
 import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings;
+import fiji.plugin.trackmate.gui.wizard.descriptors.StartDialogDescriptor;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import fiji.plugin.trackmate.util.TMUtils;
 import ij.Prefs;
@@ -66,6 +69,15 @@ public class BatcherController implements Cancelable
 		gui.btnRun.addActionListener( e -> run() );
 		gui.btnCancel.addActionListener( e -> cancel( "User pressed the cancel button." ) );
 		gui.btnCancel.setVisible( false );
+
+		// Echo welcome message.
+		final String welcomeMessage = "TrackMate Batcher  v" + VersionUtils.getVersion( BatcherPanel.class ) + " started on:\n" + TMUtils.getCurrentTimeString() + '\n';
+		// Log GUI processing start
+		gui.logger.log( welcomeMessage, Logger.BLUE_COLOR );
+		gui.logger.log( "Please note that TrackMate and its extensions are available through Fiji, and is based on a publication. "
+				+ "If you use it successfully for your research please be so kind to cite our work:\n" );
+		gui.logger.log( StartDialogDescriptor.PUB1_TXT + "\n", Logger.GREEN_COLOR );
+		gui.logger.log( StartDialogDescriptor.PUB1_URL + "\n", Logger.BLUE_COLOR );
 
 		// Listen to file list changes.
 		model.getFileListModel().listeners().add( () -> logFileList() );
