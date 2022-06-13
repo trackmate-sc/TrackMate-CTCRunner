@@ -77,7 +77,6 @@ public class BatcherController implements Cancelable
 		gui.logger.log( "Please note that TrackMate and its extensions are available through Fiji, and is based on a publication. "
 				+ "If you use it successfully for your research please be so kind to cite our work:\n" );
 		gui.logger.log( StartDialogDescriptor.PUB1_TXT + "\n", Logger.GREEN_COLOR );
-		gui.logger.log( StartDialogDescriptor.PUB1_URL + "\n", Logger.BLUE_COLOR );
 
 		// Listen to file list changes.
 		model.getFileListModel().listeners().add( () -> logFileList() );
