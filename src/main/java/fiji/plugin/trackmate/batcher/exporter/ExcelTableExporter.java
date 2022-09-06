@@ -82,9 +82,9 @@ public class ExcelTableExporter implements BatchResultExporter
 	public String getInfoText()
 	{
 		return "<html>"
-				+ "Export the numerical features of the visible tracks in a "
-				+ "Excel workbook, with one spreadsheet for each of the spot features, "
-				+ "edge features and track features in visible tracks."
+				+ "Export the numerical features of the visible tracks in a <br>"
+				+ "Excel workbook, with one spreadsheet for each of the spot <br>"
+				+ "features, edge features and track features in visible tracks."
 				+ "</html>";
 	}
 

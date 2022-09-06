@@ -56,9 +56,9 @@ public class AviMovieExporter implements BatchResultExporter
 	public String getInfoText()
 	{
 		return "<html>"
-				+ "Captures the TrackMate results as an AVI movie (uncompressed). "
-				+ "The source image will be shown before capture, and the capture "
-				+ "will have a 100% magnification or lower depending on what can fit "
+				+ "Captures the TrackMate results as an AVI movie (uncompressed). <br>"
+				+ "The source image will be shown before capture, and the capture <br>"
+				+ "will have a 100% magnification or lower depending on what can fit <br>"
 				+ "on your screen."
 				+ "</html>";
 	}

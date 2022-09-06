@@ -43,13 +43,13 @@ import fiji.plugin.trackmate.io.TmXmlWriter;
 public class TrackMateFileExporter implements BatchResultExporter
 {
 
-	private static final String NAME = "TrackMate file";
+	private static final String NAME = "TrackMate file (XML)";
 
 	@Override
 	public String getInfoText()
 	{
 		return "<html>"
-				+ "Saves the TrackMate content to a TrackMate XML file "
+				+ "Saves the TrackMate content to a TrackMate XML file <br>"
 				+ "that can be opened with TrackMate."
 				+ "</html>";
 	}
