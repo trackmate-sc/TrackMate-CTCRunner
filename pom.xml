@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>31.1.0</version>
+		<version>32.0.0</version>
 		<relativePath />
 	</parent>
 
@@ -15,11 +15,11 @@
 
 	<name>TrackMate-CTCRunner</name>
 	<description>Batch measurements of the Cell-Tracking-Challenge metrics using TrackMate.</description>
-	<url>https://imagej.net/TrackMate</url>
+	<url>https://github.com/trackmate-sc/TrackMate-CTCRunner</url>
 	<inceptionYear>2021</inceptionYear>
 	<organization>
-		<name>Fiji</name>
-		<url>https://fiji.sc/</url>
+		<name>TrackMate</name>
+		<url>https://github.com/trackmate-sc</url>
 	</organization>
 	<licenses>
 		<license>
@@ -33,7 +33,7 @@
 		<developer>
 			<id>tinevez</id>
 			<name>Jean-Yves Tinevez</name>
-			<url>https://imagej.net/User:JeanYvesTinevez</url>
+			<url>https://imagej.net/people/tinevez</url>
 			<roles>
 				<role>founder</role>
 				<role>lead</role>
@@ -47,118 +47,107 @@
 	</developers>
 	<contributors>
 		<contributor>
-			<name>grrr</name>
+			<name>Curtis Rueden</name>
+			<url>https://imagej.net/people/ctrueden</url>
+			<properties><id>ctrueden</id></properties>
 		</contributor>
 	</contributors>
 
 	<mailingLists>
 		<mailingList>
 			<name>Image.sc Forum</name>
-			<archive>https://forum.image.sc/tags/trackmate</archive>
+			<archive>https://forum.image.sc/tag/trackmate</archive>
 		</mailingList>
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git://github.com/tinevez/TrackMate-CTCRunner</connection>
-		<developerConnection>scm:git:git@github.com:tinevez/TrackMate-CTCRunner</developerConnection>
+		<connection>scm:git:https://github.com/trackmate-sc/TrackMate-CTCRunner</connection>
+		<developerConnection>scm:git:git@github.com:trackmate-sc/TrackMate-CTCRunner</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/tinevez/TrackMate-CTCRunner</url>
+		<url>https://github.com/trackmate-sc/TrackMate-CTCRunner</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/tinevez/TrackMate-CTCRunner/issues</url>
+		<url>https://github.com/trackmate-sc/TrackMate-CTCRunner/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>GitHub Actions</system>
-		<url>https://github.com/tinevez/TrackMate-CTCRunner/actions</url>
+		<url>https://github.com/trackmate-sc/TrackMate-CTCRunner</url>
 	</ciManagement>
 
 	<properties>
 		<package-name>fiji.plugin.trackmate</package-name>
 		<license.licenseName>gpl_v3</license.licenseName>
-		<license.copyrightOwners>The Institut Pasteur.</license.copyrightOwners>
-		<license.projectName>Fiji distribution of ImageJ for the life sciences.</license.projectName>
+		<license.copyrightOwners>TrackMate developers.</license.copyrightOwners>
+		<license.projectName>TrackMate: your buddy for everyday tracking.</license.projectName>
+
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
+
+		<TrackMate-StarDist.version>1.1.2</TrackMate-StarDist.version>
+		<TrackMate-MorphoLibJ.version>1.1.0</TrackMate-MorphoLibJ.version>
+		<TrackMate-Cellpose.version>0.0.5</TrackMate-Cellpose.version>
+		<TrackMate-Ilastik.version>1.1.0</TrackMate-Ilastik.version>
+		<TrackMate-Weka.version>1.1.0</TrackMate-Weka.version>
+		<CTC-measures.version>0.9.0</CTC-measures.version>
 	</properties>
 
-	<repositories>
-		<repository>
-			<id>scijava.public</id>
-			<url>https://maven.scijava.org/content/groups/public</url>
-		</repository>
-	</repositories>
-		
-	<build>
-	    <plugins>
-	        <plugin>
-		        <groupId>org.apache.maven.plugins</groupId>
-		        <artifactId>maven-enforcer-plugin</artifactId>
-	            <configuration>
-	                 <skip>true</skip>
-	            </configuration>
-	        </plugin>
-	    </plugins>
-	</build>
-	
-
 	<dependencies>
+		<dependency>
+			<groupId>sc.fiji</groupId>
+			<artifactId>TrackMate</artifactId>
+		</dependency>
 
 		<!-- ImageJ dependencies -->
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>imagej</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>net.imagej</groupId>
-			<artifactId>imagej-deprecated</artifactId>
+			<artifactId>imagej-common</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>net.imagej</groupId>
-			<artifactId>imagej-common</artifactId>
+			<artifactId>imagej-deprecated</artifactId>
 		</dependency>
 
 		<!-- TrackMate -->
 		<dependency>
 			<groupId>sc.fiji</groupId>
-			<artifactId>TrackMate</artifactId>
-			<version>7.7.1</version>
-		</dependency>
-		<dependency>
-			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate-StarDist</artifactId>
-			<version>1.1.2</version>
+			<version>${TrackMate-StarDist.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate-MorphoLibJ</artifactId>
-			<version>1.1.0</version>
+			<version>${TrackMate-MorphoLibJ.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate-Cellpose</artifactId>
-			<version>0.0.5</version>
-		</dependency>	
+			<version>${TrackMate-Cellpose.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate-Ilastik</artifactId>
-			<version>1.1.0</version>
+			<version>${TrackMate-Ilastik.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate-Weka</artifactId>
-			<version>1.1.0</version>
+			<version>${TrackMate-Weka.version}</version>
 		</dependency>
-		
+
 		<!-- Cell Tracking Challenge dependencies -->
 		<dependency>
 			<groupId>net.celltrackingchallenge</groupId>
 			<artifactId>CTC-measures</artifactId>
-			<version>0.9.0</version>
+			<version>${CTC-measures.version}</version>
 		</dependency>
 
 		<!-- Other stuff -->
@@ -173,7 +162,6 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>3.17</version>
 		</dependency>
 
 		<!-- Test -->
@@ -183,4 +171,11 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>scijava.public</id>
+			<url>https://maven.scijava.org/content/groups/public</url>
+		</repository>
+	</repositories>
 </project>
