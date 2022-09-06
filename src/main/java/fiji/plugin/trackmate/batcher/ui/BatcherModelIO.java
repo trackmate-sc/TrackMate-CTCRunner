@@ -30,6 +30,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
+import org.scijava.util.VersionUtils;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -86,7 +88,21 @@ public class BatcherModelIO
 			final String str = Files.lines( Paths.get( modelFile.getAbsolutePath() ) )
 					.collect( Collectors.joining( System.lineSeparator() ) );
 
-			return fromJson( str );
+			final BatcherModel model = fromJson( str );
+			final BatcherModel baseModel = new BatcherModel();
+
+			// If version changed, override saved model.
+			if ( !model.fileVersion.equalsIgnoreCase( VersionUtils.getVersion( BatcherModel.class ) ) )
+				return baseModel;
+
+			/*
+			 * If saved known exporter differ from the current ones, override
+			 * saved model.
+			 */
+			if ( !baseModel.getRunParamModel().getExporterKeys().equals( model.getRunParamModel().getExporterKeys() ) )
+				return baseModel;
+
+			return model;
 		}
 		catch ( final IOException e )
 		{}

@@ -22,6 +22,7 @@
 package fiji.plugin.trackmate.batcher.ui;
 
 import org.scijava.listeners.Listeners;
+import org.scijava.util.VersionUtils;
 
 import fiji.plugin.trackmate.batcher.RunParamModel;
 
@@ -40,6 +41,8 @@ public class BatcherModel
 	private final TrackMateReadConfigModel trackMateReadConfigModel;
 
 	private final RunParamModel runParamModel;
+
+	public final String fileVersion = VersionUtils.getVersion( BatcherModel.class );
 
 	public BatcherModel()
 	{
