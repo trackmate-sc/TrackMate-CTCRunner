@@ -153,6 +153,7 @@ public class RunBatchPanel extends JPanel
 		final Set< String > exporterKeys = model.getExporterKeys();
 		for ( final String exporterKey : exporterKeys )
 		{
+			final String info = model.getExporter( exporterKey ).getInfoText();
 			final List< String > exportables = model.getExportables( exporterKey );
 			final List< JCheckBox > chkboxes = new ArrayList<>();
 			for ( final String exportable : exportables )
@@ -166,6 +167,7 @@ public class RunBatchPanel extends JPanel
 				final JCheckBox chkbox = StyleElements.linkedCheckBox( bel, exportable );
 				chkboxes.add( chkbox );
 				chkbox.setFont( SMALL_FONT );
+				chkbox.setToolTipText( info );
 				panel.add( chkbox );
 				panel.add( Box.createHorizontalGlue() );
 
