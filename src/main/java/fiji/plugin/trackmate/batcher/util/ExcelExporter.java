@@ -207,7 +207,7 @@ public class ExcelExporter
 						if ( cellStyle == null )
 						{
 							cellStyle = sheet.getWorkbook().createCellStyle();
-							cellStyle.setFillForegroundColor( new XSSFColor( color ) );
+							cellStyle.setFillForegroundColor( new XSSFColor( color, null ) );
 							cellStyle.setFillPattern( FillPatternType.SOLID_FOREGROUND );
 							colorStyles.put( color, cellStyle );
 						}
@@ -352,7 +352,7 @@ public class ExcelExporter
 						if ( cellStyle == null )
 						{
 							cellStyle = sheet.getWorkbook().createCellStyle();
-							cellStyle.setFillForegroundColor( new XSSFColor( color ) );
+							cellStyle.setFillForegroundColor( new XSSFColor( color, null ) );
 							cellStyle.setFillPattern( FillPatternType.SOLID_FOREGROUND );
 							colorStyles.put( color, cellStyle );
 						}
