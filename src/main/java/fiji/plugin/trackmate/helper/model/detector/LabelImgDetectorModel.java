@@ -26,7 +26,7 @@ import java.util.Map;
 
 import org.scijava.plugin.Plugin;
 
-import fiji.plugin.trackmate.detection.LabeImageDetectorFactory;
+import fiji.plugin.trackmate.detection.LabelImageDetectorFactory;
 import fiji.plugin.trackmate.detection.ThresholdDetectorFactory;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.BooleanParamSweepModel;
@@ -37,7 +37,7 @@ public class LabelImgDetectorModel extends DetectorSweepModel
 
 	public LabelImgDetectorModel()
 	{
-		super( LabeImageDetectorFactory.NAME, createModels(), new LabeImageDetectorFactory<>() );
+		super( LabelImageDetectorFactory.NAME, createModels(), new LabelImageDetectorFactory<>() );
 	}
 
 	private static Map< String, AbstractParamSweepModel< ? > > createModels()
