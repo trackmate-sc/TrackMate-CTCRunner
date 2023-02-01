@@ -33,7 +33,7 @@ import fiji.plugin.trackmate.helper.model.parameter.DoubleParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.IntParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.NumberParamSweepModel.RangeType;
 import fiji.plugin.trackmate.tracking.TrackerKeys;
-import fiji.plugin.trackmate.tracking.sparselap.SparseLAPTrackerFactory;
+import fiji.plugin.trackmate.tracking.jaqaman.SparseLAPTrackerFactory;
 
 @Plugin( type = TrackerSweepModel.class, priority = 1000000 - 2 )
 public class LAPTrackerModel extends TrackerSweepModel

@@ -66,7 +66,7 @@ public class KalmanTrackerModel extends TrackerSweepModel
 
 		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
 		models.put( TrackerKeys.KEY_LINKING_MAX_DISTANCE, initSearchParam );
-		models.put( KalmanTrackerFactory.KEY_KALMAN_SEARCH_RADIUS, searchRadiusParam );
+		models.put( TrackerKeys.KEY_KALMAN_SEARCH_RADIUS, searchRadiusParam );
 		models.put( TrackerKeys.KEY_GAP_CLOSING_MAX_FRAME_GAP, maxFrameGapParam );
 		return models;
 	}
