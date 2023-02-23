@@ -90,13 +90,14 @@
 		<TrackMate-Ilastik.version>1.3.0</TrackMate-Ilastik.version>
 		<TrackMate-Weka.version>1.3.0</TrackMate-Weka.version>
 		<CTC-measures.version>0.9.0</CTC-measures.version>
+
+		<TrackMate.version>7.10.2</TrackMate.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate</artifactId>
-			<version>7.10.0</version>
 		</dependency>
 
 		<!-- ImageJ dependencies -->
