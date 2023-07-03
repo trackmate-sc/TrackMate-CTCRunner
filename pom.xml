@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>34.0.0</version>
+		<version>35.1.1</version>
 		<relativePath />
 	</parent>
 
@@ -85,8 +85,6 @@
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
 		<CTC-measures.version>0.9.0</CTC-measures.version>
-
-		<TrackMate.version>7.10.2</TrackMate.version>
 	</properties>
 
 	<dependencies>
