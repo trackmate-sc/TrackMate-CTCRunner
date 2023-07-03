@@ -88,6 +88,9 @@ public class TrackMateFileExporter implements BatchResultExporter
 			final String baseName,
 			final Logger logger )
 	{
+		if ( !keys.contains( NAME ) )
+			return;
+
 		final File file = new File( exportFolder.toFile(), baseName + ".xml" );
 		final TmXmlWriter writer = new TmXmlWriter( file );
 		writer.appendLog( trackmate.getModel().getLogger().toString() );
