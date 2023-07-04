@@ -86,7 +86,7 @@ public class CSVTablesExporter implements BatchResultExporter
 			exportTable( tables.getTrackTable(), exportFolder, baseName, "tracks", logger );
 	}
 
-	private static void exportTable(
+	static void exportTable(
 			final TablePanel< ? > table,
 			final Path exportFolder,
 			final String baseName,
