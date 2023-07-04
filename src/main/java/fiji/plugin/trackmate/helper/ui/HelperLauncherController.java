@@ -107,9 +107,6 @@ public class HelperLauncherController
 			final ParameterSweepController controller = new ParameterSweepController( runner );
 			controller.show();
 		} );
-
-		// It still cannot stand the Metal L&F...
-		fiji.plugin.trackmate.gui.GuiUtils.setSystemLookAndFeel();
 		frame.setVisible( true );
 	}
 }

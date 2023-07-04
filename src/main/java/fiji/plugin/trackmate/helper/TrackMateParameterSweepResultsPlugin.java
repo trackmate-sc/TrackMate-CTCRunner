@@ -31,7 +31,6 @@ import org.scijava.util.VersionUtils;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.gui.Fonts;
-import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.helper.ctc.CTCTrackingMetricsType;
 import fiji.plugin.trackmate.helper.spt.SPTTrackingMetricsType;
@@ -51,8 +50,6 @@ public class TrackMateParameterSweepResultsPlugin implements PlugIn
 	@Override
 	public void run( final String arg )
 	{
-		GuiUtils.setSystemLookAndFeel();
-
 		final GenericDialogPlus dialog = new GenericDialogPlus( "TrackMate-Helper results inspector" );
 		dialog.setIconImage( Icons.TRACKMATE_ICON.getImage() );
 

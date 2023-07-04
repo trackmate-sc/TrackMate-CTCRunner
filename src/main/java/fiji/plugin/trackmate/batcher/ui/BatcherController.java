@@ -39,7 +39,6 @@ import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.batcher.BatcherUtils;
 import fiji.plugin.trackmate.batcher.RunParamModel;
 import fiji.plugin.trackmate.batcher.TrackMateBatcher;
-import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings;
 import fiji.plugin.trackmate.gui.wizard.descriptors.StartDialogDescriptor;
@@ -154,8 +153,6 @@ public class BatcherController implements Cancelable
 
 	public void show()
 	{
-		// It still cannot stand the Metal L&F...
-		fiji.plugin.trackmate.gui.GuiUtils.setSystemLookAndFeel();
 		final JFrame frame = new JFrame( "TrackMate Batcher" );
 		frame.addWindowListener( new WindowAdapter()
 		{
@@ -199,7 +196,6 @@ public class BatcherController implements Cancelable
 		final ImageJ ij = new ImageJ();
 		ij.launch( args );
 
-		GuiUtils.setSystemLookAndFeel();
 		final BatcherController controller = new BatcherController();
 		controller.show();
 	}
