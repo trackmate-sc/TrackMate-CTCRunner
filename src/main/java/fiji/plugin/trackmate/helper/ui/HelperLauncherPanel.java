@@ -25,6 +25,7 @@ import static fiji.plugin.trackmate.gui.Fonts.BIG_FONT;
 import static fiji.plugin.trackmate.gui.Fonts.FONT;
 import static fiji.plugin.trackmate.gui.Fonts.SMALL_FONT;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Font;
@@ -47,11 +48,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -88,15 +92,17 @@ public class HelperLauncherPanel extends JPanel
 
 	final JComboBox< String > cmbboxImp;
 
+	final JFormattedTextField ftfMaxDist;
+
 	public HelperLauncherPanel()
 	{
 		setBorder( BorderFactory.createEmptyBorder( 5, 5, 5, 5 ) );
 
 		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 0, 0 };
-		gridBagLayout.rowHeights = new int[] { 0, 0, 24, 0, 0, 0, 100, 0, 24, 0, 0, 0, 0, 24, 0, 0, 0, 0 };
+		gridBagLayout.rowHeights = new int[] { 0, 0, 24, 0, 0, 0, 100, 0, 13, 31, 24, 0, 0, 0, 0, 24, 0, 0, 0, 0 };
 		gridBagLayout.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
-		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		setLayout( gridBagLayout );
 
 		final Image im = Icons.TRACKMATE_ICON.getImage();
@@ -179,17 +185,35 @@ public class HelperLauncherPanel extends JPanel
 		gbcLblUrl.anchor = GridBagConstraints.NORTH;
 		gbcLblUrl.gridwidth = 2;
 		gbcLblUrl.fill = GridBagConstraints.HORIZONTAL;
-		gbcLblUrl.insets = new Insets( 0, 0, 5, 5 );
+		gbcLblUrl.insets = new Insets( 0, 0, 5, 0 );
 		gbcLblUrl.gridx = 0;
 		gbcLblUrl.gridy = 7;
 		add( lblUrl, gbcLblUrl );
+
+		final GridBagConstraints gbcSeparator2 = new GridBagConstraints();
+		gbcSeparator2.fill = GridBagConstraints.BOTH;
+		gbcSeparator2.gridwidth = 2;
+		gbcSeparator2.insets = new Insets( 0, 0, 5, 5 );
+		gbcSeparator2.gridx = 0;
+		gbcSeparator2.gridy = 8;
+		add( new JSeparator(), gbcSeparator2 );
+
+		final JPanel panelConfigParams = new JPanel( new BorderLayout() );
+		final GridBagConstraints gbcPanelConfigParams = new GridBagConstraints();
+		gbcPanelConfigParams.anchor = GridBagConstraints.NORTH;
+		gbcPanelConfigParams.gridwidth = 2;
+		gbcPanelConfigParams.insets = new Insets( 0, 0, 5, 0 );
+		gbcPanelConfigParams.fill = GridBagConstraints.BOTH;
+		gbcPanelConfigParams.gridx = 0;
+		gbcPanelConfigParams.gridy = 9;
+		add( panelConfigParams, gbcPanelConfigParams );
 
 		final GridBagConstraints gbcSeparator1 = new GridBagConstraints();
 		gbcSeparator1.gridwidth = 2;
 		gbcSeparator1.insets = new Insets( 0, 0, 5, 0 );
 		gbcSeparator1.fill = GridBagConstraints.BOTH;
 		gbcSeparator1.gridx = 0;
-		gbcSeparator1.gridy = 8;
+		gbcSeparator1.gridy = 10;
 		add( new JSeparator(), gbcSeparator1 );
 
 		final JLabel lblPleaseSelectImage = new JLabel( "Please select an image to run the tracking on." );
@@ -199,7 +223,7 @@ public class HelperLauncherPanel extends JPanel
 		gbcLblPleaseSelectImage.insets = new Insets( 0, 0, 5, 0 );
 		gbcLblPleaseSelectImage.anchor = GridBagConstraints.WEST;
 		gbcLblPleaseSelectImage.gridx = 0;
-		gbcLblPleaseSelectImage.gridy = 9;
+		gbcLblPleaseSelectImage.gridy = 11;
 		add( lblPleaseSelectImage, gbcLblPleaseSelectImage );
 
 		final JLabel lblImagePath = new JLabel( "Path to the source image:" );
@@ -209,7 +233,7 @@ public class HelperLauncherPanel extends JPanel
 		gbcLblImagePath.insets = new Insets( 0, 0, 5, 0 );
 		gbcLblImagePath.anchor = GridBagConstraints.WEST;
 		gbcLblImagePath.gridx = 0;
-		gbcLblImagePath.gridy = 10;
+		gbcLblImagePath.gridy = 12;
 		add( lblImagePath, gbcLblImagePath );
 
 		tfImagePath = new JTextField();
@@ -218,7 +242,7 @@ public class HelperLauncherPanel extends JPanel
 		gbcTfImagePath.insets = new Insets( 0, 0, 5, 5 );
 		gbcTfImagePath.fill = GridBagConstraints.HORIZONTAL;
 		gbcTfImagePath.gridx = 0;
-		gbcTfImagePath.gridy = 11;
+		gbcTfImagePath.gridy = 13;
 		add( tfImagePath, gbcTfImagePath );
 		tfImagePath.setColumns( 10 );
 
@@ -227,7 +251,7 @@ public class HelperLauncherPanel extends JPanel
 		final GridBagConstraints gbcBtnBrowseImage = new GridBagConstraints();
 		gbcBtnBrowseImage.insets = new Insets( 0, 0, 5, 0 );
 		gbcBtnBrowseImage.gridx = 1;
-		gbcBtnBrowseImage.gridy = 11;
+		gbcBtnBrowseImage.gridy = 13;
 		add( btnBrowseImage, gbcBtnBrowseImage );
 
 		cmbboxImp = new JComboBox<>();
@@ -237,16 +261,16 @@ public class HelperLauncherPanel extends JPanel
 		gbcCmbboxImp.gridwidth = 2;
 		gbcCmbboxImp.fill = GridBagConstraints.HORIZONTAL;
 		gbcCmbboxImp.gridx = 0;
-		gbcCmbboxImp.gridy = 12;
+		gbcCmbboxImp.gridy = 14;
 		add( cmbboxImp, gbcCmbboxImp );
 
-		final GridBagConstraints gbcSeparator2 = new GridBagConstraints();
-		gbcSeparator2.insets = new Insets( 0, 0, 5, 0 );
-		gbcSeparator2.gridwidth = 2;
-		gbcSeparator2.fill = GridBagConstraints.BOTH;
-		gbcSeparator2.gridx = 0;
-		gbcSeparator2.gridy = 13;
-		add( new JSeparator(), gbcSeparator2 );
+		final GridBagConstraints gbcSeparator3 = new GridBagConstraints();
+		gbcSeparator3.insets = new Insets( 0, 0, 5, 0 );
+		gbcSeparator3.gridwidth = 2;
+		gbcSeparator3.fill = GridBagConstraints.BOTH;
+		gbcSeparator3.gridx = 0;
+		gbcSeparator3.gridy = 15;
+		add( new JSeparator(), gbcSeparator3 );
 
 		final JLabel lblBrowseGroundTruth = new JLabel( "Please browse to the ground truth file or folder:" );
 		lblBrowseGroundTruth.setFont( FONT );
@@ -255,7 +279,7 @@ public class HelperLauncherPanel extends JPanel
 		gbcLblBrowseGroundTruth.anchor = GridBagConstraints.WEST;
 		gbcLblBrowseGroundTruth.gridwidth = 2;
 		gbcLblBrowseGroundTruth.gridx = 0;
-		gbcLblBrowseGroundTruth.gridy = 14;
+		gbcLblBrowseGroundTruth.gridy = 16;
 		add( lblBrowseGroundTruth, gbcLblBrowseGroundTruth );
 
 		tfGTPath = new JTextField();
@@ -264,7 +288,7 @@ public class HelperLauncherPanel extends JPanel
 		gbcTfGTPath.insets = new Insets( 0, 0, 5, 5 );
 		gbcTfGTPath.fill = GridBagConstraints.HORIZONTAL;
 		gbcTfGTPath.gridx = 0;
-		gbcTfGTPath.gridy = 15;
+		gbcTfGTPath.gridy = 17;
 		add( tfGTPath, gbcTfGTPath );
 		tfGTPath.setColumns( 10 );
 
@@ -273,7 +297,7 @@ public class HelperLauncherPanel extends JPanel
 		final GridBagConstraints gbcBtnBrowseGT = new GridBagConstraints();
 		gbcBtnBrowseGT.insets = new Insets( 0, 0, 5, 0 );
 		gbcBtnBrowseGT.gridx = 1;
-		gbcBtnBrowseGT.gridy = 15;
+		gbcBtnBrowseGT.gridy = 17;
 		add( btnBrowseGT, gbcBtnBrowseGT );
 
 		final JPanel panelButtons = new JPanel();
@@ -281,7 +305,7 @@ public class HelperLauncherPanel extends JPanel
 		gbcPanelButtons.anchor = GridBagConstraints.SOUTHEAST;
 		gbcPanelButtons.gridwidth = 2;
 		gbcPanelButtons.gridx = 0;
-		gbcPanelButtons.gridy = 16;
+		gbcPanelButtons.gridy = 18;
 		add( panelButtons, gbcPanelButtons );
 
 		btnCancel = new JButton( "Cancel" );
@@ -317,6 +341,29 @@ public class HelperLauncherPanel extends JPanel
 		btnBrowseImage.setVisible( !impOpen );
 
 		/*
+		 * Config panel.
+		 */
+
+		final JPanel ctcParamPanel = new JPanel(); // Empty
+		final JPanel subPanel = new JPanel();
+		subPanel.setLayout( new BoxLayout( subPanel, BoxLayout.LINE_AXIS ) );
+		ftfMaxDist = new JFormattedTextField( new Double( 1.0 ) );
+		ftfMaxDist.setColumns( 9 );
+		ftfMaxDist.setFont( SMALL_FONT );
+		subPanel.add( ftfMaxDist );
+		subPanel.add( Box.createHorizontalStrut( 5 ) );
+		final JLabel lblUnits = new JLabel( "image units" );
+		subPanel.add( Box.createHorizontalGlue() );
+		lblUnits.setFont( SMALL_FONT );
+		subPanel.add( lblUnits );
+		final JPanel sptParamPanel = new JPanel();
+		sptParamPanel.setLayout( new BoxLayout( sptParamPanel, BoxLayout.PAGE_AXIS ) );
+		final JLabel lblMaxDist = new JLabel( "Max distance for pairing:" );
+		lblMaxDist.setFont( SMALL_FONT );
+		sptParamPanel.add( lblMaxDist );
+		sptParamPanel.add( subPanel );
+
+		/*
 		 * Listeners & co.
 		 */
 
@@ -325,10 +372,27 @@ public class HelperLauncherPanel extends JPanel
 		buttonGroup.add( rdbtnCTC );
 		
 		final ItemListener changeMetrics = e -> {
+			// Help and selection.
 			final String doc = rdbtnCTC.isSelected() ? DOC_CTC : DOC_SPT;
 			lblMetricsDescription.setText( doc );
 			final String url = rdbtnCTC.isSelected() ? URL_CTC : URL_SPT;
 			lblUrl.setText( url );
+
+			// Config panel.
+			String units = "image units";
+			if ( cmbboxImp.isVisible() )
+			{
+				final String imName = ( String ) cmbboxImp.getSelectedItem();
+				final ImagePlus imp = WindowManager.getImage( imName );
+				if ( imp != null )
+					units = imp.getCalibration().getUnits();
+			}
+			lblUnits.setText( units );
+
+			final JPanel paramPanel = rdbtnCTC.isSelected() ? ctcParamPanel : sptParamPanel;
+			panelConfigParams.removeAll();
+			panelConfigParams.add( paramPanel, BorderLayout.CENTER );
+
 			prefService.put( getClass(), METRICS_TYPE_KEY, rdbtnCTC.isSelected() );
 		};
 
@@ -352,6 +416,7 @@ public class HelperLauncherPanel extends JPanel
 
 		fiji.plugin.trackmate.gui.GuiUtils.selectAllOnFocus( tfImagePath );
 		fiji.plugin.trackmate.gui.GuiUtils.selectAllOnFocus( tfGTPath );
+		fiji.plugin.trackmate.gui.GuiUtils.selectAllOnFocus( ftfMaxDist );
 
 		final Runnable storeGtPath = () -> prefService.put( getClass(), GT_PATH_KEY, tfGTPath.getText() );
 		final Runnable storeImagePath = () -> prefService.put( getClass(), IMAGE_PATH_KEY, tfImagePath.getText() );
