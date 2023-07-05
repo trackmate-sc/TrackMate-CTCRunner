@@ -28,6 +28,7 @@ import static fiji.plugin.trackmate.gui.Fonts.SMALL_FONT;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -44,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -345,23 +347,23 @@ public class HelperLauncherPanel extends JPanel
 		 */
 
 		final JPanel ctcParamPanel = new JPanel(); // Empty
-		final JPanel subPanel = new JPanel();
-		subPanel.setLayout( new BoxLayout( subPanel, BoxLayout.LINE_AXIS ) );
-		ftfMaxDist = new JFormattedTextField( new Double( 1.0 ) );
-		ftfMaxDist.setColumns( 9 );
-		ftfMaxDist.setFont( SMALL_FONT );
-		subPanel.add( ftfMaxDist );
-		subPanel.add( Box.createHorizontalStrut( 5 ) );
-		final JLabel lblUnits = new JLabel( "image units" );
-		subPanel.add( Box.createHorizontalGlue() );
-		lblUnits.setFont( SMALL_FONT );
-		subPanel.add( lblUnits );
 		final JPanel sptParamPanel = new JPanel();
-		sptParamPanel.setLayout( new BoxLayout( sptParamPanel, BoxLayout.PAGE_AXIS ) );
+		sptParamPanel.setLayout( new BoxLayout( sptParamPanel, BoxLayout.LINE_AXIS ) );
 		final JLabel lblMaxDist = new JLabel( "Max distance for pairing:" );
 		lblMaxDist.setFont( SMALL_FONT );
 		sptParamPanel.add( lblMaxDist );
-		sptParamPanel.add( subPanel );
+		sptParamPanel.add( Box.createHorizontalStrut( 5 ) );
+		ftfMaxDist = new JFormattedTextField( new DecimalFormat( "0.00" ) );
+		ftfMaxDist.setColumns( 9 );
+		ftfMaxDist.setFont( SMALL_FONT );
+		ftfMaxDist.setHorizontalAlignment( JTextField.RIGHT );
+		ftfMaxDist.setMaximumSize( new Dimension( 100, 40 ) );
+		sptParamPanel.add( ftfMaxDist );
+		sptParamPanel.add( Box.createHorizontalStrut( 5 ) );
+		final JLabel lblUnits = new JLabel( "image units" );
+		lblUnits.setFont( SMALL_FONT );
+		sptParamPanel.add( lblUnits );
+		sptParamPanel.add( Box.createHorizontalGlue() );
 
 		/*
 		 * Listeners & co.
@@ -485,6 +487,8 @@ public class HelperLauncherPanel extends JPanel
 		rdbtnCTC.setSelected( ctcSelected );
 		rdbtnSPT.setSelected( !ctcSelected );
 		changeMetrics.itemStateChanged( null );
+
+		ftfMaxDist.setValue( Double.valueOf( 1.0 ) );
 	}
 
 	private static class SetFileDropTarget extends DropTarget

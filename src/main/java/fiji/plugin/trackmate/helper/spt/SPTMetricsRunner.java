@@ -37,13 +37,14 @@ import fiji.plugin.trackmate.helper.spt.measure.TrackSegment;
 public class SPTMetricsRunner extends MetricsRunner
 {
 
-	private static final double maxDist = 1.; // whatever units!
-
 	private final List< TrackSegment > referenceTracks;
 
-	public SPTMetricsRunner( final String gtPath, final String saveFolder )
+	private final double maxDist;
+
+	public SPTMetricsRunner( final String gtPath, final String saveFolder, final double maxDist )
 	{
-		super( Paths.get( saveFolder ), new SPTTrackingMetricsType() );
+		super( Paths.get( saveFolder ), new SPTTrackingMetricsType( maxDist ) );
+		this.maxDist = maxDist;
 		this.referenceTracks = SPTFormatImporter.fromXML( new File( gtPath ) );
 	}
 
@@ -58,7 +59,8 @@ public class SPTMetricsRunner extends MetricsRunner
 		final List< TrackSegment > candidateTracks = SPTFormatImporter.fromTrackMate( model );
 
 		// Perform SPT measurements.
-		batchLogger.log( "Performing SPT metrics measurements.\n" );
+		batchLogger.log( String.format( "Performing SPT metrics measurements with max pairing dist = %.2f %s\n",
+				maxDist, settings.imp.getCalibration().getUnits() ) );
 		final double[] score = ISBIScoring.score( referenceTracks, candidateTracks, maxDist, DistanceTypes.DISTANCE_EUCLIDIAN );
 
 		final TrackingMetrics metrics = new TrackingMetrics( type );

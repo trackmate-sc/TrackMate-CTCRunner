@@ -56,7 +56,8 @@ public class CLITestDrive
 		roiManager.runCommand( "Open", new File( rootFolder, "ROIs-Halo.zip" ).getAbsolutePath() );
 
 		final ImagePlus imp = IJ.openImage( sourceImagePath );
-		final TrackingMetricsType type = new SPTTrackingMetricsType();
+		final double maxDist = 1.;
+		final TrackingMetricsType type = new SPTTrackingMetricsType( maxDist );
 
 		final Builder builder = HelperRunner.create();
 		final HelperRunner runner = builder

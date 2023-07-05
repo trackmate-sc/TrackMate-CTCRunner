@@ -88,7 +88,8 @@ public class TrackMateParameterSweepResultsPlugin implements PlugIn
 		}
 		else if ( typeStr.equals( "SPT" ) )
 		{
-			type = new SPTTrackingMetricsType();
+			// SPT max distance does not matter for inspection.
+			type = new SPTTrackingMetricsType( 1. );
 		}
 		else
 		{

@@ -81,7 +81,7 @@ public class HelperLauncherController
 			frame.dispose();
 			final TrackingMetricsType type = ctcSelected
 					? new CTCTrackingMetricsType()
-					: new SPTTrackingMetricsType();
+					: new SPTTrackingMetricsType( ( ( Number ) gui.ftfMaxDist.getValue() ).doubleValue() );
 
 			final File modelFile = ParameterSweepModelIO.makeSettingsFileForGTPath( gtPath );
 			if ( !modelFile.exists() )

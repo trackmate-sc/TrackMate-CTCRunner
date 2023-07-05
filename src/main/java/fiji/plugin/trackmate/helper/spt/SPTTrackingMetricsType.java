@@ -58,15 +58,31 @@ public class SPTTrackingMetricsType extends TrackingMetricsType
 			+ "The SPT metrics are derived from an ISBI Grand Challenge published here:"
 			+ "</html>";
 
-	public SPTTrackingMetricsType()
+	private final double maxDist;
+
+	/**
+	 * Builds a new metrics type based on the SPT challenge, with the specified
+	 * max pairing distance <b>given in physical units</b>.
+	 * <p>
+	 * The max pairing distance is the maximal distance acceptable from a ground
+	 * truth detection to be accepted as correct by the metrics. In the ISBI
+	 * challenge, it was set to 5 pixels everywhere, but for practical usages
+	 * here it can be varied. It must be specifed in the same units that of the
+	 * physical units in the image used.
+	 * 
+	 * @param maxDist
+	 *            the max pairing distance.
+	 */
+	public SPTTrackingMetricsType( final double maxDist )
 	{
 		super( KEYS );
+		this.maxDist = maxDist;
 	}
 
 	@Override
 	public MetricsRunner runner( final String gtPath, final String saveFolder )
 	{
-		return new SPTMetricsRunner( gtPath, saveFolder );
+		return new SPTMetricsRunner( gtPath, saveFolder, maxDist );
 	}
 
 	@Override

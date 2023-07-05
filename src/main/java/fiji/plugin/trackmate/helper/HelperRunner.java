@@ -391,10 +391,12 @@ public class HelperRunner implements Runnable, Cancelable
 		private TrackingMetricsType type;
 
 		private String typeStr;
-		
+
 		private boolean saveTrackMateFiles = false;
 
 		private String errorMessage;
+
+		private double maxDist = Double.NaN;
 
 		/**
 		 * Sets the tracking metrics type to use.
@@ -578,6 +580,25 @@ public class HelperRunner implements Runnable, Cancelable
 			return this;
 		}
 
+		/**
+		 * Sets the max pairing distance to use with the SPT metrics. The max
+		 * pairing distance if the distance in physical units below which a
+		 * candidate detection and a ground-truth detection will be considered
+		 * matching.
+		 * <p>
+		 * Only affect the SPT metrics type, if it is specified via the string
+		 * method {@link #trackingMetricsType(String)} of this builder.
+		 * 
+		 * @param maxDist
+		 *            the max pairing distance.
+		 * @return this builder.
+		 */
+		public Builder sptMetricsMaxPairingDistance( final double maxDist )
+		{
+			this.maxDist = maxDist;
+			return this;
+		}
+
 		public HelperRunner get()
 		{
 			boolean ok = true;
@@ -598,7 +619,14 @@ public class HelperRunner implements Runnable, Cancelable
 					if ( typeStr.equals( "CTC" ) )
 						this.type = new CTCTrackingMetricsType();
 					else if ( typeStr.equals( "SPT" ) )
-						this.type = new SPTTrackingMetricsType();
+					{
+						if ( Double.isNaN( maxDist ) )
+						{
+							str.append( "Max pairing distance for SPT metrics has not been set.\n" );
+							ok = false;
+						}
+						this.type = new SPTTrackingMetricsType( maxDist );
+					}
 					else
 					{
 						ok = false;
