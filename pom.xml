@@ -84,7 +84,7 @@
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
-		<CTC-measures.version>1.0.1</CTC-measures.version>
+		<CTC-measures.version>1.0.3</CTC-measures.version>
 	</properties>
 
 	<dependencies>
