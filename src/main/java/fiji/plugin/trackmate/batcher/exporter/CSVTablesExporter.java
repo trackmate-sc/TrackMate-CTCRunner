@@ -77,7 +77,8 @@ public class CSVTablesExporter implements BatchResultExporter
 		final TrackTableView tables = ExportStatsTablesAction.createTrackTables(
 				trackmate.getModel(),
 				new SelectionModel( trackmate.getModel() ),
-				displaySettings );
+				displaySettings,
+				baseName );
 		if ( commonKeys.contains( SPOT_KEY ) )
 			exportTable( tables.getSpotTable(), exportFolder, baseName, "spots", logger );
 		if ( commonKeys.contains( EDGE_KEY ) )
