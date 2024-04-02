@@ -429,7 +429,7 @@ public class StringUtil
 	 * The text will be truncated around the place where the keyword is
 	 * found.<br>
 	 * If the string is found at the beginning, the text will be like this:<br>
-	 * <center><b>Lorem ipsum dolor sit amet, consec...</b></center>
+	 * <b>Lorem ipsum dolor sit amet, consec...</b>
 	 * 
 	 * @param fullText
 	 *            : text to be truncated.
@@ -640,11 +640,11 @@ public class StringUtil
     }
 
     /**
-     * Returns a <tt>String</tt> object representing the specified
-     * boolean. If the specified boolean is <code>true</code>, then
-     * the string {@code "true"} will be returned, otherwise the
-     * string {@code "false"} will be returned.
-     */
+	 * Returns a <code>String</code> object representing the specified boolean.
+	 * If the specified boolean is <code>true</code>, then the string
+	 * {@code "true"} will be returned, otherwise the string {@code "false"}
+	 * will be returned.
+	 */
     public static String toString(final boolean value)
     {
         return Boolean.toString(value);
