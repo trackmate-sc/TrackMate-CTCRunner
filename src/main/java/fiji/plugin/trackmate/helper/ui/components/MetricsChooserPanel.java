@@ -190,7 +190,7 @@ public class MetricsChooserPanel extends JPanel
 		ftfMaxDist.setValue( Double.valueOf( 1.0 ) );
 	}
 
-	void setUnits( final String units )
+	public void setUnits( final String units )
 	{
 		lblUnits.setText( units );
 	}

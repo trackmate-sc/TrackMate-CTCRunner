@@ -305,7 +305,7 @@ public class HelperLauncherPanel extends JPanel
 
 		btnBrowseGT.addActionListener( e -> {
 			final String dialogTitle = metricsChooserPanel.isCTCSelected()
-					? "Select a CTC ground-ruth folder."
+					? "Select a CTC ground-truth folder."
 					: "Select a SPT ground-truth XML file.";
 			final SelectionMode selectionMode = metricsChooserPanel.isCTCSelected()
 					? SelectionMode.DIRECTORIES_ONLY
@@ -343,7 +343,7 @@ public class HelperLauncherPanel extends JPanel
 		return metricsChooserPanel.isCTCSelected();
 	}
 
-	private static class SetFileDropTarget extends DropTarget
+	static class SetFileDropTarget extends DropTarget
 	{
 
 		private final JTextField tf;
@@ -380,7 +380,7 @@ public class HelperLauncherPanel extends JPanel
 		}
 	}
 
-	private static final String GT_PATH_KEY = "GT_FOLDER";
+	static final String GT_PATH_KEY = "GT_FOLDER";
 
 	private static final String IMAGE_PATH_KEY = "IMAGE_PATH";
 
