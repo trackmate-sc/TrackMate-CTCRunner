@@ -156,7 +156,12 @@ public abstract class MetricsRunner
 
 	protected File findSuitableCSVFile( final Settings settings )
 	{
-		final String imFileName = settings.imp.getShortTitle();
+		final String imFileName;
+		if ( settings.imp == null )
+			imFileName = "";
+		else
+			imFileName = settings.imp.getShortTitle();
+
 		// Prepare CSV headers.
 		final String[] csvHeader1 = toCSVHeader( settings );
 		final String[] csvHeader = type.concatWithHeader( csvHeader1 );
