@@ -46,7 +46,6 @@ import fiji.plugin.trackmate.helper.spt.SPTTrackingMetricsType;
 import fiji.plugin.trackmate.io.TmXmlReader;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import ij.ImagePlus;
-import net.imagej.ImageJ;
 
 public class MetricsLauncherController implements Cancelable
 {
@@ -246,12 +245,4 @@ public class MetricsLauncherController implements Cancelable
 	{
 		return cancelReason;
 	}
-
-	public static final void main( final String... args )
-	{
-		final ImageJ ij = new ImageJ();
-		ij.launch( args );
-		new MetricsLauncherController();
-	}
-
 }
