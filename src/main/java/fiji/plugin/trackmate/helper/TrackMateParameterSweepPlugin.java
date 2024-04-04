@@ -21,6 +21,8 @@
  */
 package fiji.plugin.trackmate.helper;
 
+import javax.swing.SwingUtilities;
+
 import fiji.plugin.trackmate.helper.ui.HelperLauncherController;
 import ij.plugin.PlugIn;
 
@@ -30,6 +32,6 @@ public class TrackMateParameterSweepPlugin implements PlugIn
 	@Override
 	public void run( final String arg )
 	{
-		new HelperLauncherController();
+		SwingUtilities.invokeLater( () -> new HelperLauncherController() );
 	}
 }
