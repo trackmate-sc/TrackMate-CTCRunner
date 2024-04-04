@@ -23,15 +23,23 @@ package fiji.plugin.trackmate.helper;
 
 import javax.swing.SwingUtilities;
 
-import fiji.plugin.trackmate.helper.ui.HelperLauncherController;
+import fiji.plugin.trackmate.helper.ui.MetricsLauncherController;
 import ij.plugin.PlugIn;
+import net.imagej.ImageJ;
 
-public class TrackMateParameterSweepPlugin implements PlugIn
+public class TrackMateComputeMetricsPlugin implements PlugIn
 {
 
 	@Override
 	public void run( final String arg )
 	{
-		SwingUtilities.invokeLater( () -> new HelperLauncherController() );
+		SwingUtilities.invokeLater( () -> new MetricsLauncherController() );
+	}
+
+	public static void main( final String[] args )
+	{
+		final ImageJ ij = new ImageJ();
+		ij.launch( args );
+		new TrackMateComputeMetricsPlugin().run( null );
 	}
 }

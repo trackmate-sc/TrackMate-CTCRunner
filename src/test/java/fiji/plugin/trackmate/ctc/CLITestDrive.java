@@ -57,7 +57,8 @@ public class CLITestDrive
 
 		final ImagePlus imp = IJ.openImage( sourceImagePath );
 		final double maxDist = 1.;
-		final TrackingMetricsType type = new SPTTrackingMetricsType( maxDist );
+		final String units = "image units";
+		final TrackingMetricsType type = new SPTTrackingMetricsType( maxDist, units );
 
 		final Builder builder = HelperRunner.create();
 		final HelperRunner runner = builder

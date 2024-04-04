@@ -83,12 +83,13 @@ public class SPTFormatImporter
 		final Document document = XMLUtil.loadDocument( inputFile );
 		final Element root = XMLUtil.getRootElement( document );
 		if ( root == null )
-		{ throw new IllegalArgumentException( "can't find: <root> tag." ); }
-		final Element trackingSet = XMLUtil.getElements( root, "TrackContestISBI2012" ).get( 0 );
+			throw new IllegalArgumentException( "can't find: <root> tag." );
 
-		if ( trackingSet == null )
+		final ArrayList< Element > trackingSets = XMLUtil.getElements( root, "TrackContestISBI2012" );
+		if ( trackingSets.size() == 0 )
 			throw new IllegalArgumentException( "can't find: <root><TrackContestISBI2012> tag." );
-
+		
+		final Element trackingSet = trackingSets.get( 0 );
 		final List< Element > particleElementArrayList = XMLUtil.getElements( trackingSet, "particle" );
 
 		for ( final Element particleElement : particleElementArrayList )

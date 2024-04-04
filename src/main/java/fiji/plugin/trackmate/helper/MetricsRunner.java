@@ -75,7 +75,47 @@ public abstract class MetricsRunner
 		this.nameGenWithID = ( imName, i ) -> String.format( "%s_" + type.csvSuffix() + "_%02d.csv", imName, i );
 	}
 
-	public abstract void performMetricsMeasurements( TrackMate trackmate, double detectionTiming, double trackingTiming );
+	/**
+	 * Performs the tracking metrics measurements for the tracks in the model in
+	 * the specified TrackMate instance, against the ground truth given at
+	 * construction. Metric values are returned as a {@link TrackingMetrics}.
+	 * 
+	 * @param trackmate
+	 *            the tracks on which to measure tracking metrics.
+	 * @return the metric values.
+	 */
+	public abstract TrackingMetrics performMetricsMeasurements( final TrackMate trackmate ) throws MetricsComputationErrorException;
+
+	/**
+	 * Performs the tracking metrics measurements for the tracks in the model in
+	 * the specified TrackMate instance, against the ground truth given at
+	 * construction, and save the results in an adequate CSV file.
+	 * 
+	 * @param trackmate
+	 *            the tracks on which to measure tracking metrics.
+	 * @param detectionTiming
+	 *            the metric measuring the detection time.
+	 * @param trackingTiming
+	 *            the metric measuring the tracking time.
+	 */
+	public void performAndSaveMetricsMeasurements( final TrackMate trackmate, final double detectionTiming, final double trackingTiming )
+	{
+		final Settings settings = trackmate.getSettings();
+		final File csvFile = findSuitableCSVFile( settings );
+		final String[] csvHeader1 = toCSVHeader( settings );
+
+		try
+		{
+			final TrackingMetrics metrics = performMetricsMeasurements( trackmate );
+			batchLogger.log( "SPT metrics:\n" );
+			batchLogger.log( metrics.toString() + '\n' );
+			writeResults( csvFile, metrics, detectionTiming, trackingTiming, settings, csvHeader1 );
+		}
+		catch ( final MetricsComputationErrorException e )
+		{
+			writeFailedResults( csvFile, settings, csvHeader1 );
+		}
+	}
 
 	public ValuePair< TrackMate, Double > execDetection( final Settings settings )
 	{
@@ -154,9 +194,14 @@ public abstract class MetricsRunner
 		return trackingTiming;
 	}
 
-	protected File findSuitableCSVFile( final Settings settings )
+	private File findSuitableCSVFile( final Settings settings )
 	{
-		final String imFileName = settings.imp.getShortTitle();
+		final String imFileName;
+		if ( settings.imp == null )
+			imFileName = "";
+		else
+			imFileName = settings.imp.getShortTitle();
+
 		// Prepare CSV headers.
 		final String[] csvHeader1 = toCSVHeader( settings );
 		final String[] csvHeader = type.concatWithHeader( csvHeader1 );
@@ -220,7 +265,7 @@ public abstract class MetricsRunner
 	 * @param csvHeader
 	 *            the header name for each setting value.
 	 */
-	protected void writeResults(
+	private void writeResults(
 			final File csvFile,
 			final TrackingMetrics metrics,
 			final double detectionTiming, 
@@ -232,8 +277,6 @@ public abstract class MetricsRunner
 		metrics.set( TrackingMetricsType.TIM, detectionTiming + trackingTiming );
 		metrics.set( TrackingMetricsType.DETECTION_TIME, detectionTiming );
 		metrics.set( TrackingMetricsType.TRACKING_TIME, trackingTiming );
-		batchLogger.log( "SPT metrics:\n" );
-		batchLogger.log( metrics.toString() + '\n' );
 
 		// Write to CSV.
 		final String[] line1 = toCSVLine( settings, csvHeader );
@@ -267,7 +310,7 @@ public abstract class MetricsRunner
 	 * @param csvHeader
 	 *            the header name for each setting value.
 	 */
-	protected void writeFailedResults( final File csvFile, final Settings settings, final String[] csvHeader )
+	private void writeFailedResults( final File csvFile, final Settings settings, final String[] csvHeader )
 	{
 		// Write default values to CSV.
 		final String[] settingsValueColumns = toCSVLine( settings, csvHeader );
@@ -324,7 +367,7 @@ public abstract class MetricsRunner
 		return csvFilePath.toFile();
 	}
 
-	protected static final String[] toCSVHeader( final Settings settings )
+	private static final String[] toCSVHeader( final Settings settings )
 	{
 		final int nDetectorParams = settings.detectorSettings.size();
 		final int nTrackerParams = settings.trackerSettings.size();
@@ -341,7 +384,7 @@ public abstract class MetricsRunner
 		return out;
 	}
 
-	protected static final String[] toCSVLine( final Settings settings, final String[] csvHeader )
+	private static final String[] toCSVLine( final Settings settings, final String[] csvHeader )
 	{
 		final int nDetectorParams = settings.detectorSettings.size();
 		final int nTrackerParams = settings.trackerSettings.size();
@@ -362,5 +405,12 @@ public abstract class MetricsRunner
 			i++;
 		}
 		return out;
+	}
+
+	public static class MetricsComputationErrorException extends Exception
+	{
+
+		private static final long serialVersionUID = 1L;
+
 	}
 }

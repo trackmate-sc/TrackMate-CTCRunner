@@ -23,16 +23,21 @@ package fiji.plugin.trackmate.helper.spt;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import fiji.plugin.trackmate.Model;
-import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.helper.MetricsRunner;
 import fiji.plugin.trackmate.helper.TrackingMetrics;
 import fiji.plugin.trackmate.helper.spt.importer.SPTFormatImporter;
+import fiji.plugin.trackmate.helper.spt.importer.XMLUtil;
 import fiji.plugin.trackmate.helper.spt.measure.DistanceTypes;
 import fiji.plugin.trackmate.helper.spt.measure.TrackSegment;
+import fiji.plugin.trackmate.io.TmXmlReader;
 
 public class SPTMetricsRunner extends MetricsRunner
 {
@@ -41,32 +46,60 @@ public class SPTMetricsRunner extends MetricsRunner
 
 	private final double maxDist;
 
-	public SPTMetricsRunner( final String gtPath, final String saveFolder, final double maxDist )
+	private final String units;
+
+	public SPTMetricsRunner( final String gtPath, final String saveFolder, final double maxDist, final String units )
 	{
-		super( Paths.get( saveFolder ), new SPTTrackingMetricsType( maxDist ) );
+		super( Paths.get( saveFolder ), new SPTTrackingMetricsType( maxDist, units ) );
 		this.maxDist = maxDist;
-		this.referenceTracks = SPTFormatImporter.fromXML( new File( gtPath ) );
+		this.units = units;
+
+		// Is the GT a TrackMate or a ISBI challenge file?
+		final File gtFile = new File( gtPath );
+		final Document document = XMLUtil.loadDocument( gtFile );
+		final Element root = XMLUtil.getRootElement( document );
+		if ( root == null )
+			throw new IllegalArgumentException( "can't find: <root> tag." );
+
+		final ArrayList< Element > rootEls = XMLUtil.getElements( root, "TrackContestISBI2012" );
+		if ( rootEls.size() == 0 )
+		{
+			// Not an ISBI challenge file.
+			final TmXmlReader reader = new TmXmlReader( gtFile );
+			if ( !reader.isReadingOk() )
+				throw new IllegalArgumentException( "Ground-truth file is neither a TrackMate file nor a ISBI SPT challenge file." );
+
+			final Model model = reader.getModel();
+			try
+			{
+				this.referenceTracks = SPTFormatImporter.fromTrackMate( model );
+			}
+			catch ( final Exception iae )
+			{
+				throw new IllegalArgumentException( "TrackMate ground-truth file cannot be used with SPT metrics:\n" + iae.getMessage() );
+			}
+		}
+		else
+		{
+			// ISBI challenge file.
+			this.referenceTracks = SPTFormatImporter.fromXML( gtFile );
+		}
 	}
 
 	@Override
-	public void performMetricsMeasurements( final TrackMate trackmate, final double detectionTiming, final double trackingTiming )
+	public TrackingMetrics performMetricsMeasurements( final TrackMate trackmate )
 	{
-		final Settings settings = trackmate.getSettings();
 		final Model model = trackmate.getModel();
-		final File csvFile = findSuitableCSVFile( settings );
-		final String[] csvHeader1 = toCSVHeader( settings );
-
 		final List< TrackSegment > candidateTracks = SPTFormatImporter.fromTrackMate( model );
-
 		// Perform SPT measurements.
 		batchLogger.log( String.format( "Performing SPT metrics measurements with max pairing dist = %.2f %s\n",
-				maxDist, settings.imp.getCalibration().getUnits() ) );
+				maxDist, units ) );
 		final double[] score = ISBIScoring.score( referenceTracks, candidateTracks, maxDist, DistanceTypes.DISTANCE_EUCLIDIAN );
 
 		final TrackingMetrics metrics = new TrackingMetrics( type );
 		for ( int i = 0; i < score.length; i++ )
 			metrics.set( i, score[ i ] );
 
-		writeResults( csvFile, metrics, detectionTiming, trackingTiming, settings, csvHeader1 );
+		return metrics;
 	}
 }

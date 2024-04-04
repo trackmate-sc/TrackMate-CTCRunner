@@ -60,6 +60,8 @@ public class SPTTrackingMetricsType extends TrackingMetricsType
 
 	private final double maxDist;
 
+	private final String units;
+
 	/**
 	 * Builds a new metrics type based on the SPT challenge, with the specified
 	 * max pairing distance <b>given in physical units</b>.
@@ -72,17 +74,20 @@ public class SPTTrackingMetricsType extends TrackingMetricsType
 	 * 
 	 * @param maxDist
 	 *            the max pairing distance.
+	 * @param units
+	 *            the physical units in which <code>maxDist</code> is specified.
 	 */
-	public SPTTrackingMetricsType( final double maxDist )
+	public SPTTrackingMetricsType( final double maxDist, final String units )
 	{
 		super( KEYS );
 		this.maxDist = maxDist;
+		this.units = units;
 	}
 
 	@Override
 	public MetricsRunner runner( final String gtPath, final String saveFolder )
 	{
-		return new SPTMetricsRunner( gtPath, saveFolder, maxDist );
+		return new SPTMetricsRunner( gtPath, saveFolder, maxDist, units );
 	}
 
 	@Override

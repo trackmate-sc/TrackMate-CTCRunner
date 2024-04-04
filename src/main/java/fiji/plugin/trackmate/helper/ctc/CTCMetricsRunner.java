@@ -21,7 +21,6 @@
  */
 package fiji.plugin.trackmate.helper.ctc;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -32,7 +31,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import org.scijava.Context;
 
-import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.action.CTCExporter;
 import fiji.plugin.trackmate.action.CTCExporter.ExportType;
@@ -67,12 +65,9 @@ public class CTCMetricsRunner extends MetricsRunner
 	}
 
 	@Override
-	public void performMetricsMeasurements( final TrackMate trackmate, final double detectionTiming, final double trackingTiming )
+	public TrackingMetrics performMetricsMeasurements( final TrackMate trackmate ) throws MetricsComputationErrorException
 	{
 		batchLogger.log( "Exporting as CTC results.\n" );
-		final Settings settings = trackmate.getSettings();
-		final File csvFile = findSuitableCSVFile( settings );
-		final String[] csvHeader1 = toCSVHeader( settings );
 
 		final int id = CTCExporter.getAvailableDatasetID( resultsRootPath.toString() );
 		final String resultsFolder = CTCExporter.getExportTrackingDataPath( resultsRootPath.toString(), id, ExportType.RESULTS, trackmate );
@@ -84,13 +79,12 @@ public class CTCMetricsRunner extends MetricsRunner
 			// Perform CTC measurements.
 			batchLogger.log( "Performing CTC metrics measurements.\n" );
 			final TrackingMetrics metrics = ctc.process( gtPath, resultsFolder );
-
-			writeResults( csvFile, metrics, detectionTiming, trackingTiming, settings, csvHeader1 );
+			return metrics;
 		}
 		catch ( final IOException | IllegalArgumentException e )
 		{
 			batchLogger.error( "Could not export tracking data to CTC files:\n" + e.getMessage() + '\n' );
-			writeFailedResults( csvFile, settings, csvHeader1 );
+			throw new MetricsComputationErrorException();
 		}
 		finally
 		{
