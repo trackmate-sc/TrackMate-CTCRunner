@@ -206,6 +206,11 @@ public class MetricsChooserPanel extends JPanel
 		return ( ( Number ) ftfMaxDist.getValue() ).doubleValue();
 	}
 
+	public String getUnits()
+	{
+		return lblUnits.getText();
+	}
+
 	/**
 	 * Returns <code>true</code> if the CTC metrics are selected. If
 	 * <code>false</code>, the SPT metrics are selected.
@@ -245,6 +250,4 @@ public class MetricsChooserPanel extends JPanel
 	private static final String URL_SPT = "<html><small><a href="
 			+ LINK_SPT
 			+ ">Chenouard, Smal, de Chaumont, Maška, et al. 2014</a></small></html>";
-
-
 }

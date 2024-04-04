@@ -30,7 +30,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import fiji.plugin.trackmate.Model;
-import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.helper.MetricsRunner;
 import fiji.plugin.trackmate.helper.TrackingMetrics;
@@ -47,10 +46,13 @@ public class SPTMetricsRunner extends MetricsRunner
 
 	private final double maxDist;
 
-	public SPTMetricsRunner( final String gtPath, final String saveFolder, final double maxDist )
+	private final String units;
+
+	public SPTMetricsRunner( final String gtPath, final String saveFolder, final double maxDist, final String units )
 	{
-		super( Paths.get( saveFolder ), new SPTTrackingMetricsType( maxDist ) );
+		super( Paths.get( saveFolder ), new SPTTrackingMetricsType( maxDist, units ) );
 		this.maxDist = maxDist;
+		this.units = units;
 
 		// Is the GT a TrackMate or a ISBI challenge file?
 		final File gtFile = new File( gtPath );
@@ -85,19 +87,10 @@ public class SPTMetricsRunner extends MetricsRunner
 	}
 
 	@Override
-	public void performMetricsMeasurements( final TrackMate trackmate, final double detectionTiming, final double trackingTiming )
+	public TrackingMetrics performMetricsMeasurements( final TrackMate trackmate )
 	{
-		final Settings settings = trackmate.getSettings();
 		final Model model = trackmate.getModel();
-		final File csvFile = findSuitableCSVFile( settings );
-		final String[] csvHeader1 = toCSVHeader( settings );
-
 		final List< TrackSegment > candidateTracks = SPTFormatImporter.fromTrackMate( model );
-
-		String units = "image units";
-		if ( settings.imp != null )
-			units = settings.imp.getCalibration().getUnits();
-
 		// Perform SPT measurements.
 		batchLogger.log( String.format( "Performing SPT metrics measurements with max pairing dist = %.2f %s\n",
 				maxDist, units ) );
@@ -107,6 +100,6 @@ public class SPTMetricsRunner extends MetricsRunner
 		for ( int i = 0; i < score.length; i++ )
 			metrics.set( i, score[ i ] );
 
-		writeResults( csvFile, metrics, detectionTiming, trackingTiming, settings, csvHeader1 );
+		return metrics;
 	}
 }

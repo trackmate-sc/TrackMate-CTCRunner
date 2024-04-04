@@ -321,6 +321,11 @@ public class MetricsLauncherPanel extends JPanel
 		return metricsChooserPanel.getSPTMaxPairingDistance();
 	}
 
+	public String getUnits()
+	{
+		return metricsChooserPanel.getUnits();
+	}
+
 	private static final String INPUT_PATH_KEY = "INPUT_PATH";
 
 }

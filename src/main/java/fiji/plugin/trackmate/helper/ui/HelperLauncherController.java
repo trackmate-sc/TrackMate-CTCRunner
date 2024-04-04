@@ -56,6 +56,7 @@ public class HelperLauncherController
 			final boolean ctcSelected = gui.isCTCSelected();
 			final String gtPath = gui.tfGTPath.getText();
 
+			String units;
 			if ( impOpen )
 			{
 				final String imName = ( String ) gui.cmbboxImp.getSelectedItem();
@@ -65,6 +66,7 @@ public class HelperLauncherController
 					IJ.error( "TrackMate-Helper", "Could not find opened image with name " + imName );
 					return;
 				}
+				units = imp.getCalibration().getUnit();
 			}
 			else
 			{
@@ -76,12 +78,13 @@ public class HelperLauncherController
 					return;
 				}
 				imp.show();
+				units = imp.getCalibration().getUnit();
 			}
 
 			frame.dispose();
 			final TrackingMetricsType type = ctcSelected
 					? new CTCTrackingMetricsType()
-					: new SPTTrackingMetricsType( ( gui.getSPTMaxPairingDistance() ) );
+					: new SPTTrackingMetricsType( gui.getSPTMaxPairingDistance(), units );
 
 			final File modelFile = ParameterSweepModelIO.makeSettingsFileForGTPath( gtPath );
 			if ( !modelFile.exists() )

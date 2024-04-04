@@ -303,7 +303,7 @@ public class HelperRunner implements Runnable, Cancelable
 						final double trackingTiming = runner.execTracking( trackmate );
 
 						// Perform and save metrics measurements.
-						runner.performMetricsMeasurements( trackmate, detectionTiming, trackingTiming );
+						runner.performAndSaveMetricsMeasurements( trackmate, detectionTiming, trackingTiming );
 
 						// Save TrackMate file if required.
 						if ( saveTrackMateFiles )
@@ -625,7 +625,7 @@ public class HelperRunner implements Runnable, Cancelable
 							str.append( "Max pairing distance for SPT metrics has not been set.\n" );
 							ok = false;
 						}
-						this.type = new SPTTrackingMetricsType( maxDist );
+						this.type = new SPTTrackingMetricsType( maxDist, "image units" );
 					}
 					else
 					{
