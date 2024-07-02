@@ -37,6 +37,7 @@ import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.action.LabelImgExporter;
+import fiji.plugin.trackmate.action.LabelImgExporter.LabelIdPainting;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings;
 import fiji.plugin.trackmate.visualization.ViewUtils;
 import ij.IJ;
@@ -78,7 +79,7 @@ public class LabelImageExporter implements BatchResultExporter
 
 		final boolean exportSpotsAsDots = false;
 		final boolean exportTracksOnly = false;
-		final boolean useSpotIDsAsLabels = false;
+		final LabelIdPainting useSpotIDsAsLabels = LabelIdPainting.LABEL_IS_SPOT_ID;
 		final ImagePlus labels = LabelImgExporter.createLabelImagePlus(
 				model,
 				imp,

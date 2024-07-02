@@ -85,7 +85,7 @@
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
 		<CTC-measures.version>1.0.3</CTC-measures.version>
-		<TrackMate.version>7.12.1</TrackMate.version>
+		<TrackMate.version>7.13.2</TrackMate.version>
 	</properties>
 
 	<dependencies>
