@@ -25,8 +25,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import fiji.plugin.trackmate.Dimension;
+import fiji.plugin.trackmate.cellpose.AbstractCellposeSettings.PretrainedModel;
 import fiji.plugin.trackmate.cellpose.CellposeDetectorFactory;
-import fiji.plugin.trackmate.cellpose.CellposeSettings.PretrainedModel;
+import fiji.plugin.trackmate.cellpose.CellposeSettings.PretrainedModelCellpose;
 import fiji.plugin.trackmate.detection.DetectorKeys;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.detection.ThresholdDetectorFactory;
@@ -35,8 +36,8 @@ import fiji.plugin.trackmate.helper.model.parameter.BooleanParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.DoubleParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.EnumParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.IntParamSweepModel;
-import fiji.plugin.trackmate.helper.model.parameter.StringRangeParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.NumberParamSweepModel.RangeType;
+import fiji.plugin.trackmate.helper.model.parameter.StringRangeParamSweepModel;
 
 public class CellposeOpt
 {
@@ -50,12 +51,12 @@ public class CellposeOpt
 				.paramName( "Cellpose Python path" )
 				.isFile( true )
 				.add( System.getProperty( "user.home" ) );
-		final EnumParamSweepModel< PretrainedModel > cellposeModel = new EnumParamSweepModel<>( PretrainedModel.class )
+		final EnumParamSweepModel< PretrainedModelCellpose > cellposeModel = new EnumParamSweepModel<>( PretrainedModelCellpose.class )
 				.paramName( "Cellpose model" )
 				.rangeType( fiji.plugin.trackmate.helper.model.parameter.ArrayParamSweepModel.RangeType.FIXED )
-				.addValue( PretrainedModel.CYTO )
-				.addValue( PretrainedModel.CYTO2 )
-				.fixedValue( PretrainedModel.CYTO );
+				.addValue( PretrainedModelCellpose.CYTO )
+				.addValue( PretrainedModelCellpose.CYTO2 )
+				.fixedValue( PretrainedModelCellpose.CYTO );
 		final StringRangeParamSweepModel cellposeCustomModelPath = new StringRangeParamSweepModel()
 				.paramName( "Cellpose custom model path" )
 				.isFile( true )
@@ -104,7 +105,7 @@ public class CellposeOpt
 
 	public static Object castPretrainedModel( final String str )
 	{
-		for ( final PretrainedModel e : PretrainedModel.values() )
+		for ( final PretrainedModel e : PretrainedModelCellpose.values() )
 			if ( e.toString().equals( str ) )
 				return e;
 
