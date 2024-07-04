@@ -86,13 +86,13 @@
 
 		<CTC-measures.version>1.0.3</CTC-measures.version>
 		<TrackMate.version>7.13.2</TrackMate.version>
+		<TrackMate-Cellpose.version>0.2.0-SNAPSHOT</TrackMate-Cellpose.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate</artifactId>
-			<version>${TrackMate.version}</version>
 		</dependency>
 
 		<!-- ImageJ dependencies -->
