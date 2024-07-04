@@ -32,6 +32,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
+import javax.swing.JOptionPane;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -45,6 +47,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
+import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.ArrayParamSweepModel.RangeType;
@@ -112,6 +115,22 @@ public class ParameterSweepModelIO
 					.collect( Collectors.joining( System.lineSeparator() ) );
 
 			return fromJson( str );
+		}
+		catch ( final JsonParseException e )
+		{
+			final String msg = "Error when reading TrackMate-Helper parameter file. "
+					+ "One class is not found in your Fiji installation: "
+					+ " "
+					+ e.getMessage()
+					+ " "
+					+ "It is likely an error with conflicting versions and upgrades "
+					+ "of modules. You may fix this error by removing the existing "
+					+ "TrackMate-Helper parameter file in: "
+					+ " "
+					+ modelFile;
+			final String title = "TrackMate-Helper error";
+			JOptionPane.showMessageDialog( null, msg, title, JOptionPane.ERROR_MESSAGE, Icons.TRACKMATE_ICON );
+			e.printStackTrace();
 		}
 		catch ( final FileNotFoundException e )
 		{
@@ -428,9 +447,8 @@ public class ParameterSweepModelIO
 			}
 			catch ( final ClassNotFoundException e )
 			{
-				e.printStackTrace();
+				throw new JsonParseException( "Class not found: " + e.getMessage(), e.getCause() );
 			}
-			return null;
 		}
 
 		@Override

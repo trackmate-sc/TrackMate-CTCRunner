@@ -24,6 +24,7 @@ package fiji.plugin.trackmate.helper.ui;
 import java.io.File;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.helper.HelperRunner;
@@ -93,22 +94,30 @@ public class HelperLauncherController
 			final File saveFolder = modelFile.getParentFile();
 
 			final Builder builder = HelperRunner.create();
-			final HelperRunner runner = builder 
+			final HelperRunner runner = builder
 					.trackingMetricsType( type )
 					.groundTruth( gtPath )
 					.image( imp )
 					.runSettings( ParameterSweepModelIO.makeSettingsFileForGTPath( gtPath ).getAbsolutePath() )
 					.savePath( saveFolder.getAbsolutePath() )
 					.get();
-			
+
 			if ( runner == null )
 			{
-				IJ.error( "TrackMate Helper", builder.getErrorMessage() );
+				final String msg = builder.getErrorMessage();
+				final String wrappedMessage = "<html><body style='width: 300px;'>"
+						+ msg
+								.replaceAll( "\n", "<p><p>" )
+								.replaceAll( "/", "/<wbr>" )
+						+ "</body></html>";
+				final String title = "TrackMate Helper";
+				JOptionPane.showMessageDialog( frame, wrappedMessage, title, JOptionPane.ERROR_MESSAGE, Icons.TRACKMATE_ICON );
 				return;
 			}
 
 			final ParameterSweepController controller = new ParameterSweepController( runner );
 			controller.show();
+
 		} );
 		frame.setVisible( true );
 	}

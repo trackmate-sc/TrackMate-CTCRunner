@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 
 import org.scijava.Cancelable;
 
+import com.google.gson.JsonParseException;
+
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
@@ -666,6 +668,21 @@ public class HelperRunner implements Runnable, Cancelable
 							.collect( Collectors.joining( System.lineSeparator() ) );
 
 					model = ParameterSweepModelIO.fromJson( lines );
+				}
+				catch ( final JsonParseException e )
+				{
+					final String msg = "Error when reading TrackMate-Helper parameter file. "
+							+ "One class is not found in your Fiji installation: "
+							+ "\n"
+							+ e.getMessage()
+							+ "\n"
+							+ "It is likely an error with conflicting versions and upgrades "
+							+ "of modules. You may fix this error by removing the existing "
+							+ "TrackMate-Helper parameter file in: "
+							+ "\n"
+							+ runSettingsPath;
+					ok = false;
+					str.append( msg );
 				}
 				catch ( final FileNotFoundException e )
 				{
