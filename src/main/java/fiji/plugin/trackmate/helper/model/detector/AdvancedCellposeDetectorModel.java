@@ -31,7 +31,7 @@ import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.InfoParamSweepModel;
 import fiji.plugin.trackmate.providers.DetectorProvider;
 
-@Plugin( type = DetectorSweepModel.class, priority = 1000000 - 10 )
+@Plugin( type = DetectorSweepModel.class, priority = 1000000 - 9.1 )
 public class AdvancedCellposeDetectorModel extends DetectorSweepModel
 {
 
