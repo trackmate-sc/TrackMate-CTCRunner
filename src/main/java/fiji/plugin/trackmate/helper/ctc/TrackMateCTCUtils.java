@@ -30,6 +30,7 @@ import com.google.common.base.Splitter;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMatePlugIn;
 import fiji.plugin.trackmate.helper.model.detector.CellposeOpt;
+import fiji.plugin.trackmate.helper.model.detector.OmniposeOpt;
 import ij.ImagePlus;
 
 public class TrackMateCTCUtils
@@ -83,8 +84,10 @@ public class TrackMateCTCUtils
 				obj = Collections.emptyMap();
 			else if ( isMap( str ) )
 				obj = toMap( str );
-			else if ( key.equals( "CELLPOSE_MODEL" ) )
+			else if ( key.equals( "CELLPOSE_MODEL" ) || key.equals( "ADVANCED_CELLPOSE_MODEL" ) )
 				obj = CellposeOpt.castPretrainedModel( str );
+			else if ( key.equals( "OMNIPOSE_MODEL" ) || key.equals( "ADVANCED_OMNIPOSE_MODEL" ) )
+				obj = OmniposeOpt.castPretrainedModel( str );
 			else
 				obj = str;
 			out.put( key, obj );
