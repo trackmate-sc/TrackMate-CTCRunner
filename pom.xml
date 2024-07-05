@@ -118,6 +118,11 @@
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate-Weka</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>sc.fiji</groupId>
+			<artifactId>TrackMate-Trackastra</artifactId>
+			<version>1.1.1</version>
+		</dependency>
 
 		<!-- Cell Tracking Challenge dependencies -->
 		<dependency>
