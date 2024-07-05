@@ -26,12 +26,12 @@ import static fiji.plugin.trackmate.gui.Fonts.FONT;
 import static fiji.plugin.trackmate.gui.Fonts.SMALL_FONT;
 import static fiji.plugin.trackmate.gui.Icons.CANCEL_ICON;
 import static fiji.plugin.trackmate.gui.Icons.EXECUTE_ICON;
+import static fiji.plugin.trackmate.gui.Icons.REVERT_ICON;
 import static fiji.plugin.trackmate.gui.Icons.TRACKMATE_ICON_16x16;
 
 import java.awt.BorderLayout;
 import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -44,6 +44,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -99,6 +101,8 @@ public class ParameterSweepPanel extends JPanel
 
 	final JButton btnStop;
 
+	final JButton btnReset;
+
 	final JSlider sliderChannel;
 
 	final JCheckBox chckbxSaveTrackMateFile;
@@ -106,6 +110,7 @@ public class ParameterSweepPanel extends JPanel
 	final Logger logger;
 
 	final ResultsCrawler crawler;
+
 
 	public ParameterSweepPanel(
 			final ImagePlus imp,
@@ -470,8 +475,10 @@ public class ParameterSweepPanel extends JPanel
 		panelPath.add( new JSeparator(), gbcSeparator4 );
 
 		final JPanel panelButtons = new JPanel();
-		final FlowLayout flowLayout = ( FlowLayout ) panelButtons.getLayout();
-		flowLayout.setAlignment( FlowLayout.RIGHT );
+//		final FlowLayout flowLayout = ( FlowLayout ) panelButtons.getLayout();
+//		flowLayout.setAlignment( FlowLayout.RIGHT );
+		panelButtons.setLayout( new BoxLayout( panelButtons, BoxLayout.LINE_AXIS ) );
+		
 		final GridBagConstraints gbcPanelButtons = new GridBagConstraints();
 		gbcPanelButtons.anchor = GridBagConstraints.SOUTH;
 		gbcPanelButtons.gridwidth = 2;
@@ -479,6 +486,12 @@ public class ParameterSweepPanel extends JPanel
 		gbcPanelButtons.gridx = 0;
 		gbcPanelButtons.gridy = 10;
 		panelPath.add( panelButtons, gbcPanelButtons );
+		
+		btnReset = new JButton( "Reset parameters" );
+		btnReset.setFont( SMALL_FONT );
+		btnReset.setIcon( REVERT_ICON );
+		panelButtons.add( btnReset );
+		panelButtons.add( Box.createHorizontalGlue() );
 
 		btnStop = new JButton( "Stop" );
 		btnStop.setFont( SMALL_FONT );
@@ -488,7 +501,6 @@ public class ParameterSweepPanel extends JPanel
 		btnRun = new JButton( "Run" );
 		btnRun.setFont( SMALL_FONT );
 		btnRun.setIcon( EXECUTE_ICON );
-
 		panelButtons.add( btnRun );
 
 		/*
