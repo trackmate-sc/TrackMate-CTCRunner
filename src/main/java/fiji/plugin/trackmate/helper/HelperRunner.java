@@ -169,6 +169,16 @@ public class HelperRunner implements Runnable, Cancelable
 	}
 
 	/**
+	 * Returns the type of tracking metrics this runner is configured to use.
+	 * 
+	 * @return the tracking metrics type.
+	 */
+	public TrackingMetricsType getType()
+	{
+		return type;
+	}
+
+	/**
 	 * Sets the logger to use to log progress of the run.
 	 * 
 	 * @param batchLogger
