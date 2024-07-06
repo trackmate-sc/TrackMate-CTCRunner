@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -257,6 +257,9 @@ public class ResultsCrawler
 				{
 					final Object o1 = ts.get( key );
 					final String o2 = tp.get( key );
+					if ( ( o1 == null && o2 != null ) || ( o1 != null && o2 == null ) )
+						return false;
+
 					if ( !o1.toString().equals( o2 ) )
 						continue LINE;
 				}
@@ -326,7 +329,7 @@ public class ResultsCrawler
 	 * Returns how many parameter combinations were discovered by this crawler.
 	 * The boolean flag discriminates between counting only combinations that
 	 * return a valid metrics (non-NaN results) or all combinations.
-	 * 
+	 *
 	 * @param validOnly
 	 *            if <code>true</code> will only count combinations that return
 	 *            valid metrics.
