@@ -31,6 +31,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.FocusAdapter;
+import java.awt.event.MouseWheelListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -116,6 +117,8 @@ public class StringRangeParamSweepPanel extends JPanel
 		scrollPane.setVerticalScrollBarPolicy( ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS );
 		scrollPane.setBorder( null );
 		scrollPane.getVerticalScrollBar().setUnitIncrement( 16 );
+		for ( final MouseWheelListener mwl : scrollPane.getMouseWheelListeners() )
+			scrollPane.removeMouseWheelListener( mwl );
 
 		allStringPanels = new JPanel();
 		final BoxLayout jPanelAllThresholdsLayout = new BoxLayout( allStringPanels, BoxLayout.Y_AXIS );
