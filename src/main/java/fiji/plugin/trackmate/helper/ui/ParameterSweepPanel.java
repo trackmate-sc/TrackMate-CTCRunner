@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -50,6 +50,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
@@ -121,7 +122,6 @@ public class ParameterSweepPanel extends JPanel
 		this.model = model;
 		this.crawler = crawler;
 		this.enablers = new ArrayList<>();
-
 		setLayout( new BorderLayout( 5, 5 ) );
 
 		/*
@@ -130,7 +130,6 @@ public class ParameterSweepPanel extends JPanel
 
 		this.tabbedPane = new JTabbedPane( JTabbedPane.TOP );
 		tabbedPane.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
-		add( tabbedPane, BorderLayout.CENTER );
 
 		final LogPanel panelLog = new LogPanel();
 		panelLog.getTextPane().setFont( Fonts.SMALL_FONT_MONOSPACED );
@@ -156,7 +155,6 @@ public class ParameterSweepPanel extends JPanel
 
 		final JPanel topPanel = new JPanel();
 		topPanel.setLayout( new BorderLayout( 5, 5 ) );
-		add( topPanel, BorderLayout.NORTH );
 		// Enabler for the top panel.
 		enablers.add( new EverythingDisablerAndReenabler( topPanel, new Class[] { JLabel.class } ) );
 
@@ -166,7 +164,6 @@ public class ParameterSweepPanel extends JPanel
 
 		final JPanel panelTitle = new JPanel();
 		panelTitle.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
-		topPanel.add( panelTitle, BorderLayout.NORTH );
 		final GridBagLayout gblPanelTitle = new GridBagLayout();
 		gblPanelTitle.columnWidths = new int[] { 137, 0 };
 		gblPanelTitle.rowHeights = new int[] { 14, 0, 0, 0, 0 };
@@ -226,6 +223,7 @@ public class ParameterSweepPanel extends JPanel
 		gbcSeparator.fill = GridBagConstraints.BOTH;
 		gbcSeparator.gridx = 0;
 		gbcSeparator.gridy = 3;
+		gbcSeparator.anchor = GridBagConstraints.SOUTH;
 		panelTitle.add( new JSeparator(), gbcSeparator );
 
 		/*
@@ -235,10 +233,6 @@ public class ParameterSweepPanel extends JPanel
 		final JPanel panelChkboxes = new JPanel();
 		panelChkboxes.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
 		final GridBagLayout gblPanelChkboxes = new GridBagLayout();
-		gblPanelChkboxes.columnWidths = new int[] { 0, 0, 0 };
-		gblPanelChkboxes.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-		gblPanelChkboxes.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
-		gblPanelChkboxes.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		panelChkboxes.setLayout( gblPanelChkboxes );
 
 		final JLabel lblDetectors = new JLabel( "Detectors" );
@@ -360,12 +354,13 @@ public class ParameterSweepPanel extends JPanel
 		 */
 
 		final JPanel panelPath = new JPanel();
+		panelPath.setPreferredSize( new Dimension( 200, 300 ) );
 		panelPath.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
 		final GridBagLayout gblPanelPath = new GridBagLayout();
 		gblPanelPath.columnWidths = new int[] { 0, 0, 0 };
 		gblPanelPath.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-		gblPanelPath.columnWeights = new double[] { 1.0, 0.0, Double.MIN_VALUE };
-		gblPanelPath.rowWeights = new double[] { 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		gblPanelPath.columnWeights = new double[] { 1., 0., Double.MIN_VALUE };
+		gblPanelPath.rowWeights = new double[] { 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., Double.MIN_VALUE };
 		panelPath.setLayout( gblPanelPath );
 
 		final JLabel lblSourceImage = new JLabel( "Source image:" );
@@ -475,18 +470,16 @@ public class ParameterSweepPanel extends JPanel
 		panelPath.add( new JSeparator(), gbcSeparator4 );
 
 		final JPanel panelButtons = new JPanel();
-//		final FlowLayout flowLayout = ( FlowLayout ) panelButtons.getLayout();
-//		flowLayout.setAlignment( FlowLayout.RIGHT );
 		panelButtons.setLayout( new BoxLayout( panelButtons, BoxLayout.LINE_AXIS ) );
-		
+
 		final GridBagConstraints gbcPanelButtons = new GridBagConstraints();
-		gbcPanelButtons.anchor = GridBagConstraints.SOUTH;
+		gbcPanelButtons.anchor = GridBagConstraints.NORTH;
 		gbcPanelButtons.gridwidth = 2;
 		gbcPanelButtons.fill = GridBagConstraints.HORIZONTAL;
 		gbcPanelButtons.gridx = 0;
 		gbcPanelButtons.gridy = 10;
 		panelPath.add( panelButtons, gbcPanelButtons );
-		
+
 		btnReset = new JButton( "Reset parameters" );
 		btnReset.setFont( SMALL_FONT );
 		btnReset.setIcon( REVERT_ICON );
@@ -540,29 +533,27 @@ public class ParameterSweepPanel extends JPanel
 		 */
 
 		final JPanel panelSweepConfig = new JPanel();
-		panelSweepConfig.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
-		topPanel.add( panelSweepConfig, BorderLayout.SOUTH );
-		final GridBagLayout gblPanelSweepConfig = new GridBagLayout();
-		gblPanelSweepConfig.columnWidths = new int[] { 231, 0 };
-		gblPanelSweepConfig.rowHeights = new int[] { 0, 14, 0 };
-		gblPanelSweepConfig.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gblPanelSweepConfig.rowWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
-		panelSweepConfig.setLayout( gblPanelSweepConfig );
-
-		final GridBagConstraints gbcSeparator3 = new GridBagConstraints();
-		gbcSeparator3.fill = GridBagConstraints.BOTH;
-		gbcSeparator3.insets = new Insets( 0, 0, 5, 0 );
-		gbcSeparator3.gridx = 0;
-		gbcSeparator3.gridy = 0;
-		panelSweepConfig.add( new JSeparator(), gbcSeparator3 );
-
 		final JLabel lblParamSweep = new JLabel( "Parameter sweep configuration" );
 		lblParamSweep.setFont( FONT.deriveFont( Font.BOLD ) );
-		final GridBagConstraints gbcLblParamSweep = new GridBagConstraints();
-		gbcLblParamSweep.anchor = GridBagConstraints.NORTHWEST;
-		gbcLblParamSweep.gridx = 0;
-		gbcLblParamSweep.gridy = 1;
-		panelSweepConfig.add( lblParamSweep, gbcLblParamSweep );
+		panelSweepConfig.add( lblParamSweep );
+
+		/*
+		 * Put everything in a vertical split pane.
+		 */
+
+		add( panelTitle, BorderLayout.NORTH );
+		final JScrollPane scrollPane = new JScrollPane( topPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER );
+		scrollPane.setBorder( null );
+		final JSplitPane mainPanel = new JSplitPane( JSplitPane.VERTICAL_SPLIT, false,
+				scrollPane,
+				tabbedPane );
+		mainPanel.setResizeWeight( 0.5 );
+		mainPanel.setFont( FONT );
+		mainPanel.setDividerSize( 10 );
+		mainPanel.setOneTouchExpandable( true );
+		mainPanel.setBorder( null );
+		add( mainPanel, BorderLayout.CENTER );
+		add( panelSweepConfig, BorderLayout.SOUTH );
 
 		/*
 		 * Wire some listeners.

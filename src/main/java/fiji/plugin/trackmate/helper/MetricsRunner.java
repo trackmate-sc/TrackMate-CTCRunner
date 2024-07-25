@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -79,7 +79,7 @@ public abstract class MetricsRunner
 	 * Performs the tracking metrics measurements for the tracks in the model in
 	 * the specified TrackMate instance, against the ground truth given at
 	 * construction. Metric values are returned as a {@link TrackingMetrics}.
-	 * 
+	 *
 	 * @param trackmate
 	 *            the tracks on which to measure tracking metrics.
 	 * @return the metric values.
@@ -90,7 +90,7 @@ public abstract class MetricsRunner
 	 * Performs the tracking metrics measurements for the tracks in the model in
 	 * the specified TrackMate instance, against the ground truth given at
 	 * construction, and save the results in an adequate CSV file.
-	 * 
+	 *
 	 * @param trackmate
 	 *            the tracks on which to measure tracking metrics.
 	 * @param detectionTiming
@@ -124,7 +124,7 @@ public abstract class MetricsRunner
 		batchLogger.log( settings.detectorFactory.getName(), Logger.BLUE_COLOR );
 		batchLogger.log( " with settings:\n" );
 		batchLogger.log( TMUtils.echoMap( settings.detectorSettings, 2 ) );
-	
+
 		final long start = System.currentTimeMillis();
 		final TrackMate trackmate = new TrackMate( settings );
 		trackmate.getModel().setLogger( trackmateLogger );
@@ -138,7 +138,7 @@ public abstract class MetricsRunner
 		}
 		final long end = System.currentTimeMillis();
 		final double detectionTiming = ( end - start ) / 1000.;
-	
+
 		final int nVisibleSpots = trackmate.getModel().getSpots().getNSpots( true );
 		final int nTotalSpots = trackmate.getModel().getSpots().getNSpots( false );
 		batchLogger.log( String.format( "Detection done in %.1f s.\n", ( end - start ) / 1e3f ) );
@@ -151,7 +151,7 @@ public abstract class MetricsRunner
 			final String[] csvHeader1 = toCSVHeader( settings );
 			writeFailedResults( csvFile, settings, csvHeader1 );
 		}
-	
+
 		return new ValuePair<>( trackmate, detectionTiming );
 	}
 
@@ -166,7 +166,7 @@ public abstract class MetricsRunner
 		batchLogger.log( trackmate.getSettings().trackerFactory.getName(), Logger.BLUE_COLOR );
 		batchLogger.log( " with settings:\n" );
 		batchLogger.log( TMUtils.echoMap( trackmate.getSettings().trackerSettings, 2 ) );
-	
+
 		final long start = System.currentTimeMillis();
 		if ( !trackmate.checkInput()
 				|| !trackmate.execTracking()
@@ -179,7 +179,7 @@ public abstract class MetricsRunner
 		}
 		final long end = System.currentTimeMillis();
 		final double trackingTiming = ( end - start ) / 1000.;
-	
+
 		batchLogger.log( String.format( "Tracking done in %.1f s.\n", trackingTiming ) );
 		final TrackModel trackModel = trackmate.getModel().getTrackModel();
 		final IntSummaryStatistics stats = trackModel.unsortedTrackIDs( true ).stream()
@@ -190,7 +190,7 @@ public abstract class MetricsRunner
 		batchLogger.log( String.format( "  - avg size: %.1f spots.\n", stats.getAverage() ) );
 		batchLogger.log( String.format( "  - min size: %d spots.\n", stats.getMin() ) );
 		batchLogger.log( String.format( "  - max size: %d spots.\n", stats.getMax() ) );
-	
+
 		return trackingTiming;
 	}
 
@@ -205,15 +205,15 @@ public abstract class MetricsRunner
 		// Prepare CSV headers.
 		final String[] csvHeader1 = toCSVHeader( settings );
 		final String[] csvHeader = type.concatWithHeader( csvHeader1 );
-	
+
 		// Init.
 		int i = 0;
-	
+
 		while ( i < 100 )
 		{
 			i++;
 			final File csvFile = getCSVFile( resultsRootPath.toString(), imFileName, i );
-	
+
 			// Does the target CSV file exist?
 			if ( !csvFile.exists() )
 			{
@@ -234,7 +234,7 @@ public abstract class MetricsRunner
 				batchLogger.log( "CSV file " + csvFile + " does not exist. Created it.\n" );
 				return csvFile;
 			}
-	
+
 			// If yes, is it compatible for appending?
 			if ( csvFileIsCompatible( settings, csvFile ) )
 			{
@@ -242,7 +242,7 @@ public abstract class MetricsRunner
 				return csvFile;
 			}
 		}
-	
+
 		batchLogger.error( "Could not create a proper CSV file in : " + resultsRootPath + '\n' );
 		return null;
 	}
@@ -251,7 +251,7 @@ public abstract class MetricsRunner
 	 * Appends a line to the specified CSV file with the specified tracking
 	 * metrics. This method will also add the timing metrics to the specified
 	 * tracking metrics.
-	 * 
+	 *
 	 * @param csvFile
 	 *            the CSV file to append to.
 	 * @param metrics
@@ -268,7 +268,7 @@ public abstract class MetricsRunner
 	private void writeResults(
 			final File csvFile,
 			final TrackingMetrics metrics,
-			final double detectionTiming, 
+			final double detectionTiming,
 			final double trackingTiming,
 			final Settings settings,
 			final String[] csvHeader )
@@ -302,7 +302,7 @@ public abstract class MetricsRunner
 	 * <p>
 	 * This signals that the settings values result in a failed tracking
 	 * results. As the settings values are logged, they won't be retried.
-	 * 
+	 *
 	 * @param csvFile
 	 *            the CSV file to append the line to.
 	 * @param settings
@@ -337,7 +337,7 @@ public abstract class MetricsRunner
 		// Prepare CSV headers.
 		final String[] csvHeader1 = toCSVHeader( settings );
 		final String[] csvHeader = type.concatWithHeader( csvHeader1 );
-	
+
 		try (CSVReader csvReader = new CSVReaderBuilder( new FileReader( csvFile ) ).build())
 		{
 			final String[] readHeader = csvReader.readNext();
@@ -395,13 +395,15 @@ public abstract class MetricsRunner
 		out[ i++ ] = settings.detectorFactory.getKey();
 		for ( int j = 0; j < nDetectorParams; j++ )
 		{
-			out[ i ] = settings.detectorSettings.get( csvHeader[ i ] ).toString();
+			final Object val = settings.detectorSettings.get( csvHeader[ i ] );
+			out[ i ] = ( null == val ? "" : val.toString() );
 			i++;
 		}
 		out[ i++ ] = settings.trackerFactory.getKey();
 		for ( int j = 0; j < nTrackerParams; j++ )
 		{
-			out[ i ] = settings.trackerSettings.get( csvHeader[ i ] ).toString();
+			final Object val = settings.trackerSettings.get( csvHeader[ i ] );
+			out[ i ] = ( null == val ? "" : val.toString() );
 			i++;
 		}
 		return out;
