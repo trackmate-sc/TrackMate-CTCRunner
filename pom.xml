@@ -85,7 +85,7 @@
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
 		<CTC-measures.version>1.0.3</CTC-measures.version>
-		<TrackMate.version>7.13.2</TrackMate.version>
+		<TrackMate.version>7.13.3-SNAPSHOT</TrackMate.version>
 		<TrackMate-Cellpose.version>0.2.0-SNAPSHOT</TrackMate-Cellpose.version>
 	</properties>
 
@@ -122,6 +122,11 @@
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate-Trackastra</artifactId>
 			<version>1.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>sc.fiji</groupId>
+			<artifactId>TrackMate-YOLO</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Cell Tracking Challenge dependencies -->
