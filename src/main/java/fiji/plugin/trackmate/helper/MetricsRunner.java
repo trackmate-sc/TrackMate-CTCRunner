@@ -111,7 +111,7 @@ public abstract class MetricsRunner
 			batchLogger.log( metrics.toString() + '\n' );
 			writeResults( csvFile, metrics, detectionTiming, trackingTiming, settings, csvHeader1 );
 		}
-		catch ( final MetricsComputationErrorException e )
+		catch ( final MetricsComputationErrorException | IllegalArgumentException e )
 		{
 			writeFailedResults( csvFile, settings, csvHeader1 );
 		}
