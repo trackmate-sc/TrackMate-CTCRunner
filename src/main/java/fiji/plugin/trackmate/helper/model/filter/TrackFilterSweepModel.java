@@ -46,7 +46,7 @@ public class TrackFilterSweepModel extends FilterSweepModel
 		{
 			final FeatureFilter ff = it.next();
 			final Settings copy = base.copyOn( base.imp );
-			copy.addSpotFilter( ff );
+			copy.addTrackFilter( ff );
 			return copy;
 		}
 	}
