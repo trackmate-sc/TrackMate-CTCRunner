@@ -36,7 +36,7 @@ import javax.swing.JSeparator;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.gui.Fonts;
 import fiji.plugin.trackmate.helper.model.AbstractSweepModel;
-import fiji.plugin.trackmate.helper.model.AbstractSweepModel.ModelListener;
+import fiji.plugin.trackmate.helper.model.AbstractSweepModelBase.ModelListener;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.ArrayParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.BooleanParamSweepModel;

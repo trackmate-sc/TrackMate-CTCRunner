@@ -39,7 +39,7 @@ import org.scijava.plugin.PluginService;
 
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.features.FeatureFilter;
-import fiji.plugin.trackmate.helper.model.AbstractSweepModel.ModelListener;
+import fiji.plugin.trackmate.helper.model.AbstractSweepModelBase.ModelListener;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
 import fiji.plugin.trackmate.helper.model.tracker.TrackerSweepModel;
 import fiji.plugin.trackmate.util.TMUtils;

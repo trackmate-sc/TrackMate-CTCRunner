@@ -21,73 +21,19 @@
  */
 package fiji.plugin.trackmate.helper.model;
 
-import java.util.Iterator;
 import java.util.Map;
 
-import org.scijava.listeners.Listeners;
-import org.scijava.plugin.SciJavaPlugin;
-
-import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMateModule;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 
-public abstract class AbstractSweepModel< F extends TrackMateModule > implements SciJavaPlugin
+public abstract class AbstractSweepModel< F extends TrackMateModule > extends AbstractSweepModelBase
 {
-
-	public interface ModelListener
-	{
-		public void modelChanged();
-	}
-
-	private transient Listeners.List< ModelListener > modelListeners;
-
-	protected final String name;
-
-	protected final Map< String, AbstractParamSweepModel< ? > > models;
 
 	protected final F factory;
 	
 	protected AbstractSweepModel( final String name, final Map< String, AbstractParamSweepModel< ? > > models, final F factory )
 	{
-		super();
-		this.name = name;
-		this.models = models;
+		super( name, models );
 		this.factory = factory;
-
-		// Register models.
-		models.values().forEach( m -> m.listeners().add( () -> notifyListeners() ) );
-	}
-
-	public abstract Iterator< Settings > iterator( final Settings base, final int targetChannel );
-
-	public String getName()
-	{
-		return name;
-	}
-
-	public Map< String, AbstractParamSweepModel< ? > > getModels()
-	{
-		return models;
-	}
-
-	public final Listeners.List< ModelListener > listeners()
-	{
-		if ( modelListeners == null )
-		{
-			/*
-			 * Work around the listeners field being null after deserialization.
-			 * We also need to register again the sub-models.
-			 */
-			this.modelListeners = new Listeners.SynchronizedList<>();
-			for ( final AbstractParamSweepModel< ? > model : models.values() )
-				model.listeners().add( () -> notifyListeners() );
-		}
-		return modelListeners;
-	}
-
-	protected final void notifyListeners()
-	{
-		for ( final ModelListener l : modelListeners.list )
-			l.modelChanged();
 	}
 }

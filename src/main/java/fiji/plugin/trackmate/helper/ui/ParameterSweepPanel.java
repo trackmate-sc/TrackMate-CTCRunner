@@ -67,7 +67,7 @@ import fiji.plugin.trackmate.gui.Fonts;
 import fiji.plugin.trackmate.gui.components.LogPanel;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings.TrackMateObject;
 import fiji.plugin.trackmate.helper.ResultsCrawler;
-import fiji.plugin.trackmate.helper.model.AbstractSweepModel.ModelListener;
+import fiji.plugin.trackmate.helper.model.AbstractSweepModelBase.ModelListener;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModel;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
 import fiji.plugin.trackmate.helper.model.tracker.TrackerSweepModel;

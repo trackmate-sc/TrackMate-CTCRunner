@@ -25,7 +25,7 @@ import java.util.List;
 
 import org.scijava.listeners.Listeners;
 
-import fiji.plugin.trackmate.helper.model.AbstractSweepModel.ModelListener;
+import fiji.plugin.trackmate.helper.model.AbstractSweepModelBase.ModelListener;
 
 public abstract class AbstractParamSweepModel< T >
 {
