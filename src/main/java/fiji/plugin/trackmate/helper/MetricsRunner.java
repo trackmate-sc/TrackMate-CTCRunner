@@ -40,6 +40,7 @@ import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.TrackModel;
+import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.util.TMUtils;
 import net.imglib2.util.ValuePair;
 
@@ -371,7 +372,9 @@ public abstract class MetricsRunner
 	{
 		final int nDetectorParams = settings.detectorSettings.size();
 		final int nTrackerParams = settings.trackerSettings.size();
-		final int nCols = 1 + nDetectorParams + 1 + nTrackerParams;
+		final int nSpotFilters = settings.getSpotFilters().size();
+		final int nTrackFilters = settings.getTrackFilters().size();
+		final int nCols = 1 + nDetectorParams + nSpotFilters + 1 + nTrackerParams + nTrackFilters;
 		final String[] out = new String[ nCols ];
 
 		int i = 0;
@@ -381,6 +384,10 @@ public abstract class MetricsRunner
 		out[ i++ ] = "TRACKER";
 		for ( final String key : settings.trackerSettings.keySet() )
 			out[ i++ ] = key;
+		for ( final FeatureFilter sf : settings.getSpotFilters() )
+			out[ i++ ] = "SPOT_FILTER_ON_" + sf.feature;
+		for ( final FeatureFilter tf : settings.getTrackFilters() )
+			out[ i++ ] = "TRACK_FILTER_ON_" + tf.feature;
 		return out;
 	}
 
@@ -388,7 +395,9 @@ public abstract class MetricsRunner
 	{
 		final int nDetectorParams = settings.detectorSettings.size();
 		final int nTrackerParams = settings.trackerSettings.size();
-		final int nCols = 1 + nDetectorParams + 1 + nTrackerParams;
+		final int nSpotFilters = settings.getSpotFilters().size();
+		final int nTrackFilters = settings.getTrackFilters().size();
+		final int nCols = 1 + nDetectorParams + nSpotFilters + 1 + nTrackerParams + nTrackFilters;
 		final String[] out = new String[ nCols ];
 
 		int i = 0;
@@ -406,6 +415,15 @@ public abstract class MetricsRunner
 			out[ i ] = ( null == val ? "" : val.toString() );
 			i++;
 		}
+		for ( final FeatureFilter sf : settings.getSpotFilters() )
+		{
+			out[ i++ ] = "" + ( ( sf.isAbove ) ? '>' : '<' ) + sf.value;
+		}
+		for ( final FeatureFilter sf : settings.getTrackFilters() )
+		{
+			out[ i++ ] = "" + ( ( sf.isAbove ) ? '>' : '<' ) + sf.value;
+		}
+
 		return out;
 	}
 

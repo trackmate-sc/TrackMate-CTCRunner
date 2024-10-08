@@ -21,6 +21,8 @@
  */
 package fiji.plugin.trackmate.helper.ui;
 
+import static fiji.plugin.trackmate.helper.TrackingMetricsTable.echoFilters;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -48,6 +50,7 @@ import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -56,6 +59,7 @@ import javax.swing.table.TableColumnModel;
 
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
+import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.gui.Fonts;
 import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.Icons;
@@ -86,6 +90,9 @@ public class CrawlerResultsPanel extends JPanel
 
 	public CrawlerResultsPanel( final ResultsCrawler crawler, final ImagePlus imp )
 	{
+		// Tooltips last longer
+		ToolTipManager.sharedInstance().setDismissDelay( 30_000 ); // 30s
+
 		final MetricValue defaultMetrics = crawler.getType().defaultMetric();
 
 		setLayout( new BorderLayout( 0, 0 ) );
@@ -293,7 +300,7 @@ public class CrawlerResultsPanel extends JPanel
 			final TrackingMetricsTable results = crawler.get( pair.getA() );
 			if ( results == null )
 			{
-				IJ.error( "TrackMate CTC helper", "No good settings to optimize " + target.description );
+				IJ.error( "TrackMate Helper", "No good settings to optimize " + target.description );
 				return null;
 			}
 			final int line = pair.getB();
@@ -311,7 +318,7 @@ public class CrawlerResultsPanel extends JPanel
 			final SpotTrackerFactory trackerFactory = new TrackerProvider().getFactory( tracker2 );
 			if ( trackerFactory == null )
 			{
-				IJ.error( "TrackMate CTC helper", "Tracker " + tracker2
+				IJ.error( "TrackMate Helper", "Tracker " + tracker2
 						+ " is not available in this Fiji installation." );
 				return null;
 			}
@@ -320,6 +327,8 @@ public class CrawlerResultsPanel extends JPanel
 			final Map< String, Object > detectorParams = TrackMateCTCUtils.castToSettings( detectorParamsStr );
 			final Map< String, String > trackerParamsStr = results.getTrackerParams( line );
 			final Map< String, Object > trackerParams = TrackMateCTCUtils.castToSettings( trackerParamsStr );
+			final List< FeatureFilter > spotFilters = results.getSpotFilters( line );
+			final List< FeatureFilter > trackFilters = results.getTrackFilters( line );
 
 			final ImagePlus tmp;
 			if ( imp == null )
@@ -342,6 +351,8 @@ public class CrawlerResultsPanel extends JPanel
 			settings.detectorSettings = detectorParams;
 			settings.trackerFactory = trackerFactory;
 			settings.trackerSettings = trackerParams;
+			settings.setSpotFilters( spotFilters );
+			settings.setTrackFilters( trackFilters );
 			return settings;
 		}
 
@@ -455,13 +466,21 @@ public class CrawlerResultsPanel extends JPanel
 					final Map trackerParams = results.getTrackerParams( line );
 					final String detector2 = results.getDetector( line );
 					final String tracker2 = results.getTracker( line );
+					final List< FeatureFilter > spotFilters = results.getSpotFilters( line );
+					final List< FeatureFilter > trackFilters = results.getTrackFilters( line );
 					@SuppressWarnings( "unchecked" )
-					final String str = "<html>Detector parameters for " + detector2 + ":\n"
+					String str = "<html>Detector parameters for " + detector2 + ":\n"
 							+ TMUtils.echoMap( detectorParams, 0 )
 							+ "<p>"
 							+ "Tracker parameters for " + tracker2 + ":\n"
-							+ TMUtils.echoMap( trackerParams, 0 )
-							+ "</html>";
+							+ TMUtils.echoMap( trackerParams, 0 );
+
+					if ( !spotFilters.isEmpty() )
+						str += "<p>Spot filters:\n" + echoFilters( spotFilters );
+					if ( !trackFilters.isEmpty() )
+						str += "<p>Track filters:\n" + echoFilters( trackFilters );
+
+					str += "</html>";
 					tooltips[ r ] = str.replaceAll( "[\\t|\\n|\\r]", "<br>" );
 
 					// Min & max for unbounded values.
@@ -634,7 +653,7 @@ public class CrawlerResultsPanel extends JPanel
 			final TrackingMetricsTable results = crawler.get( pair.getA() );
 			if ( results == null )
 			{
-				IJ.error( "TrackMate CTC helper", "No good settings to optimize "
+				IJ.error( "TrackMate Helper", "No good settings to optimize "
 						+ m.description );
 				return null;
 			}
@@ -646,7 +665,7 @@ public class CrawlerResultsPanel extends JPanel
 				final SpotDetectorFactoryBase< ? > detectorFactory = new DetectorProvider().getFactory( detector );
 				if ( detectorFactory == null )
 				{
-					IJ.error( "TrackMate CTC helper", "Detector " + detector
+					IJ.error( "TrackMate Helper", "Detector " + detector
 							+ " is not available in this Fiji installation." );
 					return null;
 				}
@@ -654,7 +673,7 @@ public class CrawlerResultsPanel extends JPanel
 				final SpotTrackerFactory trackerFactory = new TrackerProvider().getFactory( tracker );
 				if ( trackerFactory == null )
 				{
-					IJ.error( "TrackMate CTC helper", "Tracker " + tracker
+					IJ.error( "TrackMate Helper", "Tracker " + tracker
 							+ " is not available in this Fiji installation." );
 					return null;
 				}
@@ -663,13 +682,15 @@ public class CrawlerResultsPanel extends JPanel
 				final Map< String, Object > detectorParams = TrackMateCTCUtils.castToSettings( detectorParamsStr );
 				final Map< String, String > trackerParamsStr = results.getTrackerParams( line );
 				final Map< String, Object > trackerParams = TrackMateCTCUtils.castToSettings( trackerParamsStr );
-
+				final List< FeatureFilter > spotFilters = results.getSpotFilters( line );
+				final List< FeatureFilter > trackFilters = results.getTrackFilters( line );
+				
 				final ImagePlus tmp;
 				if ( imp == null )
 				{
 					if ( WindowManager.getImageCount() == 0 )
 					{
-						IJ.error( "TrackMate CTC helper", "Please open an image first." );
+						IJ.error( "TrackMate Helper", "Please open an image first." );
 						return null;
 					}
 
@@ -692,6 +713,8 @@ public class CrawlerResultsPanel extends JPanel
 				settings.detectorSettings = detectorParams;
 				settings.trackerFactory = trackerFactory;
 				settings.trackerSettings = trackerParams;
+				settings.setSpotFilters( spotFilters );
+				settings.setTrackFilters( trackFilters );
 				return settings;
 			}
 		}
@@ -749,12 +772,22 @@ public class CrawlerResultsPanel extends JPanel
 					// Tooltips.
 					final Map detectorParams = results.getDetectorParams( line );
 					final Map trackerParams = results.getTrackerParams( line );
-					final String str = "<html>Detector parameters for " + detector + ":\n"
+					final List< FeatureFilter > spotFilters = results.getSpotFilters( line );
+					final List< FeatureFilter > trackFilters = results.getTrackFilters( line );
+
+					String str = "<html>Detector parameters for " + detector + ":\n"
 							+ TMUtils.echoMap( detectorParams, 0 )
 							+ "<p>"
 							+ "Tracker parameters for " + tracker + ":\n"
-							+ TMUtils.echoMap( trackerParams, 0 )
-							+ "</html>";
+							+ TMUtils.echoMap( trackerParams, 0 );
+
+					if ( !spotFilters.isEmpty() )
+						str += "<p>Spot filters:\n" + echoFilters( spotFilters );
+					if ( !trackFilters.isEmpty() )
+						str += "<p>Track filters:\n" + echoFilters( trackFilters );
+
+					str += "</html>";
+					
 					tooltips[ r ] = str.replaceAll( "[\\t|\\n|\\r]", "<br>" );
 
 					// Min & max for unbounded values.

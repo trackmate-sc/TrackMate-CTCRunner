@@ -265,6 +265,14 @@ public class ResultsCrawler
 				}
 				// Tracker params are equal.
 
+				// Test filters
+				if ( !new HashSet<>( results.getSpotFilters( i ) ).equals( new HashSet<>( settings.getSpotFilters() ) ) )
+					continue LINE;
+
+				if ( !new HashSet<>( results.getTrackFilters( i ) ).equals( new HashSet<>( settings.getTrackFilters() ) ) )
+					continue LINE;
+				// Spot & Track filters are equal.
+
 				return true;
 			}
 		}
