@@ -41,6 +41,7 @@ import fiji.plugin.trackmate.helper.ctc.CTCTrackingMetricsType;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModel;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModelIO;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
+import fiji.plugin.trackmate.helper.model.filter.FilterSweepModel;
 import fiji.plugin.trackmate.helper.model.tracker.TrackerSweepModel;
 import fiji.plugin.trackmate.helper.spt.SPTTrackingMetricsType;
 import fiji.plugin.trackmate.io.TmXmlWriter;
@@ -238,114 +239,168 @@ public class HelperRunner implements Runnable, Cancelable
 		runner.setTrackmateLogger( trackmateLogger );
 
 		final Settings base = new Settings( imp );
-		base.setSpotFilters( model.getSpotFilters() );
-		base.setTrackFilters( model.getTrackFilters() );
 		int progress = 0;
 
+		/*
+		 * LOOP OVER DETECTOR SETTINGS.
+		 */
 		DETECTOR_SETTINGS_LOOP: for ( final DetectorSweepModel detectorModel : model.getActiveDetectors() )
 		{
-			final Iterator< Settings > dit = detectorModel.iterator( base, targetChannel );
-			while ( dit.hasNext() )
+			final Iterator< Settings > detectorIterator = detectorModel.iterator( base, targetChannel );
+			while ( detectorIterator.hasNext() )
 			{
-				final Settings ds = dit.next();
-				if ( isCanceled() )
-					return;
+				final Settings settingsDet = detectorIterator.next();
 
 				boolean detectionDone = false;
 				TrackMate trackmate = null;
 				double detectionTiming = Double.NaN;
 
-				for ( final TrackerSweepModel trackerModel : model.getActiveTracker() )
+				/*
+				 * LOOP OVER SPOT FILTERS.
+				 */
+				SPOT_FILTER_LOOP: for ( final FilterSweepModel spotFilterSweepModel : model.spotFilterModels() )
 				{
-					final Iterator< Settings > tit = trackerModel.iterator( ds, targetChannel );
-					while ( tit.hasNext() )
+					final Iterator< Settings > spotFilterIterator = spotFilterSweepModel.iterator( settingsDet, targetChannel );
+					while ( spotFilterIterator.hasNext() )
 					{
-						final Settings dts = tit.next();
-						if ( isCanceled() )
-							return;
+						final Settings settingsDetSpotFilt = spotFilterIterator.next();
 
-						batchLogger.setProgress( ( double ) ++progress / count );
-						batchLogger.log( "________________________________________\n" );
-
-						if ( crawler.isSettingsPresent( dts ) )
+						/*
+						 * LOOP OVER TRACKING SETTINGS.
+						 */
+						for ( final TrackerSweepModel trackerModel : model.getActiveTracker() )
 						{
-							batchLogger.log( "Settings for detector " + dts.detectorFactory.getKey() + " with parameters:\n" );
-							batchLogger.log( TMUtils.echoMap( dts.detectorSettings, 2 ) );
-							batchLogger.log( "and tracker " + dts.trackerFactory.getKey() + " with parameters:\n" );
-							batchLogger.log( TMUtils.echoMap( dts.trackerSettings, 2 ) );
-							batchLogger.log( "were already tested. Skipping.\n" );
-							continue;
-						}
-
-						if ( !detectionDone )
-						{
-							batchLogger.log( "\n________________________________________\n" );
-							batchLogger.log( TMUtils.getCurrentTimeString() + "\n" );
-							batchLogger.setStatus( ds.detectorFactory.getName() );
-
-							final ValuePair< TrackMate, Double > detectionResult = runner.execDetection( dts );
-							trackmate = detectionResult.getA();
-							detectionTiming = detectionResult.getB();
-							detectionDone = true;
-
-							// Detection failed?
-							if ( null == trackmate )
+							final Iterator< Settings > trackerIterator = trackerModel.iterator( settingsDetSpotFilt, targetChannel );
+							while ( trackerIterator.hasNext() )
 							{
-								batchLogger.error( "Error running TrackMate with these parameters.\nSkipping.\n" );
-								progress += model.countTrackerSettings();
-								batchLogger.setProgress( ( double ) ++progress / count );
-								continue DETECTOR_SETTINGS_LOOP;
-							}
-							// Got 0 spots to track?
-							if ( trackmate.getModel().getSpots().getNSpots( true ) == 0 )
-							{
-								batchLogger.log( "Settings result in having 0 spots to track.\nSkipping.\n" );
-								progress += model.countTrackerSettings();
-								batchLogger.setProgress( ( double ) ++progress / count );
-								continue DETECTOR_SETTINGS_LOOP;
-							}
-						}
+								final Settings settingsDetSpotFiltTracker = trackerIterator.next();
 
-						final Settings settings = trackmate.getSettings();
-						settings.trackerFactory = dts.trackerFactory;
-						settings.trackerSettings = dts.trackerSettings;
-						batchLogger.setStatus( settings.detectorFactory.getName() + " + " + settings.trackerFactory.getName() );
+								/*
+								 * LOOP OVER TRACK FILTERS.
+								 */
+								for ( final FilterSweepModel trackFilterSweepModel : model.trackFilterModels() )
+								{
+									final Iterator< Settings > trackFilterIterator = trackFilterSweepModel.iterator( settingsDetSpotFiltTracker, targetChannel );
+									while ( trackFilterIterator.hasNext() )
+									{
+										final Settings settingsDetSpotFiltTrackerTrackFilt = trackFilterIterator.next();
+										if ( isCanceled() )
+											return;
 
-						// Exec tracking.
-						final double trackingTiming = runner.execTracking( trackmate );
+										batchLogger.setProgress( ( double ) ++progress / count );
+										batchLogger.log( "________________________________________\n" );
 
-						// Perform and save metrics measurements.
-						runner.performAndSaveMetricsMeasurements( trackmate, detectionTiming, trackingTiming );
+										if ( crawler.isSettingsPresent( settingsDetSpotFiltTrackerTrackFilt ) )
+										{
+											batchLogger.log( "Settings for detector " + settingsDetSpotFiltTrackerTrackFilt.detectorFactory.getKey() + " with parameters:\n" );
+											batchLogger.log( TMUtils.echoMap( settingsDetSpotFiltTrackerTrackFilt.detectorSettings, 2 ) );
+											batchLogger.log( "and tracker " + settingsDetSpotFiltTrackerTrackFilt.trackerFactory.getKey() + " with parameters:\n" );
+											batchLogger.log( TMUtils.echoMap( settingsDetSpotFiltTrackerTrackFilt.trackerSettings, 2 ) );
+											if ( settingsDetSpotFiltTrackerTrackFilt.getSpotFilters().isEmpty() )
+											{
+												batchLogger.log( "without spot filter,n" );
+											}
+											else
+											{
+												batchLogger.log( "and with spot filters:n" );
+												TrackingMetricsTable.echoFilters( settingsDetSpotFiltTrackerTrackFilt.getSpotFilters() );
+											}
+											if ( settingsDetSpotFiltTrackerTrackFilt.getTrackFilters().isEmpty() )
+											{
+												batchLogger.log( "without track filter,n" );
+											}
+											else
+											{
+												batchLogger.log( "and with track filters:n" );
+												TrackingMetricsTable.echoFilters( settingsDetSpotFiltTrackerTrackFilt.getTrackFilters() );
+											}
+											batchLogger.log( "were already tested. Skipping.\n" );
+											continue;
+										}
 
-						// Save TrackMate file if required.
-						if ( saveTrackMateFiles )
-						{
-							final String nameGen = "TrackMate_%s_%s_%03d.xml";
-							int i = 1;
-							File trackmateFile;
-							do
-							{
-								trackmateFile = new File( savePath,
-										String.format( nameGen,
-												settings.detectorFactory.getKey(),
-												settings.trackerFactory.getKey(),
-												i++ ) );
-							}
-							while ( trackmateFile.exists() );
+										// TODO MOVE WHAT IS BELOW ELSEWHERE
 
-							final TmXmlWriter writer = new TmXmlWriter( trackmateFile, Logger.VOID_LOGGER );
-							writer.appendModel( trackmate.getModel() );
-							writer.appendSettings( trackmate.getSettings() );
-							writer.appendGUIState( "ConfigureViews" );
-							try
-							{
-								writer.writeToFile();
-								batchLogger.log( "Saved results to TrackMate file: " + trackmateFile + "\n" );
-							}
-							catch ( final IOException e )
-							{
-								batchLogger.error( e.getMessage() );
-								e.printStackTrace();
+										if ( !detectionDone )
+										{
+											batchLogger.log( "\n________________________________________\n" );
+											batchLogger.log( TMUtils.getCurrentTimeString() + "\n" );
+											batchLogger.setStatus( settingsDet.detectorFactory.getName() );
+
+											final ValuePair< TrackMate, Double > detectionResult = runner.execDetection( settingsDetSpotFiltTrackerTrackFilt );
+											trackmate = detectionResult.getA();
+											detectionTiming = detectionResult.getB();
+											detectionDone = true;
+
+											// Detection failed?
+											if ( null == trackmate )
+											{
+												batchLogger.error( "Error running TrackMate with these parameters.\nSkipping.\n" );
+												progress += model.countTrackerSettings() * model.countSpotFilterSettings() * model.countTrackFilterSettings();
+												batchLogger.setProgress( ( double ) ++progress / count );
+												continue DETECTOR_SETTINGS_LOOP;
+											}
+										}
+
+										trackmate = runner.execSpotFiltering( settingsDetSpotFiltTrackerTrackFilt );
+										// Got 0 spots to track?
+										if ( trackmate.getModel().getSpots().getNSpots( true ) == 0 )
+										{
+											batchLogger.log( "Settings result in having 0 spots to track.\nSkipping.\n" );
+											progress += model.countTrackerSettings() * model.countTrackFilterSettings();
+											batchLogger.setProgress( ( double ) ++progress / count );
+											continue SPOT_FILTER_LOOP;
+										}
+
+										final Settings settings = trackmate.getSettings();
+										settings.trackerFactory = settingsDetSpotFiltTracker.trackerFactory;
+										settings.trackerSettings = settingsDetSpotFiltTracker.trackerSettings;
+										batchLogger.setStatus( settings.detectorFactory.getName() + " + " + settings.trackerFactory.getName() );
+
+										// Exec tracking.
+										final double trackingTiming = runner.execTracking( trackmate );
+
+										/*
+										 * TODO WIP INCLUDE TRACK FILTERING STEP
+										 * HERE
+										 */
+
+										// Perform and save metrics
+										// measurements.
+										runner.performAndSaveMetricsMeasurements( trackmate, detectionTiming, trackingTiming );
+
+										// Save TrackMate file if required.
+										if ( saveTrackMateFiles )
+										{
+											final String nameGen = "TrackMate_%s_%s_%03d.xml";
+											int i = 1;
+											File trackmateFile;
+											do
+											{
+												trackmateFile = new File( savePath,
+														String.format( nameGen,
+																settings.detectorFactory.getKey(),
+																settings.trackerFactory.getKey(),
+																i++ ) );
+											}
+											while ( trackmateFile.exists() );
+
+											final TmXmlWriter writer = new TmXmlWriter( trackmateFile, Logger.VOID_LOGGER );
+											writer.appendModel( trackmate.getModel() );
+											writer.appendSettings( trackmate.getSettings() );
+											writer.appendGUIState( "ConfigureViews" );
+											try
+											{
+												writer.writeToFile();
+												batchLogger.log( "Saved results to TrackMate file: " + trackmateFile + "\n" );
+											}
+											catch ( final IOException e )
+											{
+												batchLogger.error( e.getMessage() );
+												e.printStackTrace();
+											}
+										}
+									}
+								}
 							}
 						}
 					}

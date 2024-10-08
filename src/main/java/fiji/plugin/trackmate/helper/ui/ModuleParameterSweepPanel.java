@@ -126,7 +126,7 @@ public class ModuleParameterSweepPanel extends JPanel
 		model.listeners().add( infoListener );
 	}
 
-	private static final JPanel createPanelFor( final AbstractParamSweepModel< ? > cm, final String spaceUnits, final String timeUnits )
+	public static final JPanel createPanelFor( final AbstractParamSweepModel< ? > cm, final String spaceUnits, final String timeUnits )
 	{
 		if ( cm instanceof BooleanParamSweepModel )
 			return new BooleanRangeSweepPanel( ( BooleanParamSweepModel ) cm );

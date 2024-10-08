@@ -46,6 +46,7 @@ import javax.swing.ScrollPaneConstants;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings.TrackMateObject;
+import fiji.plugin.trackmate.helper.ui.ModuleParameterSweepPanel;
 import fiji.plugin.trackmate.providers.SpotMorphologyAnalyzerProvider;
 import ij.ImagePlus;
 
@@ -54,7 +55,7 @@ public class FilterConfigPanel extends JPanel
 
 	private static final long serialVersionUID = -1L;
 
-	private final Stack< FilterPanel > filterPanels = new Stack<>();
+	private final Stack< FilterPanelOld > filterPanels = new Stack<>();
 
 	private final Stack< Component > struts = new Stack<>();
 
@@ -167,7 +168,8 @@ public class FilterConfigPanel extends JPanel
 	private void addFilter( final FeatureFilter filter )
 	{
 		final Map< String, String > featureNames = collectFeatureKeys( target, null, settings );
-		final FilterPanel tp = new FilterPanel( featureNames, filter );
+
+		ModuleParameterSweepPanel.createPanelFor( filterSweepModel, "", "" );
 
 		final Component strut = Box.createVerticalStrut( 5 );
 		struts.push( strut );
@@ -201,7 +203,7 @@ public class FilterConfigPanel extends JPanel
 	{
 		try
 		{
-			final FilterPanel tp = filterPanels.pop();
+			final FilterPanelOld tp = filterPanels.pop();
 			final Component strut = struts.pop();
 			allThresholdsPanel.remove( strut );
 			allThresholdsPanel.remove( tp );

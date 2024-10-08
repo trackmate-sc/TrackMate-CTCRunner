@@ -38,9 +38,9 @@ import org.scijava.plugin.PluginInfo;
 import org.scijava.plugin.PluginService;
 
 import fiji.plugin.trackmate.Settings;
-import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.helper.model.AbstractSweepModelBase.ModelListener;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
+import fiji.plugin.trackmate.helper.model.filter.FilterSweepModel;
 import fiji.plugin.trackmate.helper.model.tracker.TrackerSweepModel;
 import fiji.plugin.trackmate.util.TMUtils;
 
@@ -55,9 +55,9 @@ public class ParameterSweepModel
 
 	private final Map< String, Boolean > active = new HashMap<>();
 
-	private final List< FeatureFilter > spotFilters = new ArrayList<>();
+	private final List< FilterSweepModel > spotFilterModels;
 
-	private final List< FeatureFilter > trackFilters = new ArrayList<>();
+	private final List< FilterSweepModel > trackFilterModels;
 
 	public ParameterSweepModel()
 	{
@@ -73,6 +73,10 @@ public class ParameterSweepModel
 		for ( final DetectorSweepModel m : detectorModels.values() )
 			active.put( m.getName(), Boolean.FALSE );
 
+		// Spot and track filter models.
+		this.spotFilterModels = new ArrayList<>();
+		this.trackFilterModels = new ArrayList<>();
+
 		registerListeners();
 	}
 
@@ -81,6 +85,8 @@ public class ParameterSweepModel
 		// Forward component changes to listeners.
 		detectorModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
 		trackerModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
+//		spotFilterModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
+//		trackFilterModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
 	}
 
 	public Collection< DetectorSweepModel > detectorModels()
@@ -91,6 +97,38 @@ public class ParameterSweepModel
 	public Collection< TrackerSweepModel > trackerModels()
 	{
 		return trackerModels.values();
+	}
+	
+	public List< FilterSweepModel > spotFilterModels()
+	{
+		return Collections.unmodifiableList( spotFilterModels );
+	}
+	
+	public List< FilterSweepModel > trackFilterModels()
+	{
+		return Collections.unmodifiableList( trackFilterModels );
+	}
+
+	public void addSpotFilterModel( final FilterSweepModel model )
+	{
+		model.listeners().add( () -> notifyListeners() );
+		spotFilterModels.add( model );
+	}
+
+	public boolean removeSpotFilterModel( final FilterSweepModel model )
+	{
+		return spotFilterModels.remove( model );
+	}
+
+	public void addTrackFilterModel( final FilterSweepModel model )
+	{
+		model.listeners().add( () -> notifyListeners() );
+		trackFilterModels.add( model );
+	}
+
+	public boolean removeTrackFilterModel( final FilterSweepModel model )
+	{
+		return trackFilterModels.remove( model );
 	}
 
 	public boolean isActive( final String name )
@@ -107,28 +145,6 @@ public class ParameterSweepModel
 		final Boolean previous = this.active.put( name, Boolean.valueOf( active ) );
 		if ( active != previous.booleanValue() )
 			notifyListeners();
-	}
-
-	public List< FeatureFilter > getSpotFilters()
-	{
-		return Collections.unmodifiableList( spotFilters );
-	}
-
-	public List< FeatureFilter > getTrackFilters()
-	{
-		return Collections.unmodifiableList( trackFilters );
-	}
-
-	public void setSpotFilters( final List< FeatureFilter > spotFilters )
-	{
-		this.spotFilters.clear();
-		this.spotFilters.addAll( spotFilters );
-	}
-
-	public void setTrackFilters( final List< FeatureFilter > trackFilters )
-	{
-		this.trackFilters.clear();
-		this.trackFilters.addAll( trackFilters );
 	}
 
 	public List< DetectorSweepModel > getActiveDetectors()
@@ -159,7 +175,7 @@ public class ParameterSweepModel
 	 */
 	public int count()
 	{
-		return countDetectorSettings() * countTrackerSettings();
+		return countDetectorSettings() * countTrackerSettings() * countSpotFilterSettings() * countTrackerSettings();
 	}
 
 	/**
@@ -199,6 +215,58 @@ public class ParameterSweepModel
 		for ( final DetectorSweepModel detectorModel : getActiveDetectors() )
 		{
 			final Iterator< Settings > dit = detectorModel.iterator( base, targetChannel );
+			while ( dit.hasNext() )
+			{
+				dit.next();
+				count++;
+			}
+		}
+		return count;
+	}
+
+	/**
+	 * Returns the count of the different spot filter settings that will be
+	 * generated from this model.
+	 * 
+	 * @return the count of settings.
+	 */
+	public int countSpotFilterSettings()
+	{
+		if ( spotFilterModels().isEmpty() )
+			return 1;
+
+		final int targetChannel = 1;
+		final Settings base = new Settings( null );
+		int count = 0;
+		for ( final FilterSweepModel filterModel : spotFilterModels() )
+		{
+			final Iterator< Settings > dit = filterModel.iterator( base, targetChannel );
+			while ( dit.hasNext() )
+			{
+				dit.next();
+				count++;
+			}
+		}
+		return count;
+	}
+
+	/**
+	 * Returns the count of the different track filter settings that will be
+	 * generated from this model.
+	 * 
+	 * @return the count of settings.
+	 */
+	public int countTrackFilterSettings()
+	{
+		if ( trackFilterModels().isEmpty() )
+			return 1;
+
+		final int targetChannel = 1;
+		final Settings base = new Settings( null );
+		int count = 0;
+		for ( final FilterSweepModel filterModel : trackFilterModels() )
+		{
+			final Iterator< Settings > dit = filterModel.iterator( base, targetChannel );
 			while ( dit.hasNext() )
 			{
 				dit.next();

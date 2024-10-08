@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.IntSummaryStatistics;
+import java.util.List;
 import java.util.function.BiFunction;
 
 import com.opencsv.CSVReader;
@@ -131,8 +132,7 @@ public abstract class MetricsRunner
 		trackmate.getModel().setLogger( trackmateLogger );
 		if ( !trackmate.execDetection()
 				|| !trackmate.execInitialSpotFiltering()
-				|| !trackmate.computeSpotFeatures( true )
-				|| !trackmate.execSpotFiltering( true ) )
+				|| !trackmate.computeSpotFeatures( true ) )
 		{
 			batchLogger.error( "Error in the detection step:\n" + trackmate.getErrorMessage() );
 			return null;
@@ -140,9 +140,34 @@ public abstract class MetricsRunner
 		final long end = System.currentTimeMillis();
 		final double detectionTiming = ( end - start ) / 1000.;
 
+		batchLogger.log( String.format( "Detection done in %.1f s.\n", ( end - start ) / 1e3f ) );
+		return new ValuePair<>( trackmate, detectionTiming );
+	}
+
+	public TrackMate execSpotFiltering( final Settings settings )
+	{
+		batchLogger.log( "Executing spot filtering.\n" );
+		final List< FeatureFilter > spotFilters = settings.getSpotFilters();
+		if ( spotFilters.isEmpty() )
+		{
+			batchLogger.log( "No spot filters configured.\n" );
+		}
+		else
+		{
+			batchLogger.log( " with spot filters:\n" );
+			batchLogger.log( TrackingMetricsTable.echoFilters( spotFilters ), Logger.BLUE_COLOR );
+		}
+
+		final TrackMate trackmate = new TrackMate( settings );
+		trackmate.getModel().setLogger( trackmateLogger );
+		if ( !trackmate.execSpotFiltering( true ) )
+		{
+			batchLogger.error( "Error in the spot filtering step:\n" + trackmate.getErrorMessage() );
+			return null;
+		}
+
 		final int nVisibleSpots = trackmate.getModel().getSpots().getNSpots( true );
 		final int nTotalSpots = trackmate.getModel().getSpots().getNSpots( false );
-		batchLogger.log( String.format( "Detection done in %.1f s.\n", ( end - start ) / 1e3f ) );
 		batchLogger.log( String.format( "Found %d visible spots over %d in total.\n",
 				nVisibleSpots, nTotalSpots ) );
 
@@ -152,8 +177,7 @@ public abstract class MetricsRunner
 			final String[] csvHeader1 = toCSVHeader( settings );
 			writeFailedResults( csvFile, settings, csvHeader1 );
 		}
-
-		return new ValuePair<>( trackmate, detectionTiming );
+		return trackmate;
 	}
 
 	public double execTracking( final TrackMate trackmate )
@@ -172,8 +196,7 @@ public abstract class MetricsRunner
 		if ( !trackmate.checkInput()
 				|| !trackmate.execTracking()
 				|| !trackmate.computeEdgeFeatures( true )
-				|| !trackmate.computeTrackFeatures( true )
-				|| !trackmate.execTrackFiltering( true ) )
+				|| !trackmate.computeTrackFeatures( true ) )
 		{
 			System.err.println( "Error in tracking step:\n" + trackmate.getErrorMessage() );
 			return Double.NaN;
@@ -182,6 +205,27 @@ public abstract class MetricsRunner
 		final double trackingTiming = ( end - start ) / 1000.;
 
 		batchLogger.log( String.format( "Tracking done in %.1f s.\n", trackingTiming ) );
+		return trackingTiming;
+	}
+
+	public void execTrackFiltering( final TrackMate trackmate )
+	{
+		batchLogger.log( "Executing track filtering.\n" );
+		final List< FeatureFilter > trackFilters = trackmate.getSettings().getTrackFilters();
+		if ( trackFilters.isEmpty() )
+		{
+			batchLogger.log( "No track filters configured.\n" );
+		}
+		else
+		{
+			batchLogger.log( " with track filters:\n" );
+			batchLogger.log( TrackingMetricsTable.echoFilters( trackFilters ), Logger.BLUE_COLOR );
+		}
+		if ( !trackmate.execTrackFiltering( true ) )
+		{
+			batchLogger.error( "Error in the track filtering step:\n" + trackmate.getErrorMessage() );
+			return;
+		}
 		final TrackModel trackModel = trackmate.getModel().getTrackModel();
 		final IntSummaryStatistics stats = trackModel.unsortedTrackIDs( true ).stream()
 				.mapToInt( id -> trackModel.trackSpots( id ).size() )
@@ -191,8 +235,6 @@ public abstract class MetricsRunner
 		batchLogger.log( String.format( "  - avg size: %.1f spots.\n", stats.getAverage() ) );
 		batchLogger.log( String.format( "  - min size: %d spots.\n", stats.getMin() ) );
 		batchLogger.log( String.format( "  - max size: %d spots.\n", stats.getMax() ) );
-
-		return trackingTiming;
 	}
 
 	private File findSuitableCSVFile( final Settings settings )
