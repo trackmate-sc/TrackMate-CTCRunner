@@ -17,22 +17,52 @@ import fiji.plugin.trackmate.helper.model.parameter.BooleanParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.Combinations;
 import fiji.plugin.trackmate.helper.model.parameter.DoubleParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.NumberParamSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.NumberParamSweepModel.RangeType;
 
 public class FilterSweepModel extends AbstractSweepModelBase
 {
 
-	protected static final String FEATURE = "FEATURE";
+	public static final String FEATURE = "FEATURE";
 
-	protected static final String VALUE = "VALUE";
+	public static final String VALUE = "VALUE";
 
-	protected static final String ISABOVE = "ISABOVE";
+	public static final String ISABOVE = "ISABOVE";
 
 	private final TrackMateObject target;
 
-	public FilterSweepModel( final TrackMateObject target, final Map< String, String > featureNames )
+	public FilterSweepModel( final TrackMateObject target, final Map< String, String > featureNames, final FeatureFilter filter, final int index )
 	{
-		super( "Filter on " + target.toString(), createModels( featureNames ) );
+		this( target, featureNames, index );
+		set( filter );
+	}
+
+	public FilterSweepModel( final TrackMateObject target, final Map< String, String > featureNames, final int index )
+	{
+		super( "Filter on " + target.toString(), createModels( featureNames, index ) );
 		this.target = target;
+	}
+
+
+	/**
+	 * Sets this model to represent the single feature filter specified.
+	 * 
+	 * @param ff
+	 *            the feature filter.
+	 */
+	public void set( final FeatureFilter ff )
+	{
+		@SuppressWarnings( "unchecked" )
+		final ArrayParamSweepModel< String > featureParam = ( ArrayParamSweepModel< String > ) getModels().get( FEATURE );
+		final DoubleParamSweepModel thresholdParam = ( DoubleParamSweepModel ) getModels().get( VALUE );
+		final BooleanParamSweepModel isAboveParam = ( BooleanParamSweepModel ) getModels().get( ISABOVE );
+
+		featureParam
+				.fixedValue( ff.feature )
+				.rangeType( ArrayParamSweepModel.RangeType.FIXED );
+		thresholdParam.rangeType( RangeType.FIXED )
+				.min( ff.value );
+		isAboveParam.fixedValue( ff.isAbove )
+				.rangeType( BooleanParamSweepModel.RangeType.FIXED );
 	}
 
 	@Override
@@ -41,11 +71,11 @@ public class FilterSweepModel extends AbstractSweepModelBase
 		return new MySettingsIterator( base );
 	}
 
-	private static Map< String, AbstractParamSweepModel< ? > > createModels( final Map< String, String > featureNames )
+	private static Map< String, AbstractParamSweepModel< ? > > createModels( final Map< String, String > featureNames, final int index )
 	{
 		final String[] arr = new ArrayList<>( featureNames.values() ).toArray( new String[] {} );
 		final ArrayParamSweepModel< String > featureNameParam = new ArrayParamSweepModel<>( arr )
-				.paramName( "Feature" )
+				.paramName( "Feature " + index )
 				.fixedValue( arr[ 0 ] )
 				.rangeType( ArrayParamSweepModel.RangeType.FIXED );
 

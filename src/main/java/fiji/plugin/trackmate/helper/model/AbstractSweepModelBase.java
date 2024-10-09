@@ -83,7 +83,7 @@ public abstract class AbstractSweepModelBase implements SciJavaPlugin
 
 	protected final void notifyListeners()
 	{
-		for ( final ModelListener l : modelListeners.list )
+		for ( final ModelListener l : listeners().list )
 			l.modelChanged();
 	}
 }

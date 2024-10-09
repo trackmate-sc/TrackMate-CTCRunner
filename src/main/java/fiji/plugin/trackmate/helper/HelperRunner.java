@@ -21,6 +21,8 @@
  */
 package fiji.plugin.trackmate.helper;
 
+import static fiji.plugin.trackmate.helper.TrackingMetricsTable.echoFilters;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -244,10 +246,10 @@ public class HelperRunner implements Runnable, Cancelable
 		/*
 		 * LOOP OVER DETECTOR SETTINGS.
 		 */
-		DETECTOR_SETTINGS_LOOP: for ( final DetectorSweepModel detectorModel : model.getActiveDetectors() )
+		for ( final DetectorSweepModel detectorModel : model.getActiveDetectors() )
 		{
 			final Iterator< Settings > detectorIterator = detectorModel.iterator( base, targetChannel );
-			while ( detectorIterator.hasNext() )
+			DETECTOR_SETTINGS_LOOP: while ( detectorIterator.hasNext() )
 			{
 				final Settings settingsDet = detectorIterator.next();
 
@@ -258,10 +260,10 @@ public class HelperRunner implements Runnable, Cancelable
 				/*
 				 * LOOP OVER SPOT FILTERS.
 				 */
-				SPOT_FILTER_LOOP: for ( final FilterSweepModel spotFilterSweepModel : model.spotFilterModels() )
+				for ( final FilterSweepModel spotFilterSweepModel : model.spotFilterModels() )
 				{
 					final Iterator< Settings > spotFilterIterator = spotFilterSweepModel.iterator( settingsDet, targetChannel );
-					while ( spotFilterIterator.hasNext() )
+					SPOT_FILTER_LOOP: while ( spotFilterIterator.hasNext() )
 					{
 						final Settings settingsDetSpotFilt = spotFilterIterator.next();
 
@@ -271,7 +273,7 @@ public class HelperRunner implements Runnable, Cancelable
 						for ( final TrackerSweepModel trackerModel : model.getActiveTracker() )
 						{
 							final Iterator< Settings > trackerIterator = trackerModel.iterator( settingsDetSpotFilt, targetChannel );
-							while ( trackerIterator.hasNext() )
+							TRACKING_SETTINGS_LOOP: while ( trackerIterator.hasNext() )
 							{
 								final Settings settingsDetSpotFiltTracker = trackerIterator.next();
 
@@ -303,7 +305,7 @@ public class HelperRunner implements Runnable, Cancelable
 											else
 											{
 												batchLogger.log( "and with spot filters:n" );
-												TrackingMetricsTable.echoFilters( settingsDetSpotFiltTrackerTrackFilt.getSpotFilters() );
+												echoFilters( settingsDetSpotFiltTrackerTrackFilt.getSpotFilters() );
 											}
 											if ( settingsDetSpotFiltTrackerTrackFilt.getTrackFilters().isEmpty() )
 											{
@@ -312,13 +314,15 @@ public class HelperRunner implements Runnable, Cancelable
 											else
 											{
 												batchLogger.log( "and with track filters:n" );
-												TrackingMetricsTable.echoFilters( settingsDetSpotFiltTrackerTrackFilt.getTrackFilters() );
+												echoFilters( settingsDetSpotFiltTrackerTrackFilt.getTrackFilters() );
 											}
 											batchLogger.log( "were already tested. Skipping.\n" );
 											continue;
 										}
 
-										// TODO MOVE WHAT IS BELOW ELSEWHERE
+										/*
+										 * PERFORM DETECTION IF WE NEED.
+										 */
 
 										if ( !detectionDone )
 										{
@@ -339,7 +343,18 @@ public class HelperRunner implements Runnable, Cancelable
 												batchLogger.setProgress( ( double ) ++progress / count );
 												continue DETECTOR_SETTINGS_LOOP;
 											}
+											if ( trackmate.getModel().getSpots().getNSpots( false ) == 0 )
+											{
+												batchLogger.log( "Settings result in having 0 after detection.\nSkipping.\n" );
+												progress += model.countTrackerSettings() * model.countTrackFilterSettings();
+												batchLogger.setProgress( ( double ) ++progress / count );
+												continue SPOT_FILTER_LOOP;
+											}
 										}
+
+										/*
+										 * PERFORM SPOT FILTERING.
+										 */
 
 										trackmate = runner.execSpotFiltering( settingsDetSpotFiltTrackerTrackFilt );
 										// Got 0 spots to track?
@@ -356,16 +371,28 @@ public class HelperRunner implements Runnable, Cancelable
 										settings.trackerSettings = settingsDetSpotFiltTracker.trackerSettings;
 										batchLogger.setStatus( settings.detectorFactory.getName() + " + " + settings.trackerFactory.getName() );
 
-										// Exec tracking.
-										final double trackingTiming = runner.execTracking( trackmate );
-
 										/*
-										 * TODO WIP INCLUDE TRACK FILTERING STEP
-										 * HERE
+										 * PERFORM TRACKING.
 										 */
 
-										// Perform and save metrics
-										// measurements.
+										final double trackingTiming = runner.execTracking( trackmate );
+										if ( Double.isNaN( trackingTiming ) )
+										{
+											progress += model.countTrackFilterSettings();
+											batchLogger.setProgress( ( double ) ++progress / count );
+											continue TRACKING_SETTINGS_LOOP;
+										}
+
+										/*
+										 * PERFORM TRACK FILTERING.
+										 */
+
+										runner.execTrackFiltering( trackmate );
+
+										/*
+										 * PERFORM METRICS MEASUREMENTS.
+										 */
+
 										runner.performAndSaveMetricsMeasurements( trackmate, detectionTiming, trackingTiming );
 
 										// Save TrackMate file if required.

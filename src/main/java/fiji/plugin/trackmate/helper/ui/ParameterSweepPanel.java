@@ -71,7 +71,8 @@ import fiji.plugin.trackmate.helper.model.AbstractSweepModelBase.ModelListener;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModel;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
 import fiji.plugin.trackmate.helper.model.tracker.TrackerSweepModel;
-import fiji.plugin.trackmate.helper.ui.components.FilterConfigPanel;
+import fiji.plugin.trackmate.helper.ui.filters.SpotFilterConfigPanel;
+import fiji.plugin.trackmate.helper.ui.filters.TrackFilterConfigPanel;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import ij.ImagePlus;
 
@@ -92,11 +93,9 @@ public class ParameterSweepPanel extends JPanel
 	 */
 	final List< EverythingDisablerAndReenabler > enablers;
 
-	private final FilterConfigPanel panelSpotFilters;
+	private final SpotFilterConfigPanel panelSpotFilters;
 
-	private final FilterConfigPanel panelTrackFilters;
-
-	private final ParameterSweepModel model;
+	private final TrackFilterConfigPanel panelTrackFilters;
 
 	final JButton btnRun;
 
@@ -119,7 +118,6 @@ public class ParameterSweepPanel extends JPanel
 			final ResultsCrawler crawler,
 			final String gtPath )
 	{
-		this.model = model;
 		this.crawler = crawler;
 		this.enablers = new ArrayList<>();
 		setLayout( new BorderLayout( 5, 5 ) );
@@ -139,12 +137,12 @@ public class ParameterSweepPanel extends JPanel
 		final CrawlerResultsPanel bestParamsPanel = new CrawlerResultsPanel( crawler, imp );
 		tabbedPane.addTab( "Best params", null, bestParamsPanel, null );
 
-		panelSpotFilters = new FilterConfigPanel( TrackMateObject.SPOTS, Spot.QUALITY, imp, model.getSpotFilters() );
+		panelSpotFilters = new SpotFilterConfigPanel( TrackMateObject.SPOTS, Spot.QUALITY, imp, model );
 		tabbedPane.addTab( "Spot filters", null, panelSpotFilters, null );
 		// Enabler.
 		enablers.add( new EverythingDisablerAndReenabler( panelSpotFilters, new Class[] { JLabel.class } ) );
 
-		panelTrackFilters = new FilterConfigPanel( TrackMateObject.TRACKS, TrackBranchingAnalyzer.NUMBER_SPOTS, imp, model.getTrackFilters() );
+		panelTrackFilters = new TrackFilterConfigPanel( TrackMateObject.TRACKS, TrackBranchingAnalyzer.NUMBER_SPOTS, imp, model );
 		tabbedPane.addTab( "Track filters", null, panelTrackFilters, null );
 		// Enabler.
 		enablers.add( new EverythingDisablerAndReenabler( panelTrackFilters, new Class[] { JLabel.class } ) );
@@ -573,15 +571,5 @@ public class ParameterSweepPanel extends JPanel
 		};
 		model.listeners().add( l1 );
 		l1.modelChanged();
-	}
-
-	/**
-	 * Reads the spot and track filters from the GUI and put them in the model.
-	 */
-	void refresh()
-	{
-		// Forced to do that because of how we set the filters.
-		model.setSpotFilters( panelSpotFilters.getFeatureFilters() );
-		model.setTrackFilters( panelTrackFilters.getFeatureFilters() );
 	}
 }

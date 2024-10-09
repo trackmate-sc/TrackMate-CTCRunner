@@ -66,7 +66,6 @@ public class ParameterSweepController implements Cancelable
 
 		// Save on model modification.
 		model.listeners().add( () -> {
-			gui.refresh();
 			ParameterSweepModelIO.saveTo( new File( runner.getModelPath() ), model );
 		} );
 
@@ -144,7 +143,6 @@ public class ParameterSweepController implements Cancelable
 	private void run()
 	{
 		// Refresh model :(
-		gui.refresh();
 		gui.enablers.forEach( EverythingDisablerAndReenabler::disable );
 		gui.btnRun.setVisible( false );
 		gui.btnStop.setVisible( true );
