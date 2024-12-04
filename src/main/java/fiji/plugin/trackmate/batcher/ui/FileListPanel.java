@@ -23,11 +23,11 @@ package fiji.plugin.trackmate.batcher.ui;
 
 import static fiji.plugin.trackmate.gui.Fonts.SMALL_FONT;
 import static fiji.plugin.trackmate.gui.Icons.ADD_ICON;
+import static fiji.plugin.trackmate.gui.Icons.BIN_ICON;
 import static fiji.plugin.trackmate.gui.Icons.REMOVE_ICON;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.FlowLayout;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
@@ -99,13 +99,25 @@ public class FileListPanel extends JPanel
 		mainPanel.setLayout( jPanelAllThresholdsLayout );
 		scrollPane.setViewportView( mainPanel );
 
+		buttonPanel = new JPanel();
+		buttonPanel.setLayout( new BoxLayout( buttonPanel, BoxLayout.LINE_AXIS ) );
+
 		final JButton btnAdd = new JButton();
 		btnAdd.setIcon( ADD_ICON );
 		btnAdd.setPreferredSize( new java.awt.Dimension( 24, 24 ) );
 		btnAdd.setSize( 24, 24 );
 		btnAdd.setMinimumSize( new java.awt.Dimension( 24, 24 ) );
-		buttonPanel = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
+
+		final JButton btnClearAll = new JButton();
+		btnClearAll.setIcon( BIN_ICON );
+		btnClearAll.setToolTipText( "Clear all file paths" );
+		btnClearAll.setPreferredSize( new java.awt.Dimension( 24, 24 ) );
+		btnClearAll.setSize( 24, 24 );
+		btnClearAll.setMinimumSize( new java.awt.Dimension( 24, 24 ) );
+
 		buttonPanel.add( btnAdd );
+		buttonPanel.add( Box.createHorizontalGlue() );
+		buttonPanel.add( btnClearAll );
 
 		/*
 		 * Default values.
@@ -124,6 +136,7 @@ public class FileListPanel extends JPanel
 		 */
 
 		btnAdd.addActionListener( e -> addFileBox() );
+		btnClearAll.addActionListener( e -> clearAllFiles() );
 		setDropTarget( new AddFilesDropTarget() );
 	}
 
@@ -164,6 +177,16 @@ public class FileListPanel extends JPanel
 
 		panel.btnRemove.addActionListener( e -> removeStringPanel( panel, strut ) );
 		mainPanel.revalidate();
+	}
+
+	private void clearAllFiles()
+	{
+		mainPanel.removeAll();
+		mainPanel.add( buttonPanel );
+		fileBoxes.clear();
+		mainPanel.revalidate();
+		mainPanel.repaint();
+		refresher.run();
 	}
 
 	private void removeStringPanel( final FileBoxPanel stringPanel, final Component strut )
