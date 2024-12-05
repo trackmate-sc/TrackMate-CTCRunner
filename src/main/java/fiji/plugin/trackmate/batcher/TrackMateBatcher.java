@@ -41,8 +41,11 @@ import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings;
 import fiji.plugin.trackmate.util.TMUtils;
 import ij.IJ;
 import ij.ImagePlus;
+import ij.io.Opener;
+import ij.io.TiffDecoder;
 import loci.formats.FormatException;
 import loci.plugins.BF;
+import loci.plugins.in.ImporterOptions;
 import net.imglib2.algorithm.Algorithm;
 import net.imglib2.algorithm.MultiThreaded;
 
@@ -136,8 +139,37 @@ public class TrackMateBatcher implements Cancelable, MultiThreaded, Algorithm
 			 */
 
 			logger.log( " - Loading image... " );
+			/*
+			 * Try to avoid have ImageJ showing a model dialog when the file
+			 * type is TIFF, but actually corresponds to another file format
+			 * ImageJ cannot handle. This weird case causes calls to the
+			 * 'openUsingHandleExtraFileTypes' of the IJ Opener, which in the
+			 * end results in showing a model dialog interrupting the batch. In
+			 * that case we skip opening with Fiji and delegate to BF ourselves.
+			 */
+			final Opener opener = new Opener();
+			final int fileType = opener.getFileType( path.toString() );
+			ImagePlus tmpimp = null;
+			if ( fileType == Opener.TIFF )
+			{
+				final String dir = opener.getDir( path.toString() );
+				final String name = opener.getName( path.toString() );
+				final TiffDecoder td = new TiffDecoder( dir, name );
+				try
+				{
+					td.getTiffInfo(); // will fail if not TIFF
+					// Load the image.
+					tmpimp = IJ.openImage( path.toString() );
+				}
+				catch ( final IOException e )
+				{
+					/*
+					 * In that case the image file is not a true TIFF and we
+					 * need to fail silently.
+					 */
+				}
+			}
 			ImagePlus[] imps;
-			final ImagePlus tmpimp = IJ.openImage( path.toString() );
 			if ( tmpimp != null )
 			{
 				imps = new ImagePlus[] { tmpimp };
@@ -146,7 +178,10 @@ public class TrackMateBatcher implements Cancelable, MultiThreaded, Algorithm
 			{
 				try
 				{
-					imps = BF.openImagePlus( path.toString() );
+					final ImporterOptions options = new ImporterOptions();
+					options.setWindowless( true ); // Set windowless option
+					options.setId( path.toString() );
+					imps = BF.openImagePlus( options );
 				}
 				catch ( FormatException | IOException e )
 				{
@@ -242,6 +277,7 @@ public class TrackMateBatcher implements Cancelable, MultiThreaded, Algorithm
 		logger.setStatus( "" );
 
 		return true;
+
 	}
 
 	@Override
