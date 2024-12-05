@@ -150,24 +150,24 @@ public class TrackMateBatcher implements Cancelable, MultiThreaded, Algorithm
 			final Opener opener = new Opener();
 			final int fileType = opener.getFileType( path.toString() );
 			ImagePlus tmpimp = null;
-			if ( fileType == Opener.TIFF )
+			try
 			{
-				final String dir = opener.getDir( path.toString() );
-				final String name = opener.getName( path.toString() );
-				final TiffDecoder td = new TiffDecoder( dir, name );
-				try
+				if ( fileType == Opener.TIFF )
 				{
+					final String dir = opener.getDir( path.toString() );
+					final String name = opener.getName( path.toString() );
+					final TiffDecoder td = new TiffDecoder( dir, name );
 					td.getTiffInfo(); // will fail if not TIFF
-					// Load the image.
-					tmpimp = IJ.openImage( path.toString() );
 				}
-				catch ( final IOException e )
-				{
-					/*
-					 * In that case the image file is not a true TIFF and we
-					 * need to fail silently.
-					 */
-				}
+				// Load the image.
+				tmpimp = IJ.openImage( path.toString() );
+			}
+			catch ( final IOException e )
+			{
+				/*
+				 * In that case the image file is not a true TIFF and we need to
+				 * fail silently.
+				 */
 			}
 			ImagePlus[] imps;
 			if ( tmpimp != null )
