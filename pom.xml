@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>37.0.0</version>
+		<version>38.0.1</version>
 		<relativePath />
 	</parent>
 
@@ -85,19 +85,16 @@
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
 		<CTC-measures.version>1.0.3</CTC-measures.version>
-		<TrackMate.version>7.13.3-SNAPSHOT</TrackMate.version>
+		<TrackMate.version>8.0.0-SNAPSHOT</TrackMate.version>
 		<TrackMate-Cellpose.version>0.2.0-SNAPSHOT</TrackMate-Cellpose.version>
 	</properties>
 
 	<dependencies>
+		<!-- TrackMate -->
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate</artifactId>
 		</dependency>
-
-		<!-- ImageJ dependencies -->
-	
-		<!-- TrackMate -->
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate-StarDist</artifactId>
