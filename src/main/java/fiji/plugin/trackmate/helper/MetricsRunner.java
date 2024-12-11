@@ -144,9 +144,10 @@ public abstract class MetricsRunner
 		return new ValuePair<>( trackmate, detectionTiming );
 	}
 
-	public TrackMate execSpotFiltering( final Settings settings )
+	public TrackMate execSpotFiltering( final TrackMate trackmate )
 	{
 		batchLogger.log( "Executing spot filtering.\n" );
+		final Settings settings = trackmate.getSettings();
 		final List< FeatureFilter > spotFilters = settings.getSpotFilters();
 		if ( spotFilters.isEmpty() )
 		{
@@ -158,7 +159,6 @@ public abstract class MetricsRunner
 			batchLogger.log( TrackingMetricsTable.echoFilters( spotFilters ), Logger.BLUE_COLOR );
 		}
 
-		final TrackMate trackmate = new TrackMate( settings );
 		trackmate.getModel().setLogger( trackmateLogger );
 		if ( !trackmate.execSpotFiltering( true ) )
 		{
