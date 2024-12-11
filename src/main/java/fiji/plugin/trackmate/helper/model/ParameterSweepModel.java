@@ -175,7 +175,7 @@ public class ParameterSweepModel
 	 */
 	public int count()
 	{
-		return countDetectorSettings() * countTrackerSettings() * countSpotFilterSettings() * countTrackerSettings();
+		return countDetectorSettings() * countTrackerSettings() * countSpotFilterSettings() * countTrackFilterSettings();
 	}
 
 	/**
