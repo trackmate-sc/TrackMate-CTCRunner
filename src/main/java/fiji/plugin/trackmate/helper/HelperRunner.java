@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.scijava.Cancelable;
@@ -37,16 +38,18 @@ import org.scijava.Cancelable;
 import com.google.gson.JsonParseException;
 
 import fiji.plugin.trackmate.Logger;
+import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
+import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.helper.ctc.CTCTrackingMetricsType;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModel;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModelIO;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
-import fiji.plugin.trackmate.helper.model.filter.FilterSweepModel;
 import fiji.plugin.trackmate.helper.model.tracker.TrackerSweepModel;
 import fiji.plugin.trackmate.helper.spt.SPTTrackingMetricsType;
 import fiji.plugin.trackmate.io.TmXmlWriter;
+import fiji.plugin.trackmate.util.NestedIterator;
 import fiji.plugin.trackmate.util.TMUtils;
 import ij.IJ;
 import ij.ImagePlus;
@@ -323,25 +326,26 @@ public class HelperRunner implements Runnable, Cancelable
 		if ( model.spotFilterModels().isEmpty() )
 		{
 			// No spot filter, we can skip to iterating on tracker settings.
+			base.clearSpotFilters();
 			final int val = loopTrackerSettings( base, iterationData );
 			if ( val > SPOT_FILTER_LOOP )
 				return val;
 			return DETECTOR_SETTINGS_LOOP;
 		}
 
-		MAIN_LOOP: for ( final FilterSweepModel spotFilterSweepModel : model.spotFilterModels() )
+		final Iterator< List< FeatureFilter > > spotFilterIterator = new NestedIterator<>( model.spotFilterModels() );
+		while ( spotFilterIterator.hasNext() )
 		{
-			final Iterator< Settings > spotFilterIterator = spotFilterSweepModel.iterator( base, targetChannel );
-			while ( spotFilterIterator.hasNext() )
-			{
-				if ( isCanceled() )
-					break MAIN_LOOP;
+			if ( isCanceled() )
+				break;
 
-				final Settings settings = spotFilterIterator.next();
-				final int val = loopTrackerSettings( settings, iterationData );
-				if ( val > SPOT_FILTER_LOOP )
-					return val;
-			}
+			base.clearSpotFilters();
+			final List< FeatureFilter > ffs = spotFilterIterator.next();
+			ffs.forEach( base::addSpotFilter );
+
+			final int val = loopTrackerSettings( base, iterationData );
+			if ( val > SPOT_FILTER_LOOP )
+				return val;
 		}
 		return DETECTOR_SETTINGS_LOOP;
 	}
@@ -409,27 +413,29 @@ public class HelperRunner implements Runnable, Cancelable
 		if ( model.trackFilterModels().isEmpty() )
 		{
 			// No track filter, we can skip to iterating on tracker settings.
+			base.clearTrackFilters();
 			final int val = execTracking( base, iterationData );
 			if ( val > TRACK_FILTER_LOOP )
 				return val;
 			return TRACKER_SETTINGS_LOOP;
 		}
 
-		MAIN_LOOP: for ( final FilterSweepModel trackFilterSweepModel : model.trackFilterModels() )
+		final Iterator< List< FeatureFilter > > trackFilterIterator = new NestedIterator<>( model.trackFilterModels() );
+		while ( trackFilterIterator.hasNext() )
 		{
-			final Iterator< Settings > trackFilterIterator = trackFilterSweepModel.iterator( base, targetChannel );
-			while ( trackFilterIterator.hasNext() )
-			{
-				if ( isCanceled() )
-					break MAIN_LOOP;
+			if ( isCanceled() )
+				break;
 
-				final Settings settings = trackFilterIterator.next();
-				final int val = execTracking( settings, iterationData );
-				if (val > TRACK_FILTER_LOOP)
-					return val;
-			}
+			base.clearTrackFilters();
+			final List< FeatureFilter > ffs = trackFilterIterator.next();
+			ffs.forEach( base::addTrackFilter );
+
+			final int val = execTracking( base, iterationData );
+			if ( val > TRACK_FILTER_LOOP )
+				return val;
 		}
 		return TRACKER_SETTINGS_LOOP;
+
 	}
 
 	/**
@@ -517,6 +523,15 @@ public class HelperRunner implements Runnable, Cancelable
 				return SPOT_FILTER_LOOP;
 			}
 		}
+		else
+		{
+			/*
+			 * Detection has been done already. We just need to make a new
+			 * TrackMate with the current settings we iterate to.
+			 */
+			final Model tmModel = iterationData.trackmate.getModel();
+			iterationData.trackmate = new TrackMate( tmModel, base );
+		}
 
 		/*
 		 * PERFORM SPOT FILTERING.
@@ -532,10 +547,7 @@ public class HelperRunner implements Runnable, Cancelable
 			return SPOT_FILTER_LOOP;
 		}
 
-		final Settings settings = iterationData.trackmate.getSettings();
-		settings.trackerFactory = settings.trackerFactory;
-		settings.trackerSettings = settings.trackerSettings;
-		batchLogger.setStatus( settings.detectorFactory.getName() + " + " + settings.trackerFactory.getName() );
+		batchLogger.setStatus( iterationData.trackmate.getSettings().detectorFactory.getName() + " + " + iterationData.trackmate.getSettings().trackerFactory.getName() );
 
 		/*
 		 * PERFORM TRACKING.
@@ -572,8 +584,8 @@ public class HelperRunner implements Runnable, Cancelable
 			{
 				trackmateFile = new File( savePath,
 						String.format( nameGen,
-								settings.detectorFactory.getKey(),
-								settings.trackerFactory.getKey(),
+								iterationData.trackmate.getSettings().detectorFactory.getKey(),
+								iterationData.trackmate.getSettings().trackerFactory.getKey(),
 								i++ ) );
 			}
 			while ( trackmateFile.exists() );
