@@ -38,6 +38,7 @@ import org.scijava.plugin.PluginInfo;
 import org.scijava.plugin.PluginService;
 
 import fiji.plugin.trackmate.Settings;
+import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.helper.model.AbstractSweepModelBase.ModelListener;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
 import fiji.plugin.trackmate.helper.model.filter.FilterSweepModel;
@@ -98,12 +99,12 @@ public class ParameterSweepModel
 	{
 		return trackerModels.values();
 	}
-	
+
 	public List< FilterSweepModel > spotFilterModels()
 	{
 		return Collections.unmodifiableList( spotFilterModels );
 	}
-	
+
 	public List< FilterSweepModel > trackFilterModels()
 	{
 		return Collections.unmodifiableList( trackFilterModels );
@@ -261,12 +262,10 @@ public class ParameterSweepModel
 		if ( trackFilterModels().isEmpty() )
 			return 1;
 
-		final int targetChannel = 1;
-		final Settings base = new Settings( null );
 		int count = 0;
 		for ( final FilterSweepModel filterModel : trackFilterModels() )
 		{
-			final Iterator< Settings > dit = filterModel.iterator( base, targetChannel );
+			final Iterator< FeatureFilter > dit = filterModel.iterator();
 			while ( dit.hasNext() )
 			{
 				dit.next();

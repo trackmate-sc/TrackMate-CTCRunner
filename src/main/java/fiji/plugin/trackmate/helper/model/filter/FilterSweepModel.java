@@ -19,7 +19,7 @@ import fiji.plugin.trackmate.helper.model.parameter.DoubleParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.NumberParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.NumberParamSweepModel.RangeType;
 
-public class FilterSweepModel extends AbstractSweepModelBase
+public class FilterSweepModel extends AbstractSweepModelBase implements Iterable< FeatureFilter >
 {
 
 	public static final String FEATURE = "FEATURE";
@@ -27,8 +27,6 @@ public class FilterSweepModel extends AbstractSweepModelBase
 	public static final String VALUE = "VALUE";
 
 	public static final String ISABOVE = "ISABOVE";
-
-	private final TrackMateObject target;
 
 	public FilterSweepModel( final TrackMateObject target, final Map< String, String > featureNames, final FeatureFilter filter, final int index )
 	{
@@ -39,7 +37,6 @@ public class FilterSweepModel extends AbstractSweepModelBase
 	public FilterSweepModel( final TrackMateObject target, final Map< String, String > featureNames, final int index )
 	{
 		super( "Filter on " + target.toString(), createModels( featureNames, index ) );
-		this.target = target;
 	}
 
 
@@ -68,7 +65,13 @@ public class FilterSweepModel extends AbstractSweepModelBase
 	@Override
 	public Iterator< Settings > iterator( final Settings base, final int targetChannel )
 	{
-		return new MySettingsIterator( base );
+		throw new UnsupportedOperationException( "Not implemented" );
+	}
+
+	@Override
+	public Iterator< FeatureFilter > iterator()
+	{
+		return new FeatureFilterIterator( models );
 	}
 
 	private static Map< String, AbstractParamSweepModel< ? > > createModels( final Map< String, String > featureNames, final int index )
@@ -97,45 +100,6 @@ public class FilterSweepModel extends AbstractSweepModelBase
 		return models;
 	}
 	
-	private final class MySettingsIterator implements Iterator< Settings >
-	{
-
-		private final Settings base;
-
-		private final FeatureFilterIterator it;
-
-		public MySettingsIterator( final Settings base )
-		{
-			this.base = base;
-			this.it = new FeatureFilterIterator( models );
-		}
-
-		@Override
-		public boolean hasNext()
-		{
-			return it.hasNext();
-		}
-
-		@Override
-		public Settings next()
-		{
-			final FeatureFilter ff = it.next();
-			final Settings copy = base.copyOn( base.imp );
-			switch ( target )
-			{
-			case SPOTS:
-				copy.addSpotFilter( ff );
-				break;
-			case TRACKS:
-				copy.addTrackFilter( ff );
-				break;
-			default:
-				throw new IllegalArgumentException( "Cannot create filter for TrackMate object: " + target );
-			}
-			return copy;
-		}
-	}
-
 	private static class FeatureFilterIterator implements Iterator< FeatureFilter >
 	{
 
