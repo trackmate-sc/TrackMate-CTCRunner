@@ -173,9 +173,19 @@ public abstract class AbstractFilterConfigPanel extends JPanel
 		final Map< String, String > featureNames = collectFeatureKeys( target, null, settings );
 		final FilterSweepModel filterSweepModel = new FilterSweepModel( target, featureNames, filter, filterSweepModels.size() + 1 );
 		modelAdder.accept( filterSweepModel );
+		addFilterSilently( filterSweepModel );
+	}
 
+	/**
+	 * Adds a filter panel corresponding to the specified FilterSweepModel, and
+	 * does <b>not</b> notifies listeners.
+	 * 
+	 * @param filterSweepModel
+	 *            the feature filter model.
+	 */
+	protected void addFilterSilently( final FilterSweepModel filterSweepModel )
+	{
 		final FilterPanel filterPanel = new FilterPanel( filterSweepModel );
-
 		final Component strut = Box.createVerticalStrut( 5 );
 		struts.push( strut );
 		filterPanels.push( filterPanel );

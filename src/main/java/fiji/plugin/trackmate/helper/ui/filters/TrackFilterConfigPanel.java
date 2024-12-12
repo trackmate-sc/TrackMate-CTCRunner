@@ -31,13 +31,13 @@ public class TrackFilterConfigPanel extends AbstractFilterConfigPanel
 	private static final long serialVersionUID = 1L;
 
 	public TrackFilterConfigPanel(
-			final TrackMateObject target,
 			final String defaultFeature,
 			final ImagePlus imp,
 			final ParameterSweepModel model )
 	{
-		super( target, defaultFeature, imp,
+		super( TrackMateObject.TRACKS, defaultFeature, imp,
 				fsm -> model.addTrackFilterModel( fsm ),
 				fsm -> model.removeTrackFilterModel( fsm ) );
+		model.trackFilterModels().forEach( this::addFilterSilently );
 	}
 }

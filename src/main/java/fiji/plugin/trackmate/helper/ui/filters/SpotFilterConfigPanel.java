@@ -31,13 +31,13 @@ public class SpotFilterConfigPanel extends AbstractFilterConfigPanel
 	private static final long serialVersionUID = 1L;
 
 	public SpotFilterConfigPanel(
-			final TrackMateObject target,
 			final String defaultFeature,
 			final ImagePlus imp,
 			final ParameterSweepModel model )
 	{
-		super( target, defaultFeature, imp,
+		super( TrackMateObject.SPOTS, defaultFeature, imp,
 				fsm -> model.addSpotFilterModel( fsm ),
 				fsm -> model.removeSpotFilterModel( fsm ) );
+		model.spotFilterModels().forEach( this::addFilterSilently );
 	}
 }

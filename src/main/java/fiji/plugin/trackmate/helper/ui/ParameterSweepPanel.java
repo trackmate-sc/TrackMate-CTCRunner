@@ -65,7 +65,6 @@ import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.features.track.TrackBranchingAnalyzer;
 import fiji.plugin.trackmate.gui.Fonts;
 import fiji.plugin.trackmate.gui.components.LogPanel;
-import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings.TrackMateObject;
 import fiji.plugin.trackmate.helper.ResultsCrawler;
 import fiji.plugin.trackmate.helper.model.AbstractSweepModelBase.ModelListener;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModel;
@@ -137,12 +136,12 @@ public class ParameterSweepPanel extends JPanel
 		final CrawlerResultsPanel bestParamsPanel = new CrawlerResultsPanel( crawler, imp );
 		tabbedPane.addTab( "Best params", null, bestParamsPanel, null );
 
-		panelSpotFilters = new SpotFilterConfigPanel( TrackMateObject.SPOTS, Spot.QUALITY, imp, model );
+		panelSpotFilters = new SpotFilterConfigPanel( Spot.QUALITY, imp, model );
 		tabbedPane.addTab( "Spot filters", null, panelSpotFilters, null );
 		// Enabler.
 		enablers.add( new EverythingDisablerAndReenabler( panelSpotFilters, new Class[] { JLabel.class } ) );
 
-		panelTrackFilters = new TrackFilterConfigPanel( TrackMateObject.TRACKS, TrackBranchingAnalyzer.NUMBER_SPOTS, imp, model );
+		panelTrackFilters = new TrackFilterConfigPanel( TrackBranchingAnalyzer.NUMBER_SPOTS, imp, model );
 		tabbedPane.addTab( "Track filters", null, panelTrackFilters, null );
 		// Enabler.
 		enablers.add( new EverythingDisablerAndReenabler( panelTrackFilters, new Class[] { JLabel.class } ) );
