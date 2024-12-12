@@ -472,20 +472,20 @@ public class HelperRunner implements Runnable, Cancelable
 			batchLogger.log( TMUtils.echoMap( base.trackerSettings, 2 ) );
 			if ( base.getSpotFilters().isEmpty() )
 			{
-				batchLogger.log( "without spot filter,n" );
+				batchLogger.log( "without spot filter,\n" );
 			}
 			else
 			{
-				batchLogger.log( "and with spot filters:n" );
+				batchLogger.log( "and with spot filters:\n" );
 				echoFilters( base.getSpotFilters() );
 			}
 			if ( base.getTrackFilters().isEmpty() )
 			{
-				batchLogger.log( "without track filter,n" );
+				batchLogger.log( "without track filter,\n" );
 			}
 			else
 			{
-				batchLogger.log( "and with track filters:n" );
+				batchLogger.log( "and with track filters:\n" );
 				echoFilters( base.getTrackFilters() );
 			}
 			batchLogger.log( "were already tested. Skipping.\n" );
