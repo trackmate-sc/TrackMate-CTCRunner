@@ -241,6 +241,11 @@ public class ResultsCrawler
 				{
 					final Object o1 = ds.get( key );
 					final String o2 = dp.get( key );
+
+					// Special case: we want to ignore Logger settings.
+					if ( o1.toString().startsWith( "fiji.plugin.trackmate.Logger$" ) )
+						continue;
+
 					if ( !o1.toString().equals( o2 ) )
 						continue LINE;
 				}
