@@ -109,9 +109,15 @@ public abstract class MetricsRunner
 		try
 		{
 			final TrackingMetrics metrics = performMetricsMeasurements( trackmate );
+
+			// Add timing measurements.
+			metrics.set( TrackingMetricsType.TIM, detectionTiming + trackingTiming );
+			metrics.set( TrackingMetricsType.DETECTION_TIME, detectionTiming );
+			metrics.set( TrackingMetricsType.TRACKING_TIME, trackingTiming );
+
 			batchLogger.log( "SPT metrics:\n" );
 			batchLogger.log( metrics.toString() + '\n' );
-			writeResults( csvFile, metrics, detectionTiming, trackingTiming, settings, csvHeader1 );
+			writeResults( csvFile, metrics, settings, csvHeader1 );
 		}
 		catch ( final MetricsComputationErrorException | IllegalArgumentException e )
 		{
@@ -311,16 +317,9 @@ public abstract class MetricsRunner
 	private void writeResults(
 			final File csvFile,
 			final TrackingMetrics metrics,
-			final double detectionTiming,
-			final double trackingTiming,
 			final Settings settings,
 			final String[] csvHeader )
 	{
-		// Add timing measurements.
-		metrics.set( TrackingMetricsType.TIM, detectionTiming + trackingTiming );
-		metrics.set( TrackingMetricsType.DETECTION_TIME, detectionTiming );
-		metrics.set( TrackingMetricsType.TRACKING_TIME, trackingTiming );
-
 		// Write to CSV.
 		final String[] line1 = toCSVLine( settings, csvHeader );
 		final String[] line = metrics.concatWithCSVLine( line1 );
