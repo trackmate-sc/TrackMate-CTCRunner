@@ -1,5 +1,6 @@
 package fiji.plugin.trackmate.util;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
@@ -8,6 +9,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.helper.HelperRunner;
 import fiji.plugin.trackmate.helper.HelperRunner.Builder;
 import fiji.plugin.trackmate.helper.TrackingMetricsType;
@@ -49,7 +51,17 @@ public class CLIRunner
 				? new SPTTrackingMetricsType( maxDist, units )
 				: new CTCTrackingMetricsType();
 
-		final CircularLogFile logger = new CircularLogFile( logFile, 100_000 );
+		Logger logger;
+		if ( !logFile.isEmpty() && new File( logFile ).canWrite() )
+		{
+			logger = new CircularLogFile( logFile, 100_000 );
+			System.out.println( "Appending log to file: " + logFile );
+		}
+		else
+		{
+			logger = Logger.VOID_LOGGER;
+			System.out.println( "No log file specified." );
+		}
 
 		final Builder builder = HelperRunner.create();
 		final HelperRunner runner = builder
