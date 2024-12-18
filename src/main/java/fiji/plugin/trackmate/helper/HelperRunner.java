@@ -590,9 +590,9 @@ public class HelperRunner implements Runnable, Cancelable
 		 * PERFORM METRICS MEASUREMENTS.
 		 */
 
-		iterationData.runner.performAndSaveMetricsMeasurements( 
-				iterationData.trackmate, 
-				iterationData.detectionTiming, 
+		iterationData.runner.performAndSaveMetricsMeasurements(
+				iterationData.trackmate,
+				iterationData.detectionTiming,
 				iterationData.trackingTiming );
 
 		// Save TrackMate file if required.
