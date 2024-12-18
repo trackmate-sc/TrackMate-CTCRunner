@@ -484,7 +484,7 @@ public class HelperRunner implements Runnable, Cancelable
 			else
 			{
 				batchLogger.log( "and with spot filters:\n" );
-				echoFilters( base.getSpotFilters() );
+				batchLogger.log( echoFilters( base.getSpotFilters() ) );
 			}
 			if ( base.getTrackFilters().isEmpty() )
 			{
@@ -493,7 +493,7 @@ public class HelperRunner implements Runnable, Cancelable
 			else
 			{
 				batchLogger.log( "and with track filters:\n" );
-				echoFilters( base.getTrackFilters() );
+				batchLogger.log( echoFilters( base.getTrackFilters() ) );
 			}
 			batchLogger.log( "were already tested. Skipping.\n" );
 			return TRACK_FILTER_LOOP;
