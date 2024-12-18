@@ -327,6 +327,10 @@ public class HelperRunner implements Runnable, Cancelable
 		{
 			// No spot filter, we can skip to iterating on tracker settings.
 			base.clearSpotFilters();
+
+			iterationData.trackingDone = false;
+			iterationData.trackingTiming = Double.NaN;
+
 			final int val = loopTrackerSettings( base, iterationData );
 			if ( val > SPOT_FILTER_LOOP )
 				return val;
@@ -342,6 +346,9 @@ public class HelperRunner implements Runnable, Cancelable
 			base.clearSpotFilters();
 			final List< FeatureFilter > ffs = spotFilterIterator.next();
 			ffs.forEach( base::addSpotFilter );
+
+			iterationData.trackingDone = false;
+			iterationData.trackingTiming = Double.NaN;
 
 			final int val = loopTrackerSettings( base, iterationData );
 			if ( val > SPOT_FILTER_LOOP )
@@ -533,33 +540,44 @@ public class HelperRunner implements Runnable, Cancelable
 			iterationData.trackmate = new TrackMate( tmModel, base );
 		}
 
-		/*
-		 * PERFORM SPOT FILTERING.
-		 */
-
-		iterationData.runner.execSpotFiltering( iterationData.trackmate );
-		// Got 0 spots to track?
-		if ( iterationData.trackmate.getModel().getSpots().getNSpots( true ) == 0 )
+		if ( !iterationData.trackingDone )
 		{
-			batchLogger.log( "Settings result in having 0 spots to track.\nSkipping.\n" );
-			iterationData.progress += model.countTrackerSettings() * model.countTrackFilterSettings();
-			batchLogger.setProgress( ( double ) ++iterationData.progress / iterationData.count );
-			return SPOT_FILTER_LOOP;
+			/*
+			 * PERFORM SPOT FILTERING.
+			 */
+
+			iterationData.runner.execSpotFiltering( iterationData.trackmate );
+			// Got 0 spots to track?
+			if ( iterationData.trackmate.getModel().getSpots().getNSpots( true ) == 0 )
+			{
+				batchLogger.log( "Settings result in having 0 spots to track.\nSkipping.\n" );
+				iterationData.progress += model.countTrackerSettings() * model.countTrackFilterSettings();
+				batchLogger.setProgress( ( double ) ++iterationData.progress / iterationData.count );
+				return SPOT_FILTER_LOOP;
+			}
+
+			/*
+			 * PERFORM TRACKING.
+			 */
+
+			batchLogger.setStatus( iterationData.trackmate.getSettings().detectorFactory.getName() + " + " + iterationData.trackmate.getSettings().trackerFactory.getName() );
+
+			iterationData.trackingTiming = iterationData.runner.execTracking( iterationData.trackmate );
+			if ( Double.isNaN( iterationData.trackingTiming ) )
+			{
+				// Tracking failed, we iterate to the next tracking settings.
+				iterationData.progress += model.countTrackFilterSettings();
+				batchLogger.setProgress( ( double ) ++iterationData.progress / iterationData.count );
+				return TRACKER_SETTINGS_LOOP;
+			}
+			iterationData.trackingDone = true;
 		}
-
-		batchLogger.setStatus( iterationData.trackmate.getSettings().detectorFactory.getName() + " + " + iterationData.trackmate.getSettings().trackerFactory.getName() );
-
-		/*
-		 * PERFORM TRACKING.
-		 */
-
-		final double trackingTiming = iterationData.runner.execTracking( iterationData.trackmate );
-		if ( Double.isNaN( trackingTiming ) )
+		else
 		{
-			// Tracking failed, we iterate to the next tracking settings.
-			iterationData.progress += model.countTrackFilterSettings();
-			batchLogger.setProgress( ( double ) ++iterationData.progress / iterationData.count );
-			return TRACKER_SETTINGS_LOOP;
+			/*
+			 * Spot filtering and tracking have been done already. We just loop
+			 * to the next track filter settings.
+			 */
 		}
 
 		/*
@@ -572,7 +590,10 @@ public class HelperRunner implements Runnable, Cancelable
 		 * PERFORM METRICS MEASUREMENTS.
 		 */
 
-		iterationData.runner.performAndSaveMetricsMeasurements( iterationData.trackmate, iterationData.detectionTiming, trackingTiming );
+		iterationData.runner.performAndSaveMetricsMeasurements( 
+				iterationData.trackmate, 
+				iterationData.detectionTiming, 
+				iterationData.trackingTiming );
 
 		// Save TrackMate file if required.
 		if ( saveTrackMateFiles )
@@ -1023,6 +1044,10 @@ public class HelperRunner implements Runnable, Cancelable
 	 */
 	private static class IterationData
 	{
+
+		public double trackingTiming;
+
+		public boolean trackingDone;
 
 		public MetricsRunner runner;
 
