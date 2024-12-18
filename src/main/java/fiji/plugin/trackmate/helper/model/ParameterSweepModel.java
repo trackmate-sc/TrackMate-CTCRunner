@@ -86,8 +86,8 @@ public class ParameterSweepModel
 		// Forward component changes to listeners.
 		detectorModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
 		trackerModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
-//		spotFilterModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
-//		trackFilterModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
+		spotFilterModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
+		trackFilterModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
 	}
 
 	public Collection< DetectorSweepModel > detectorModels()
@@ -112,24 +112,32 @@ public class ParameterSweepModel
 
 	public void addSpotFilterModel( final FilterSweepModel model )
 	{
-		model.listeners().add( () -> notifyListeners() );
 		spotFilterModels.add( model );
+		model.listeners().add( () -> notifyListeners() );
+		notifyListeners();
 	}
 
 	public boolean removeSpotFilterModel( final FilterSweepModel model )
 	{
-		return spotFilterModels.remove( model );
+		final boolean removed = spotFilterModels.remove( model );
+		if ( removed )
+			notifyListeners();
+		return removed;
 	}
 
 	public void addTrackFilterModel( final FilterSweepModel model )
 	{
-		model.listeners().add( () -> notifyListeners() );
 		trackFilterModels.add( model );
+		model.listeners().add( () -> notifyListeners() );
+		notifyListeners();
 	}
 
 	public boolean removeTrackFilterModel( final FilterSweepModel model )
 	{
-		return trackFilterModels.remove( model );
+		final boolean removed = trackFilterModels.remove( model );
+		if ( removed )
+			notifyListeners();
+		return removed;
 	}
 
 	public boolean isActive( final String name )
@@ -236,12 +244,10 @@ public class ParameterSweepModel
 		if ( spotFilterModels().isEmpty() )
 			return 1;
 
-		final int targetChannel = 1;
-		final Settings base = new Settings( null );
 		int count = 0;
 		for ( final FilterSweepModel filterModel : spotFilterModels() )
 		{
-			final Iterator< Settings > dit = filterModel.iterator( base, targetChannel );
+			final Iterator< FeatureFilter > dit = filterModel.iterator();
 			while ( dit.hasNext() )
 			{
 				dit.next();
