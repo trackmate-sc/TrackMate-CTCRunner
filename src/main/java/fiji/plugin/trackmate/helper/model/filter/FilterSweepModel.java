@@ -76,7 +76,7 @@ public class FilterSweepModel extends AbstractSweepModelBase implements Iterable
 
 	private static Map< String, AbstractParamSweepModel< ? > > createModels( final Map< String, String > featureNames, final int index )
 	{
-		final String[] arr = new ArrayList<>( featureNames.values() ).toArray( new String[] {} );
+		final String[] arr = new ArrayList<>( featureNames.keySet() ).toArray( new String[] {} );
 		final ArrayParamSweepModel< String > featureNameParam = new ArrayParamSweepModel<>( arr )
 				.paramName( "Feature " + index )
 				.fixedValue( arr[ 0 ] )
