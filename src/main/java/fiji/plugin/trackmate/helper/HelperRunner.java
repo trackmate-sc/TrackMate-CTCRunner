@@ -327,10 +327,6 @@ public class HelperRunner implements Runnable, Cancelable
 		{
 			// No spot filter, we can skip to iterating on tracker settings.
 			base.clearSpotFilters();
-
-			iterationData.trackingDone = false;
-			iterationData.trackingTiming = Double.NaN;
-
 			final int val = loopTrackerSettings( base, iterationData );
 			if ( val > SPOT_FILTER_LOOP )
 				return val;
@@ -346,9 +342,6 @@ public class HelperRunner implements Runnable, Cancelable
 			base.clearSpotFilters();
 			final List< FeatureFilter > ffs = spotFilterIterator.next();
 			ffs.forEach( base::addSpotFilter );
-
-			iterationData.trackingDone = false;
-			iterationData.trackingTiming = Double.NaN;
 
 			final int val = loopTrackerSettings( base, iterationData );
 			if ( val > SPOT_FILTER_LOOP )
@@ -384,6 +377,9 @@ public class HelperRunner implements Runnable, Cancelable
 			{
 				if ( isCanceled() )
 					break MAIN_LOOP;
+
+				iterationData.trackingDone = false;
+				iterationData.trackingTiming = Double.NaN;
 
 				final Settings settings = trackerIterator.next();
 				final int val = loopTrackFilterSettings( settings, iterationData );
@@ -560,7 +556,11 @@ public class HelperRunner implements Runnable, Cancelable
 			 * PERFORM TRACKING.
 			 */
 
-			batchLogger.setStatus( iterationData.trackmate.getSettings().detectorFactory.getName() + " + " + iterationData.trackmate.getSettings().trackerFactory.getName() );
+			batchLogger.setStatus(
+					iterationData.trackmate.getSettings().detectorFactory.getName()
+							+ " + "
+							+ iterationData.trackmate.getSettings().trackerFactory.getName()
+							+ String.format( " - %.1f%%", 100. * iterationData.progress / iterationData.count ) );
 
 			iterationData.trackingTiming = iterationData.runner.execTracking( iterationData.trackmate );
 			if ( Double.isNaN( iterationData.trackingTiming ) )
