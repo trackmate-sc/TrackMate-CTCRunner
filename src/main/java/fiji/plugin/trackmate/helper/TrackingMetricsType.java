@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -40,8 +40,20 @@ public abstract class TrackingMetricsType
 
 	public static enum MetricValueOptimum
 	{
-		HIGHER_IS_BETTER( ( v1, v2 ) -> v1 > v2 ),
-		LOWER_IS_BETTER( ( v1, v2 ) -> v1 < v2 );
+		HIGHER_IS_BETTER( ( v1, v2 ) -> {
+			if ( Double.isNaN( v2 ) )
+				return true;
+			if ( Double.isNaN( v1 ) )
+				return false;
+			return v1 > v2;
+		} ),
+		LOWER_IS_BETTER( ( v1, v2 ) -> {
+			if ( Double.isNaN( v2 ) )
+				return true;
+			if ( Double.isNaN( v1 ) )
+				return false;
+			return v1 < v2;
+		} );
 
 		private final BiPredicate< Double, Double > comparator;
 
@@ -53,7 +65,7 @@ public abstract class TrackingMetricsType
 		/**
 		 * Returns <code>true</code> if the first metric value is 'better than'
 		 * the second one, in the sense of this optimum type.
-		 * 
+		 *
 		 * @param val1
 		 *            the first metric value.
 		 * @param val2
@@ -130,7 +142,7 @@ public abstract class TrackingMetricsType
 
 	/**
 	 * Returns the ordered list of metric keys this metric type provides.
-	 * 
+	 *
 	 * @return
 	 */
 	public List< MetricValue > metrics()
@@ -141,7 +153,7 @@ public abstract class TrackingMetricsType
 	/**
 	 * Returns the integer id of the specified key. This id is used to index the
 	 * metric with the specified key e.g. in an array.
-	 * 
+	 *
 	 * @param key
 	 *            the key of the metric.
 	 * @return its id, or -1 if the specified key is unknown to this metric
@@ -154,7 +166,7 @@ public abstract class TrackingMetricsType
 
 	/**
 	 * Returns the name of this metric type.
-	 * 
+	 *
 	 * @return the metric type name.
 	 */
 	public abstract String name();
@@ -162,28 +174,28 @@ public abstract class TrackingMetricsType
 	/**
 	 * Returns the suffix to append to file names when saving results of this
 	 * metric type.
-	 * 
+	 *
 	 * @return a short suffix.
 	 */
 	public abstract String csvSuffix();
 
 	/**
 	 * Returns the URL of the publication where this metric type is described.
-	 * 
+	 *
 	 * @return a URL as string.
 	 */
 	public abstract String url();
 
 	/**
 	 * Returns an information string about this metric type.
-	 * 
+	 *
 	 * @return a string.
 	 */
 	public abstract String info();
 
 	/**
 	 * Returns the key of the default metric in this type.
-	 * 
+	 *
 	 * @return the default key.
 	 */
 	public abstract MetricValue defaultMetric();
@@ -191,7 +203,7 @@ public abstract class TrackingMetricsType
 	/**
 	 * Creates a new {@link MetricsRunner} that can perform performance metrics
 	 * measurement for this type.
-	 * 
+	 *
 	 * @param gtPath
 	 *            the path to the ground-truth folder or file compatible with
 	 *            this metrics type.
@@ -210,7 +222,7 @@ public abstract class TrackingMetricsType
 	/**
 	 * Returns <code>true</code> if the header (specified as a String array) of
 	 * a CSV file comes from a metric table file of this concrete type.
-	 * 
+	 *
 	 * @param header
 	 *            the header read from the CSV file to inspect.
 	 * @return <code>true</code> if the file is for the metrics of this type.
@@ -237,7 +249,7 @@ public abstract class TrackingMetricsType
 
 	/**
 	 * Prepend the specified header with this metrics header.
-	 * 
+	 *
 	 * @param header
 	 *            the header to preprint.
 	 * @return a new String array.

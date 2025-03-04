@@ -31,38 +31,38 @@ import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.InfoParamSweepModel;
 import fiji.plugin.trackmate.providers.DetectorProvider;
 
-@Plugin( type = DetectorSweepModel.class, priority = 1000000 - 8.9 )
-public class WekaDetectorModel extends DetectorSweepModel
+@Plugin( type = DetectorSweepModel.class, priority = 1000000 - 10 )
+public class OmniposeDetectorModel extends DetectorSweepModel
 {
 
-	public WekaDetectorModel()
+	public OmniposeDetectorModel()
 	{
-		super( "Weka detector", createModels(), createFactory() );
+		super( "Omnipose detector", createModels(), createFactory() );
 	}
 
 	private static SpotDetectorFactoryBase< ? > createFactory()
 	{
-		if ( null == new DetectorProvider().getFactory( "WEKA_DETECTOR" ) )
+		if ( null == new DetectorProvider().getFactory( "OMNIPOSE_DETECTOR" ) )
 			return null;
 		else
-			return WekaOpt.createFactory();
+			return OmniposeOpt.createFactory();
 	}
 
 	private static Map< String, AbstractParamSweepModel< ? > > createModels()
 	{
-		if ( null == new DetectorProvider().getFactory( "WEKA_DETECTOR" ) )
+		if ( null == new DetectorProvider().getFactory( "OMNIPOSE_DETECTOR" ) )
 		{
 			final Map< String, AbstractParamSweepModel< ? > > models = new HashMap<>();
 			models.put( "", new InfoParamSweepModel()
-					.info( "The TrackMate-Weka module seems to be missing<br>"
+					.info( "The TrackMate-Cellpose module seems to be missing<br>"
 							+ "from your Fiji installation. Please follow the link<br>"
 							+ "below for installation instructions." )
-					.url( "https://imagej.net/plugins/trackmate/trackmate-weka" ) );
+					.url( "https://imagej.net/plugins/trackmate/trackmate-cellpose" ) );
 			return models;
 		}
 		else
 		{
-			return WekaOpt.createModels();
+			return OmniposeOpt.createModels();
 		}
 	}
 }

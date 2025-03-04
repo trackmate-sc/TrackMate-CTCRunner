@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.helper.TrackingMetricsType.MetricValue;
 import fiji.plugin.trackmate.util.TMUtils;
 
@@ -43,13 +44,19 @@ public class TrackingMetricsTable
 
 	private final List< Map< String, String > > trackerParams;
 
+	private final List< List< FeatureFilter > > spotFilters;
+
+	private final List< List< FeatureFilter > > trackFilters;
+
 	public TrackingMetricsTable(
 			final TrackingMetricsType type,
 			final List< TrackingMetrics > metrics,
 			final List< String > detectors,
 			final List< String > trackers,
 			final List< Map< String, String > > detectorParams,
-			final List< Map< String, String > > trackerParams )
+			final List< Map< String, String > > trackerParams,
+			final List< List< FeatureFilter > > spotFilters,
+			final List< List< FeatureFilter > > trackFilters )
 	{
 		this.type = type;
 		this.metrics = metrics;
@@ -57,6 +64,8 @@ public class TrackingMetricsTable
 		this.trackers = trackers;
 		this.detectorParams = detectorParams;
 		this.trackerParams = trackerParams;
+		this.spotFilters = spotFilters;
+		this.trackFilters = trackFilters;
 	}
 
 	public int size()
@@ -89,6 +98,16 @@ public class TrackingMetricsTable
 		return metrics.get( i );
 	}
 
+	public List< FeatureFilter > getSpotFilters( final int i )
+	{
+		return spotFilters.get( i );
+	}
+
+	public List< FeatureFilter > getTrackFilters( final int i )
+	{
+		return trackFilters.get( i );
+	}
+
 	public int bestFor( final String detector, final String tracker, final MetricValue key )
 	{
 		int bestLine = -1;
@@ -115,8 +134,18 @@ public class TrackingMetricsTable
 		final StringBuilder str = new StringBuilder();
 		str.append( "For detector: " + detectors.get( i ) + " with settings:" );
 		str.append( "\n" + TMUtils.echoMap( ( Map ) detectorParams.get( i ), 2 ) );
+		if ( !spotFilters.get( i ).isEmpty() )
+		{
+			str.append( "With spot filters:\n" );
+			str.append( echoFilters( spotFilters.get( i ) ) );
+		}
 		str.append( "And tracker: " + trackers.get( i ) + " with settings:" );
 		str.append( "\n" + TMUtils.echoMap( ( Map ) trackerParams.get( i ), 2 ) );
+		if ( !trackFilters.get( i ).isEmpty() )
+		{
+			str.append( "With track filters:\n" );
+			str.append( echoFilters( trackFilters.get( i ) ) );
+		}
 		str.append( type.name() + " metrics:\n" );
 		str.append( metrics.get( i ).toString() );
 		return str.toString();
@@ -134,7 +163,9 @@ public class TrackingMetricsTable
 				new int[ descs.size()
 						+ 2
 						+ detectorParams.get( 0 ).size()
-						+ trackerParams.get( 0 ).size() ];
+						+ trackerParams.get( 0 ).size()
+						+ spotFilters.get( 0 ).size()
+						+ trackFilters.get( 0 ).size() ];
 		for ( int i = 0; i < descs.size(); i++ )
 			colWidths[ id++ ] = Math.max( 5, descs.get( i ).key.length() );
 
@@ -160,6 +191,16 @@ public class TrackingMetricsTable
 		for ( final String dk : trackerKeys )
 			colWidths[ id++ ] = dk.length();
 
+		// Spot filter cols
+		final List< FeatureFilter > spotFilterFirst = spotFilters.get( 0 );
+		for ( final FeatureFilter ff : spotFilterFirst )
+			colWidths[ id++ ] = ( "SPOT_FILTER_ON_" + ff.feature ).length();
+
+		// Track filter cols
+		final List< FeatureFilter > trackFilterFirst = trackFilters.get( 0 );
+		for ( final FeatureFilter ff : trackFilterFirst )
+			colWidths[ id++ ] = ( "TRACK_FILTER_ON_" + ff.feature ).length();
+
 		// Add space.
 		for ( int i = 0; i < colWidths.length; i++ )
 			colWidths[ i ] += nspace;
@@ -183,6 +224,12 @@ public class TrackingMetricsTable
 
 		for ( final String tk : trackerKeys )
 			str.append( String.format( "%" + colWidths[ id++ ] + "s", tk ) );
+
+		for ( final FeatureFilter ff : spotFilterFirst )
+			str.append( String.format( "%" + colWidths[ id++ ] + "s", "SPOT_FILTER_ON_" + ff.feature ) );
+
+		for ( final FeatureFilter ff : trackFilterFirst )
+			str.append( String.format( "%" + colWidths[ id++ ] + "s", "TRACK_FILTER_" + ff.feature ) );
 
 		str.append( '\n' );
 
@@ -209,8 +256,25 @@ public class TrackingMetricsTable
 			for ( final String tk : trackerKeys )
 				str.append( String.format( "%" + colWidths[ id++ ] + "s", tp.get( tk ) ) );
 
+			final List< FeatureFilter > sfs = spotFilters.get( i );
+			for ( final FeatureFilter ff : sfs )
+				str.append( String.format( "%" + colWidths[ id++ ] + "s", ff.toString().replace( ff.feature, "" ) ) );
+
+			final List< FeatureFilter > tfs = trackFilters.get( i );
+			for ( final FeatureFilter ff : tfs )
+				str.append( String.format( "%" + colWidths[ id++ ] + "s", ff.toString().replace( ff.feature, "" ) ) );
+
 			str.append( '\n' );
 		}
+
+		return str.toString();
+	}
+
+	public static final String echoFilters( final Iterable< FeatureFilter > filters )
+	{
+		final StringBuilder str = new StringBuilder();
+		for ( final FeatureFilter ff : filters )
+			str.append( " - " + ff.toString() + "\n" );
 
 		return str.toString();
 	}

@@ -32,6 +32,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.FocusAdapter;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.io.IOException;
@@ -202,13 +203,25 @@ public class MetricsChooserPanel extends JPanel
 			}
 		} );
 		fiji.plugin.trackmate.gui.GuiUtils.selectAllOnFocus( ftfMaxDist );
+		final Runnable storePairingDistance = () -> prefService.put( getClass(), SPT_METRICS_LINKING_DISTANCE_KEY, ( ( Number ) ftfMaxDist.getValue() ).doubleValue() );
+		ftfMaxDist.addActionListener( e -> storePairingDistance.run() );
+		final FocusAdapter faIm = new FocusAdapter()
+		{
+			@Override
+			public void focusLost( final java.awt.event.FocusEvent e )
+			{
+				storePairingDistance.run();
+			}
+		};
+		ftfMaxDist.addFocusListener( faIm );
 
 		final boolean ctcSelected = prefService.getBoolean( getClass(), METRICS_TYPE_KEY, true );
 		rdbtnCTC.setSelected( ctcSelected );
 		rdbtnSPT.setSelected( !ctcSelected );
 		changeMetrics.itemStateChanged( null );
 
-		ftfMaxDist.setValue( Double.valueOf( 1.0 ) );
+		final double lastUsedPairingDistance = prefService.getDouble( getClass(), SPT_METRICS_LINKING_DISTANCE_KEY, 1. );
+		ftfMaxDist.setValue( Double.valueOf( lastUsedPairingDistance ) );
 	}
 
 	public void setUnits( final String units )
@@ -271,4 +284,7 @@ public class MetricsChooserPanel extends JPanel
 	private static final String URL_SPT = "<html><small><a href="
 			+ LINK_SPT
 			+ ">Chenouard, Smal, de Chaumont, Maška, et al. 2014</a></small></html>";
+
+	private static final String SPT_METRICS_LINKING_DISTANCE_KEY = "SPT_METRICS_LINKING_DISTANCE";
+
 }

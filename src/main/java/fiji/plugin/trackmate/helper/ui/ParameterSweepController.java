@@ -25,11 +25,13 @@ import java.awt.event.WindowAdapter;
 import java.io.File;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import org.scijava.Cancelable;
 
 import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.helper.HelperRunner;
+import fiji.plugin.trackmate.helper.HelperRunner.Builder;
 import fiji.plugin.trackmate.helper.ResultsCrawler;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModel;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModelIO;
@@ -60,10 +62,10 @@ public class ParameterSweepController implements Cancelable
 		gui.btnRun.addActionListener( e -> run() );
 		gui.btnStop.addActionListener( e -> cancel( "User pressed the stop button." ) );
 		gui.btnStop.setVisible( false );
+		gui.btnReset.addActionListener( e -> resetParameters() );
 
 		// Save on model modification.
 		model.listeners().add( () -> {
-			gui.refresh();
 			ParameterSweepModelIO.saveTo( new File( runner.getModelPath() ), model );
 		} );
 
@@ -83,10 +85,64 @@ public class ParameterSweepController implements Cancelable
 		frame.setLocationRelativeTo( null );
 	}
 
+	private void resetParameters()
+	{
+		final String msg = "This will remove all settings for the parameter sweep "
+				+ "configuration with this dataset. Effectively, this will be done by "
+				+ "deleting the file:"
+				+ "<p>"
+				+ "<p>"
+				+ runner.getModelPath()
+				+ "<p>"
+				+ "<p>"
+				+ "and relaunching this user interface. Are you sure?";
+		final String title = "Reset parameters";
+		final int answer = JOptionPane.showConfirmDialog( frame, toHtml( msg ), title, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, Icons.TRACKMATE_ICON );
+		if ( answer != JOptionPane.YES_OPTION )
+			return;
+
+		// Remove file.
+		final File file = new File( runner.getModelPath() );
+		if ( file.exists() )
+			file.delete();
+		if ( file.exists() )
+		{
+			final String msg2 = "Could not delete the file: " + file;
+			JOptionPane.showMessageDialog( frame, toHtml( msg2 ), title, JOptionPane.ERROR_MESSAGE, Icons.TRACKMATE_ICON );
+			return;
+		}
+
+		// Save the default to file.
+		ParameterSweepModelIO.saveTo( file, new ParameterSweepModel() );
+
+		// Close this UI.
+		frame.dispose();
+
+		// Make a new runner, copying old values.
+		final String gtPath = runner.getGroundTruthPath();
+		final File saveFolder = file.getParentFile();
+		final Builder builder = HelperRunner.create();
+		final HelperRunner newRunner = builder
+				.trackingMetricsType( runner.getType() )
+				.groundTruth( gtPath )
+				.image( runner.getImage() )
+				.runSettings( file.getAbsolutePath() )
+				.savePath( saveFolder.getAbsolutePath() )
+				.get();
+		if ( newRunner == null )
+		{
+			final String msg3 = builder.getErrorMessage();
+			JOptionPane.showMessageDialog( frame, toHtml( msg3 ), title, JOptionPane.ERROR_MESSAGE, Icons.TRACKMATE_ICON );
+			return;
+		}
+
+		final ParameterSweepController controller = new ParameterSweepController( newRunner );
+		controller.show();
+	}
+
 	private void run()
 	{
 		// Refresh model :(
-		gui.refresh();
 		gui.enablers.forEach( EverythingDisablerAndReenabler::disable );
 		gui.btnRun.setVisible( false );
 		gui.btnStop.setVisible( true );
@@ -141,5 +197,15 @@ public class ParameterSweepController implements Cancelable
 	public boolean isCanceled()
 	{
 		return runner.getCancelReason() != null;
+	}
+
+	public static final String toHtml( final String msg )
+	{
+		return "<html><body style='width: 300px;'>"
+				+ msg
+						.replaceAll( "\n", "<p><p>" )
+						.replaceAll( "/", "/<wbr>" )
+						.replaceAll( "\\\\", "/<wbr>" )
+				+ "</body></html>";
 	}
 }

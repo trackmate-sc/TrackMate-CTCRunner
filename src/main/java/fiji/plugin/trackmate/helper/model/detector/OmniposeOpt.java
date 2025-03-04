@@ -26,8 +26,6 @@ import java.util.Map;
 
 import fiji.plugin.trackmate.Dimension;
 import fiji.plugin.trackmate.cellpose.AbstractCellposeSettings.PretrainedModel;
-import fiji.plugin.trackmate.cellpose.CellposeDetectorFactory;
-import fiji.plugin.trackmate.cellpose.CellposeSettings.PretrainedModelCellpose;
 import fiji.plugin.trackmate.detection.DetectorKeys;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.detection.ThresholdDetectorFactory;
@@ -38,27 +36,29 @@ import fiji.plugin.trackmate.helper.model.parameter.EnumParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.IntParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.NumberParamSweepModel.RangeType;
 import fiji.plugin.trackmate.helper.model.parameter.StringRangeParamSweepModel;
+import fiji.plugin.trackmate.omnipose.OmniposeDetectorFactory;
+import fiji.plugin.trackmate.omnipose.OmniposeSettings.PretrainedModelOmnipose;
 
-public class CellposeOpt
+public class OmniposeOpt
 {
 
-	private CellposeOpt()
+	private OmniposeOpt()
 	{}
 
 	static Map< String, AbstractParamSweepModel< ? > > createModels()
 	{
 		final StringRangeParamSweepModel cellposePath = new StringRangeParamSweepModel()
-				.paramName( "Cellpose Python path" )
+				.paramName( "Omnipose Python path" )
 				.isFile( true )
 				.add( System.getProperty( "user.home" ) );
-		final EnumParamSweepModel< PretrainedModelCellpose > cellposeModel = new EnumParamSweepModel<>( PretrainedModelCellpose.class )
-				.paramName( "Cellpose model" )
+		final EnumParamSweepModel< PretrainedModelOmnipose > omniposeModel = new EnumParamSweepModel<>( PretrainedModelOmnipose.class )
+				.paramName( "Omnipose model" )
 				.rangeType( fiji.plugin.trackmate.helper.model.parameter.ArrayParamSweepModel.RangeType.FIXED )
-				.addValue( PretrainedModelCellpose.CYTO )
-				.addValue( PretrainedModelCellpose.CYTO2 )
-				.fixedValue( PretrainedModelCellpose.CYTO );
-		final StringRangeParamSweepModel cellposeCustomModelPath = new StringRangeParamSweepModel()
-				.paramName( "Cellpose custom model path" )
+				.addValue( PretrainedModelOmnipose.BACT_PHASE )
+				.addValue( PretrainedModelOmnipose.BACT_FLUO )
+				.fixedValue( PretrainedModelOmnipose.BACT_PHASE );
+		final StringRangeParamSweepModel omniposeCustomModelPath = new StringRangeParamSweepModel()
+				.paramName( "Omnipose custom model path" )
 				.isFile( true )
 				.add( System.getProperty( "user.home" ) );
 		final IntParamSweepModel channel1 = new IntParamSweepModel()
@@ -87,25 +87,25 @@ public class CellposeOpt
 				.fixedValue( true );
 
 		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
-		models.put( CellposeDetectorFactory.KEY_CELLPOSE_PYTHON_FILEPATH, cellposePath );
-		models.put( CellposeDetectorFactory.KEY_CELLPOSE_MODEL, cellposeModel );
-		models.put( CellposeDetectorFactory.KEY_CELLPOSE_CUSTOM_MODEL_FILEPATH, cellposeCustomModelPath );
-		models.put( CellposeDetectorFactory.KEY_CELL_DIAMETER, cellDiameter );
+		models.put( OmniposeDetectorFactory.KEY_OMNIPOSE_PYTHON_FILEPATH, cellposePath );
+		models.put( OmniposeDetectorFactory.KEY_OMNIPOSE_MODEL, omniposeModel );
+		models.put( OmniposeDetectorFactory.KEY_OMNIPOSE_CUSTOM_MODEL_FILEPATH, omniposeCustomModelPath );
+		models.put( OmniposeDetectorFactory.KEY_CELL_DIAMETER, cellDiameter );
 		models.put( DetectorKeys.KEY_TARGET_CHANNEL, channel1 );
-		models.put( CellposeDetectorFactory.KEY_OPTIONAL_CHANNEL_2, channel2 );
-		models.put( CellposeDetectorFactory.KEY_USE_GPU, useGPU );
+		models.put( OmniposeDetectorFactory.KEY_OPTIONAL_CHANNEL_2, channel2 );
+		models.put( OmniposeDetectorFactory.KEY_USE_GPU, useGPU );
 		models.put( ThresholdDetectorFactory.KEY_SIMPLIFY_CONTOURS, simplifyContours );
 		return models;
 	}
 
 	public static SpotDetectorFactoryBase< ? > createFactory()
 	{
-		return new CellposeDetectorFactory<>();
+		return new OmniposeDetectorFactory<>();
 	}
 
 	public static Object castPretrainedModel( final String str )
 	{
-		for ( final PretrainedModel e : PretrainedModelCellpose.values() )
+		for ( final PretrainedModel e : PretrainedModelOmnipose.values() )
 			if ( e.toString().equals( str ) )
 				return e;
 

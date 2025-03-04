@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>37.0.0</version>
+		<version>38.0.1</version>
 		<relativePath />
 	</parent>
 
 	<groupId>sc.fiji</groupId>
 	<artifactId>TrackMate-CTCRunner</artifactId>
-	<version>1.4.2-SNAPSHOT</version>
+	<version>1.5.0-SNAPSHOT</version>
 
 	<name>TrackMate-CTCRunner</name>
 	<description>Batch measurements of the Cell-Tracking-Challenge metrics using TrackMate.</description>
@@ -85,19 +85,16 @@
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
 		<CTC-measures.version>1.0.3</CTC-measures.version>
-		<TrackMate.version>7.13.2</TrackMate.version>
+		<TrackMate.version>8.0.0-SNAPSHOT</TrackMate.version>
+		<TrackMate-Cellpose.version>0.2.0-SNAPSHOT</TrackMate-Cellpose.version>
 	</properties>
 
 	<dependencies>
+		<!-- TrackMate -->
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate</artifactId>
-			<version>${TrackMate.version}</version>
 		</dependency>
-
-		<!-- ImageJ dependencies -->
-	
-		<!-- TrackMate -->
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate-StarDist</artifactId>
@@ -117,6 +114,16 @@
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate-Weka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>sc.fiji</groupId>
+			<artifactId>TrackMate-Trackastra</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>sc.fiji</groupId>
+			<artifactId>TrackMate-YOLO</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Cell Tracking Challenge dependencies -->

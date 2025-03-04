@@ -19,21 +19,25 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package fiji.plugin.trackmate.helper.model;
+package fiji.plugin.trackmate.helper.ui.filters;
 
-import java.util.Map;
+import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings.TrackMateObject;
+import fiji.plugin.trackmate.helper.model.ParameterSweepModel;
+import ij.ImagePlus;
 
-import fiji.plugin.trackmate.TrackMateModule;
-import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
-
-public abstract class AbstractSweepModel< F extends TrackMateModule > extends AbstractSweepModelBase
+public class SpotFilterConfigPanel extends AbstractFilterConfigPanel
 {
 
-	protected final F factory;
-	
-	protected AbstractSweepModel( final String name, final Map< String, AbstractParamSweepModel< ? > > models, final F factory )
+	private static final long serialVersionUID = 1L;
+
+	public SpotFilterConfigPanel(
+			final String defaultFeature,
+			final ImagePlus imp,
+			final ParameterSweepModel model )
 	{
-		super( name, models );
-		this.factory = factory;
+		super( TrackMateObject.SPOTS, defaultFeature, imp,
+				fsm -> model.addSpotFilterModel( fsm ),
+				fsm -> model.removeSpotFilterModel( fsm ) );
+		model.spotFilterModels().forEach( this::addFilterSilently );
 	}
 }

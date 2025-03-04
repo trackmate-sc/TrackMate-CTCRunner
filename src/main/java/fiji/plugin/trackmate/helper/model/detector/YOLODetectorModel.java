@@ -31,38 +31,38 @@ import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.InfoParamSweepModel;
 import fiji.plugin.trackmate.providers.DetectorProvider;
 
-@Plugin( type = DetectorSweepModel.class, priority = 1000000 - 8.9 )
-public class WekaDetectorModel extends DetectorSweepModel
+@Plugin( type = DetectorSweepModel.class, priority = 1000000 - 10 )
+public class YOLODetectorModel extends DetectorSweepModel
 {
 
-	public WekaDetectorModel()
+	public YOLODetectorModel()
 	{
-		super( "Weka detector", createModels(), createFactory() );
+		super( "YOLO detector", createModels(), createFactory() );
 	}
 
 	private static SpotDetectorFactoryBase< ? > createFactory()
 	{
-		if ( null == new DetectorProvider().getFactory( "WEKA_DETECTOR" ) )
+		if ( null == new DetectorProvider().getFactory( "YOLO_DETECTOR" ) )
 			return null;
 		else
-			return WekaOpt.createFactory();
+			return YOLOOpt.createFactory();
 	}
 
 	private static Map< String, AbstractParamSweepModel< ? > > createModels()
 	{
-		if ( null == new DetectorProvider().getFactory( "WEKA_DETECTOR" ) )
+		if ( null == new DetectorProvider().getFactory( "YOLO_DETECTOR" ) )
 		{
 			final Map< String, AbstractParamSweepModel< ? > > models = new HashMap<>();
 			models.put( "", new InfoParamSweepModel()
-					.info( "The TrackMate-Weka module seems to be missing<br>"
+					.info( "The TrackMate-YOLO module seems to be missing<br>"
 							+ "from your Fiji installation. Please follow the link<br>"
 							+ "below for installation instructions." )
-					.url( "https://imagej.net/plugins/trackmate/trackmate-weka" ) );
+					.url( "https://imagej.net/plugins/trackmate/detectors/trackmate-yolo" ) );
 			return models;
 		}
 		else
 		{
-			return WekaOpt.createModels();
+			return YOLOOpt.createModels();
 		}
 	}
 }
