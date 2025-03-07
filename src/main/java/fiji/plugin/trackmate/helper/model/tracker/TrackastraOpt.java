@@ -21,6 +21,7 @@
  */
 package fiji.plugin.trackmate.helper.model.tracker;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,16 @@ public class TrackastraOpt
 	static Map< String, AbstractParamSweepModel< ? > > createModels()
 	{
 		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
-		final List< String > envList = CLIUtils.getEnvList();
+		final List< String > envList = new ArrayList<>();
+		try
+		{
+			final List< String > l = CLIUtils.getEnvList();
+			envList.addAll( l );
+		}
+		catch ( final Exception e )
+		{
+			e.printStackTrace();
+		}
 		if ( envList == null || envList.isEmpty() )
 		{
 			models.put( "", new InfoParamSweepModel()
