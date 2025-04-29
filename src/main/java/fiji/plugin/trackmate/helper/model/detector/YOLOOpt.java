@@ -61,7 +61,7 @@ public class YOLOOpt
 					.info( "The conda executable seems not to be configured, <br>"
 							+ "or no conda environment could be found. Please <br>"
 							+ "follow the link below for installation instructions." )
-					.url( "https://imagej.net/plugins/trackmate/trackers/trackmate-trackastra" ) );
+					.url( "https://imagej.net/plugins/trackmate/detectors/trackmate-yolo" ) );
 			return models;
 		}
 
