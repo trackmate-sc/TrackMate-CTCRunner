@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -28,6 +28,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.scijava.Context;
 
@@ -40,7 +43,7 @@ import fiji.plugin.trackmate.helper.TrackingMetrics;
 /**
  * Performs tracking and all the CTC metrics measurements with a TrackMate
  * instance.
- * 
+ *
  * @author Jean-Yves Tinevez
  */
 public class CTCMetricsRunner extends MetricsRunner
@@ -54,7 +57,7 @@ public class CTCMetricsRunner extends MetricsRunner
 	/**
 	 * Path to ground truth folder.
 	 */
-	private final String gtPath;
+	private String gtPath;
 
 	public CTCMetricsRunner( final String gtPath, final String saveFolder, final Context context )
 	{
@@ -67,8 +70,43 @@ public class CTCMetricsRunner extends MetricsRunner
 	@Override
 	public TrackingMetrics performMetricsMeasurements( final TrackMate trackmate ) throws MetricsComputationErrorException
 	{
-		batchLogger.log( "Exporting as CTC results.\n" );
+		// Do we have a folder for the ground-truth, or a TrackMate file?
+		if ( gtPath.toLowerCase().endsWith( ".xml" ) )
+		{
+			// Assume it's a TrackMate file, export it to CTC file format.
+			batchLogger.log( "Ground-truth is in the TrackMate file format.\n" );
 
+			final String regexPattern = "\\d{2}_GT";
+			final Pattern pattern = Pattern.compile( regexPattern );
+			try (Stream< Path > paths = Files.list( resultsRootPath ))
+			{
+				final Optional< Path > ctcGTfolder = paths
+						.filter( Files::isDirectory )
+						.filter( path -> pattern.matcher( path.getFileName().toString() ).matches() )
+						.findFirst();
+
+				if ( ctcGTfolder.isPresent() )
+				{
+					batchLogger.log( "Found a GT folder in CTC format: " + ctcGTfolder.get() + "\n" );
+					gtPath = ctcGTfolder.get().toString();
+				}
+				else
+				{
+					batchLogger.log( "Exporting GT file to CTC format.\n" );
+					gtPath = CTCExporter.exportAll( resultsRootPath.toString(), trackmate, ExportType.GOLD_TRUTH, batchLogger );
+					gtPath = Paths.get( gtPath ).getParent().toString();
+				}
+			}
+			catch ( final IOException e )
+			{
+				batchLogger.error( "Error reading the GT parent directory. Stopping."
+						+ "\n" + e.getMessage() );
+				e.printStackTrace();
+				throw new RuntimeException( e );
+			}
+		}
+
+		batchLogger.log( "Exporting test results to CTC format.\n" );
 		final int id = CTCExporter.getAvailableDatasetID( resultsRootPath.toString() );
 		final String resultsFolder = CTCExporter.getExportTrackingDataPath( resultsRootPath.toString(), id, ExportType.RESULTS, trackmate );
 		try
