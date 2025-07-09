@@ -21,18 +21,14 @@
  */
 package fiji.plugin.trackmate.helper.model.detector;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
-import fiji.plugin.trackmate.helper.model.parameter.ArrayParamSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.CondaEnvParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.DoubleParamSweepModel;
-import fiji.plugin.trackmate.helper.model.parameter.InfoParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.StringRangeParamSweepModel;
-import fiji.plugin.trackmate.util.cli.CLIUtils;
 import fiji.plugin.trackmate.yolo.YOLOCLI;
 import fiji.plugin.trackmate.yolo.YOLODetectorFactory;
 
@@ -44,34 +40,11 @@ public class YOLOOpt
 
 	static Map< String, AbstractParamSweepModel< ? > > createModels()
 	{
-		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
-		final List< String > envList = new ArrayList<>();
-		try
-		{
-			final List< String > l = CLIUtils.getEnvList();
-			envList.addAll( l );
-		}
-		catch ( final Exception e )
-		{
-			e.printStackTrace();
-		}
-		if ( envList == null || envList.isEmpty() )
-		{
-			models.put( "", new InfoParamSweepModel()
-					.info( "The conda executable seems not to be configured, <br>"
-							+ "or no conda environment could be found. Please <br>"
-							+ "follow the link below for installation instructions." )
-					.url( "https://imagej.net/plugins/trackmate/detectors/trackmate-yolo" ) );
-			return models;
-		}
 
 		final YOLOCLI cli = new YOLOCLI();
 
-		final ArrayParamSweepModel< String > condaEnv = new ArrayParamSweepModel<>(
-				envList.toArray( new String[] {} ) )
-						.paramName( "YOLO conda environment" )
-						.addValue( envList.get( 0 ) )
-						.fixedValue( envList.get( 0 ) );
+		final CondaEnvParamSweepModel condaEnv = new CondaEnvParamSweepModel()
+				.paramName( "YOLO conda environment" );
 
 		final StringRangeParamSweepModel modelPath = new StringRangeParamSweepModel()
 				.paramName( cli.modelPath().getName() )
@@ -90,6 +63,7 @@ public class YOLOOpt
 				.max( 0.5 )
 				.nSteps( 5 );
 
+		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
 		models.put( YOLOCLI.KEY_CONDA_ENV, condaEnv );
 		models.put( YOLODetectorFactory.KEY_YOLO_MODEL_FILEPATH, modelPath );
 		models.put( YOLODetectorFactory.KEY_YOLO_CONF, confidenceParam );

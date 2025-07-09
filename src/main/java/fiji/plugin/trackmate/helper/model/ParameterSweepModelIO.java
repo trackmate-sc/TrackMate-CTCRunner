@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -49,8 +51,9 @@ import com.google.gson.JsonSerializer;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.AbstractArrayParamSweepModel.RangeType;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
-import fiji.plugin.trackmate.helper.model.parameter.ArrayParamSweepModel.RangeType;
+import fiji.plugin.trackmate.helper.model.parameter.CondaEnvParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.EnumParamSweepModel;
 import fiji.plugin.trackmate.helper.model.tracker.TrackerSweepModel;
 import fiji.plugin.trackmate.providers.DetectorProvider;
@@ -67,7 +70,7 @@ public class ParameterSweepModelIO
 	/**
 	 * Makes a file object that will save settings in the folder containing the
 	 * specified ground-truth folder.
-	 * 
+	 *
 	 * @param groundTruthPath
 	 *            the ground-truth folder.
 	 * @return a {@link File}.
@@ -155,6 +158,7 @@ public class ParameterSweepModelIO
 	private static Gson getGson()
 	{
 		final GsonBuilder builder = new GsonBuilder()
+				.addDeserializationExclusionStrategy( new CustomExclusionStrategy() )
 				.registerTypeAdapter( EnumParamSweepModel.class, new EnumParamSweepModelAdapter<>() )
 				.registerTypeAdapter( SpotDetectorFactoryBase.class, new SpotDetectorFactoryBaseAdapter() )
 				.registerTypeAdapter( SpotTrackerFactory.class, new SpotTrackerFactoryAdapter() )
@@ -175,6 +179,21 @@ public class ParameterSweepModelIO
 		final ParameterSweepModel model = getGson().fromJson( str, ParameterSweepModel.class );
 		model.registerListeners();
 		return model;
+	}
+
+	private static class CustomExclusionStrategy implements ExclusionStrategy
+	{
+		@Override
+		public boolean shouldSkipField( final FieldAttributes f )
+		{
+			return f.getDeclaringClass() == CondaEnvParamSweepModel.class && f.getName().equals( "allValues" );
+		}
+
+		@Override
+		public boolean shouldSkipClass( final Class< ? > clazz )
+		{
+			return false;
+		}
 	}
 
 	private static class AbstractParamSweepModelAdapter implements JsonSerializer< AbstractParamSweepModel< ? > >, JsonDeserializer< AbstractParamSweepModel< ? > >
