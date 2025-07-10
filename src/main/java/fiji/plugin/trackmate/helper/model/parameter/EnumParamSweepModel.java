@@ -40,7 +40,7 @@ public class EnumParamSweepModel< T extends Enum< T > > extends ArrayParamSweepM
 	}
 
 	@Override
-	public EnumParamSweepModel< T > rangeType( final RangeType rangeType )
+	public EnumParamSweepModel< T > rangeType( final ArrayRangeType rangeType )
 	{
 		if ( this.rangeType != rangeType )
 		{

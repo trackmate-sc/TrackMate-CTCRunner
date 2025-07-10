@@ -33,21 +33,15 @@ public class AbstractArrayParamSweepModel< T, F extends AbstractArrayParamSweepM
 
 	protected final Set< T > set = new LinkedHashSet<>();
 
-	protected RangeType rangeType = RangeType.FIXED;
+	protected ArrayRangeType rangeType = ArrayRangeType.FIXED;
 
 	protected T fixedValue;
 
-	private T[] allValues;
-
-	private AbstractArrayParamSweepModel()
-	{
-		super();
-	}
+	protected final List< T > allValues = new ArrayList<>();
 
 	public AbstractArrayParamSweepModel( final T[] allValues )
 	{
-		this();
-		this.allValues = allValues;
+		this.allValues.addAll( Arrays.asList( allValues ) );
 	}
 
 	@Override
@@ -66,7 +60,7 @@ public class AbstractArrayParamSweepModel< T, F extends AbstractArrayParamSweepM
 		}
 	}
 
-	public RangeType getRangeType()
+	public ArrayRangeType getRangeType()
 	{
 		return rangeType;
 	}
@@ -89,7 +83,7 @@ public class AbstractArrayParamSweepModel< T, F extends AbstractArrayParamSweepM
 	}
 
 	@SuppressWarnings( "unchecked" )
-	public F rangeType( final RangeType rangeType )
+	public F rangeType( final ArrayRangeType rangeType )
 	{
 		if ( this.rangeType != rangeType )
 		{
@@ -130,7 +124,7 @@ public class AbstractArrayParamSweepModel< T, F extends AbstractArrayParamSweepM
 
 	public List< T > getAllValues()
 	{
-		return Arrays.asList( allValues );
+		return allValues;
 	}
 
 	@Override
@@ -158,13 +152,13 @@ public class AbstractArrayParamSweepModel< T, F extends AbstractArrayParamSweepM
 		}
 	}
 
-	public enum RangeType
+	public enum ArrayRangeType
 	{
 		TEST_ALL( "test all" ), FIXED( "single value" ), LIST( "list" );
 
 		private final String name;
 
-		RangeType( final String name )
+		ArrayRangeType( final String name )
 		{
 			this.name = name;
 		}

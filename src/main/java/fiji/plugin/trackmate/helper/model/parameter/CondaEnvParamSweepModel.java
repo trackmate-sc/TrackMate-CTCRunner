@@ -10,7 +10,7 @@ public class CondaEnvParamSweepModel extends AbstractArrayParamSweepModel< Strin
 
 	public CondaEnvParamSweepModel()
 	{
-		super( getEnvList() );
+		super( getEnvList().toArray( new String[] {} ) );
 		final List< String > allEnvs = getAllValues();
 		if ( allEnvs != null && !allEnvs.isEmpty() )
 		{
@@ -19,7 +19,7 @@ public class CondaEnvParamSweepModel extends AbstractArrayParamSweepModel< Strin
 		}
 	}
 
-	protected static final String[] getEnvList()
+	protected static final List< String > getEnvList()
 	{
 		final List< String > envList = new ArrayList<>();
 		try
@@ -31,8 +31,17 @@ public class CondaEnvParamSweepModel extends AbstractArrayParamSweepModel< Strin
 		{
 			e.printStackTrace();
 		}
-		return envList.toArray( new String[] {} );
+		return envList;
 	}
+
+	@Override
+	void initialize()
+	{
+		super.initialize();
+		allValues.clear();
+		allValues.addAll( getEnvList() );
+	}
+
 //	if ( envList == null || envList.isEmpty() )
 //	{
 //		models.put( "", new InfoParamSweepModel()

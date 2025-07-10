@@ -34,8 +34,6 @@ import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -51,9 +49,9 @@ import com.google.gson.JsonSerializer;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
-import fiji.plugin.trackmate.helper.model.parameter.AbstractArrayParamSweepModel.RangeType;
+import fiji.plugin.trackmate.helper.model.parameter.AbstractArrayParamSweepModel.ArrayRangeType;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
-import fiji.plugin.trackmate.helper.model.parameter.CondaEnvParamSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModelIO;
 import fiji.plugin.trackmate.helper.model.parameter.EnumParamSweepModel;
 import fiji.plugin.trackmate.helper.model.tracker.TrackerSweepModel;
 import fiji.plugin.trackmate.providers.DetectorProvider;
@@ -158,11 +156,10 @@ public class ParameterSweepModelIO
 	private static Gson getGson()
 	{
 		final GsonBuilder builder = new GsonBuilder()
-				.addDeserializationExclusionStrategy( new CustomExclusionStrategy() )
 				.registerTypeAdapter( EnumParamSweepModel.class, new EnumParamSweepModelAdapter<>() )
 				.registerTypeAdapter( SpotDetectorFactoryBase.class, new SpotDetectorFactoryBaseAdapter() )
 				.registerTypeAdapter( SpotTrackerFactory.class, new SpotTrackerFactoryAdapter() )
-				.registerTypeAdapter( AbstractParamSweepModel.class, new AbstractParamSweepModelAdapter() )
+				.registerTypeAdapter( AbstractParamSweepModel.class, new AbstractParamSweepModelIO() )
 				.registerTypeAdapter( DetectorSweepModel.class, new DetectorSweepModelAdapter() )
 				.registerTypeAdapter( TrackerSweepModel.class, new TrackerSweepModelAdapter() )
 				.registerTypeAdapter( Class.class, new ClassTypeAdapter() );
@@ -177,53 +174,8 @@ public class ParameterSweepModelIO
 	public static ParameterSweepModel fromJson( final String str )
 	{
 		final ParameterSweepModel model = getGson().fromJson( str, ParameterSweepModel.class );
-		model.registerListeners();
+		model.reRegisterListeners();
 		return model;
-	}
-
-	private static class CustomExclusionStrategy implements ExclusionStrategy
-	{
-		@Override
-		public boolean shouldSkipField( final FieldAttributes f )
-		{
-			return f.getDeclaringClass() == CondaEnvParamSweepModel.class && f.getName().equals( "allValues" );
-		}
-
-		@Override
-		public boolean shouldSkipClass( final Class< ? > clazz )
-		{
-			return false;
-		}
-	}
-
-	private static class AbstractParamSweepModelAdapter implements JsonSerializer< AbstractParamSweepModel< ? > >, JsonDeserializer< AbstractParamSweepModel< ? > >
-	{
-
-		@Override
-		public AbstractParamSweepModel< ? > deserialize( final JsonElement json, final Type typeOfT, final JsonDeserializationContext context ) throws JsonParseException
-		{
-			final JsonObject jsonObject = json.getAsJsonObject();
-			final String type = jsonObject.get( "type" ).getAsString();
-			final JsonElement element = jsonObject.get( "properties" );
-
-			try
-			{
-				return context.deserialize( element, Class.forName( "fiji.plugin.trackmate.helper.model.parameter." + type ) );
-			}
-			catch ( final ClassNotFoundException cnfe )
-			{
-				throw new JsonParseException( "Unknown element type: " + type, cnfe );
-			}
-		}
-
-		@Override
-		public JsonElement serialize( final AbstractParamSweepModel< ? > src, final Type typeOfSrc, final JsonSerializationContext context )
-		{
-			final JsonObject result = new JsonObject();
-			result.add( "type", new JsonPrimitive( src.getClass().getSimpleName() ) );
-			result.add( "properties", context.serialize( src, src.getClass() ) );
-			return result;
-		}
 	}
 
 	private static class DetectorSweepModelAdapter implements JsonSerializer< DetectorSweepModel >, JsonDeserializer< DetectorSweepModel >
@@ -457,7 +409,7 @@ public class ParameterSweepModelIO
 				final EnumParamSweepModel< T > model = new EnumParamSweepModel<>( enumClass );
 				model.paramName( obj.get( "paramName" ).getAsString() );
 				model.fixedValue( Enum.valueOf( enumClass, obj.get( "fixedValue" ).getAsString() ) );
-				model.rangeType( Enum.valueOf( RangeType.class, obj.get( "rangeType" ).getAsString() ) );
+				model.rangeType( Enum.valueOf( ArrayRangeType.class, obj.get( "rangeType" ).getAsString() ) );
 				final JsonArray arr = obj.get( "set" ).getAsJsonArray();
 				for ( final JsonElement el : arr )
 					model.addValue( Enum.valueOf( enumClass, el.getAsString() ) );

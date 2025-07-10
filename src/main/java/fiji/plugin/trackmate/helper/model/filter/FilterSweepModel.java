@@ -11,12 +11,13 @@ import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings.TrackMateObject;
 import fiji.plugin.trackmate.helper.model.AbstractSweepModelBase;
+import fiji.plugin.trackmate.helper.model.parameter.AbstractArrayParamSweepModel.ArrayRangeType;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.ArrayParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.BooleanParamSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.BooleanParamSweepModel.BooleanRangeType;
 import fiji.plugin.trackmate.helper.model.parameter.Combinations;
 import fiji.plugin.trackmate.helper.model.parameter.DoubleParamSweepModel;
-import fiji.plugin.trackmate.helper.model.parameter.NumberParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.NumberParamSweepModel.RangeType;
 
 public class FilterSweepModel extends AbstractSweepModelBase implements Iterable< FeatureFilter >
@@ -42,7 +43,7 @@ public class FilterSweepModel extends AbstractSweepModelBase implements Iterable
 
 	/**
 	 * Sets this model to represent the single feature filter specified.
-	 * 
+	 *
 	 * @param ff
 	 *            the feature filter.
 	 */
@@ -55,11 +56,11 @@ public class FilterSweepModel extends AbstractSweepModelBase implements Iterable
 
 		featureParam
 				.fixedValue( ff.feature )
-				.rangeType( ArrayParamSweepModel.RangeType.FIXED );
+				.rangeType( ArrayRangeType.FIXED );
 		thresholdParam.rangeType( RangeType.FIXED )
 				.min( ff.value );
 		isAboveParam.fixedValue( ff.isAbove )
-				.rangeType( BooleanParamSweepModel.RangeType.FIXED );
+				.rangeType( BooleanRangeType.FIXED );
 	}
 
 	@Override
@@ -80,18 +81,18 @@ public class FilterSweepModel extends AbstractSweepModelBase implements Iterable
 		final ArrayParamSweepModel< String > featureNameParam = new ArrayParamSweepModel<>( arr )
 				.paramName( "Feature " + index )
 				.fixedValue( arr[ 0 ] )
-				.rangeType( ArrayParamSweepModel.RangeType.FIXED );
+				.rangeType( ArrayRangeType.FIXED );
 
 		final DoubleParamSweepModel thresholdParam = new DoubleParamSweepModel()
 				.paramName( "Threshold" )
 				.dimension( Dimension.NONE )
-				.rangeType( NumberParamSweepModel.RangeType.FIXED )
+				.rangeType( RangeType.FIXED )
 				.min( 5. );
 
 		final BooleanParamSweepModel isAboveParam = new BooleanParamSweepModel()
 				.paramName( "Above?" )
 				.fixedValue( true )
-				.rangeType( BooleanParamSweepModel.RangeType.FIXED );
+				.rangeType( BooleanRangeType.FIXED );
 
 		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
 		models.put( FEATURE, featureNameParam );
@@ -99,7 +100,7 @@ public class FilterSweepModel extends AbstractSweepModelBase implements Iterable
 		models.put( ISABOVE, isAboveParam );
 		return models;
 	}
-	
+
 	private static class FeatureFilterIterator implements Iterator< FeatureFilter >
 	{
 
