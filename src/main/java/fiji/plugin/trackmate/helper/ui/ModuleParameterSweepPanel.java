@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -40,6 +40,7 @@ import fiji.plugin.trackmate.helper.model.AbstractSweepModelBase.ModelListener;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.ArrayParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.BooleanParamSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.CondaEnvParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.InfoParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.NumberParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.StringRangeParamSweepModel;
@@ -52,7 +53,7 @@ import fiji.plugin.trackmate.helper.ui.components.StringRangeParamSweepPanel;
 /**
  * Panel that lets the user configure a parameter sweep over a TrackMate module
  * (detector or tracker).
- * 
+ *
  * @author Jean-Yves Tinevez
  */
 public class ModuleParameterSweepPanel extends JPanel
@@ -136,6 +137,8 @@ public class ModuleParameterSweepPanel extends JPanel
 			return new StringRangeParamSweepPanel( ( StringRangeParamSweepModel ) cm );
 		else if ( cm instanceof ArrayParamSweepModel< ? > )
 			return new ArrayRangeSweepPanel<>( ( ArrayParamSweepModel< ? > ) cm );
+		else if ( cm instanceof CondaEnvParamSweepModel )
+			return new ArrayRangeSweepPanel<>( ( CondaEnvParamSweepModel ) cm );
 		else if ( cm instanceof InfoParamSweepModel )
 			return new InfoPanel( ( InfoParamSweepModel ) cm );
 		else

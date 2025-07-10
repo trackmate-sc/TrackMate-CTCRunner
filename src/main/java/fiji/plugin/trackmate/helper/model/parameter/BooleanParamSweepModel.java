@@ -28,13 +28,13 @@ import java.util.List;
 public class BooleanParamSweepModel extends AbstractParamSweepModel< Boolean >
 {
 
-	public enum RangeType
+	public enum BooleanRangeType
 	{
 		TEST_ALL( "test both" ), FIXED( "fixed value" );
 
 		private final String name;
 
-		RangeType( final String name )
+		BooleanRangeType( final String name )
 		{
 			this.name = name;
 		}
@@ -46,7 +46,7 @@ public class BooleanParamSweepModel extends AbstractParamSweepModel< Boolean >
 		}
 	}
 
-	private RangeType rangeType = RangeType.TEST_ALL;
+	private BooleanRangeType rangeType = BooleanRangeType.TEST_ALL;
 
 	private boolean fixedValue = true;
 
@@ -69,7 +69,7 @@ public class BooleanParamSweepModel extends AbstractParamSweepModel< Boolean >
 		return fixedValue;
 	}
 
-	public RangeType getRangeType()
+	public BooleanRangeType getRangeType()
 	{
 		return rangeType;
 	}
@@ -102,7 +102,7 @@ public class BooleanParamSweepModel extends AbstractParamSweepModel< Boolean >
 		return ( BooleanParamSweepModel ) super.paramName( paramName );
 	}
 
-	public BooleanParamSweepModel rangeType( final RangeType rangeType )
+	public BooleanParamSweepModel rangeType( final BooleanRangeType rangeType )
 	{
 		if ( this.rangeType != rangeType )
 		{

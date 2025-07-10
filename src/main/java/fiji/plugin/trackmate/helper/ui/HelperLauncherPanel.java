@@ -305,10 +305,10 @@ public class HelperLauncherPanel extends JPanel
 
 		btnBrowseGT.addActionListener( e -> {
 			final String dialogTitle = metricsChooserPanel.isCTCSelected()
-					? "Select a CTC ground-truth folder or TrackMate file."
+					? "Select a CTC ground-truth folder."
 					: "Select a SPT ground-truth XML file.";
 			final SelectionMode selectionMode = metricsChooserPanel.isCTCSelected()
-					? SelectionMode.FILES_AND_DIRECTORIES
+					? SelectionMode.DIRECTORIES_ONLY
 					: SelectionMode.FILES_ONLY;
 			final File file = FileChooser.chooseFile( this, tfGTPath.getText(), null, dialogTitle, DialogType.LOAD, selectionMode );
 			if ( file == null )

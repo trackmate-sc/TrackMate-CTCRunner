@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -48,7 +48,7 @@ import fiji.plugin.trackmate.util.TMUtils;
 public class ParameterSweepModel
 {
 
-	private final transient Listeners.List< ModelListener > modelListeners;
+	private final transient Listeners.List< ModelListener > modelListeners = new Listeners.SynchronizedList<>();
 
 	private final Map< String, DetectorSweepModel > detectorModels;
 
@@ -62,8 +62,6 @@ public class ParameterSweepModel
 
 	public ParameterSweepModel()
 	{
-		modelListeners = new Listeners.SynchronizedList<>();
-
 		// Auto-detect detectors & trackers.
 		detectorModels = autoDetect( DetectorSweepModel.class );
 		trackerModels = autoDetect( TrackerSweepModel.class );
@@ -78,16 +76,32 @@ public class ParameterSweepModel
 		this.spotFilterModels = new ArrayList<>();
 		this.trackFilterModels = new ArrayList<>();
 
-		registerListeners();
-	}
-
-	public void registerListeners()
-	{
-		// Forward component changes to listeners.
+		// Register models.
 		detectorModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
 		trackerModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
 		spotFilterModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
 		trackFilterModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
+	}
+
+	/**
+	 * This is used <b>only</b> for deserizalisation, to re-register listeners
+	 * in the model components of the main models.
+	 */
+	void reRegisterListeners()
+	{
+		final ModelListener notifier = () -> notifyListeners();
+		reRegisterListeners( detectorModels.values(), notifier );
+		reRegisterListeners( trackerModels.values(), notifier );
+		reRegisterListeners( spotFilterModels, notifier );
+		reRegisterListeners( spotFilterModels, notifier );
+	}
+
+	private void reRegisterListeners( final Collection< ? extends AbstractSweepModelBase > models, final ModelListener notifier )
+	{
+		models.forEach( m -> {
+			m.listeners().add( notifier );
+			m.models.values().forEach( sm -> sm.listeners().add( notifier ) );
+		} );
 	}
 
 	public Collection< DetectorSweepModel > detectorModels()
@@ -179,7 +193,7 @@ public class ParameterSweepModel
 	/**
 	 * Returns the count of the different settings that will be generated from
 	 * this model.
-	 * 
+	 *
 	 * @return the count of settings.
 	 */
 	public int count()
@@ -190,7 +204,7 @@ public class ParameterSweepModel
 	/**
 	 * Returns the count of the different tracker settings that will be
 	 * generated from this model.
-	 * 
+	 *
 	 * @return the count of settings.
 	 */
 	public int countTrackerSettings()
@@ -213,7 +227,7 @@ public class ParameterSweepModel
 	/**
 	 * Returns the count of the different detector settings that will be
 	 * generated from this model.
-	 * 
+	 *
 	 * @return the count of settings.
 	 */
 	public int countDetectorSettings()
@@ -236,7 +250,7 @@ public class ParameterSweepModel
 	/**
 	 * Returns the count of the different spot filter settings that will be
 	 * generated from this model.
-	 * 
+	 *
 	 * @return the count of settings.
 	 */
 	public int countSpotFilterSettings()
@@ -260,7 +274,7 @@ public class ParameterSweepModel
 	/**
 	 * Returns the count of the different track filter settings that will be
 	 * generated from this model.
-	 * 
+	 *
 	 * @return the count of settings.
 	 */
 	public int countTrackFilterSettings()

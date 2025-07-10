@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -49,9 +49,11 @@ import com.google.gson.JsonSerializer;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.AbstractArrayParamSweepModel.ArrayRangeType;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
-import fiji.plugin.trackmate.helper.model.parameter.ArrayParamSweepModel.RangeType;
+import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModelIO;
 import fiji.plugin.trackmate.helper.model.parameter.EnumParamSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.InfoParamSweepModel;
 import fiji.plugin.trackmate.helper.model.tracker.TrackerSweepModel;
 import fiji.plugin.trackmate.providers.DetectorProvider;
 import fiji.plugin.trackmate.providers.TrackerProvider;
@@ -67,7 +69,7 @@ public class ParameterSweepModelIO
 	/**
 	 * Makes a file object that will save settings in the folder containing the
 	 * specified ground-truth folder.
-	 * 
+	 *
 	 * @param groundTruthPath
 	 *            the ground-truth folder.
 	 * @return a {@link File}.
@@ -158,7 +160,7 @@ public class ParameterSweepModelIO
 				.registerTypeAdapter( EnumParamSweepModel.class, new EnumParamSweepModelAdapter<>() )
 				.registerTypeAdapter( SpotDetectorFactoryBase.class, new SpotDetectorFactoryBaseAdapter() )
 				.registerTypeAdapter( SpotTrackerFactory.class, new SpotTrackerFactoryAdapter() )
-				.registerTypeAdapter( AbstractParamSweepModel.class, new AbstractParamSweepModelAdapter() )
+				.registerTypeAdapter( AbstractParamSweepModel.class, new AbstractParamSweepModelIO() )
 				.registerTypeAdapter( DetectorSweepModel.class, new DetectorSweepModelAdapter() )
 				.registerTypeAdapter( TrackerSweepModel.class, new TrackerSweepModelAdapter() )
 				.registerTypeAdapter( Class.class, new ClassTypeAdapter() );
@@ -173,45 +175,23 @@ public class ParameterSweepModelIO
 	public static ParameterSweepModel fromJson( final String str )
 	{
 		final ParameterSweepModel model = getGson().fromJson( str, ParameterSweepModel.class );
-		model.registerListeners();
+		model.reRegisterListeners();
 		return model;
 	}
 
-	private static class AbstractParamSweepModelAdapter implements JsonSerializer< AbstractParamSweepModel< ? > >, JsonDeserializer< AbstractParamSweepModel< ? > >
+
+	private static abstract class AbstractModuleSweepModelAdapter< G extends AbstractSweepModel< ? > > implements JsonSerializer< G >, JsonDeserializer< G >
 	{
 
-		@Override
-		public AbstractParamSweepModel< ? > deserialize( final JsonElement json, final Type typeOfT, final JsonDeserializationContext context ) throws JsonParseException
-		{
-			final JsonObject jsonObject = json.getAsJsonObject();
-			final String type = jsonObject.get( "type" ).getAsString();
-			final JsonElement element = jsonObject.get( "properties" );
+		private final String packagePrefix;
 
-			try
-			{
-				return context.deserialize( element, Class.forName( "fiji.plugin.trackmate.helper.model.parameter." + type ) );
-			}
-			catch ( final ClassNotFoundException cnfe )
-			{
-				throw new JsonParseException( "Unknown element type: " + type, cnfe );
-			}
+		public AbstractModuleSweepModelAdapter( final String packagePrefix )
+		{
+			this.packagePrefix = packagePrefix;
 		}
 
 		@Override
-		public JsonElement serialize( final AbstractParamSweepModel< ? > src, final Type typeOfSrc, final JsonSerializationContext context )
-		{
-			final JsonObject result = new JsonObject();
-			result.add( "type", new JsonPrimitive( src.getClass().getSimpleName() ) );
-			result.add( "properties", context.serialize( src, src.getClass() ) );
-			return result;
-		}
-	}
-
-	private static class DetectorSweepModelAdapter implements JsonSerializer< DetectorSweepModel >, JsonDeserializer< DetectorSweepModel >
-	{
-
-		@Override
-		public DetectorSweepModel deserialize( final JsonElement json, final Type typeOfT, final JsonDeserializationContext context ) throws JsonParseException
+		public G deserialize( final JsonElement json, final Type typeOfT, final JsonDeserializationContext context ) throws JsonParseException
 		{
 			final JsonObject jsonObject = json.getAsJsonObject();
 			final String type = jsonObject.get( "type" ).getAsString();
@@ -223,8 +203,9 @@ public class ParameterSweepModelIO
 			 */
 			try
 			{
-				final Object obj = Class.forName( "fiji.plugin.trackmate.helper.model.detector." + type ).getConstructor().newInstance();
-				final DetectorSweepModel m = ( DetectorSweepModel ) obj;
+				final Object obj = Class.forName( packagePrefix + type ).getConstructor().newInstance();
+				@SuppressWarnings( "unchecked" )
+				final G m = ( G ) obj;
 				if ( m.factory == null )
 				{
 					/*
@@ -257,8 +238,9 @@ public class ParameterSweepModelIO
 					 */
 					try
 					{
-						final Object obj2 = Class.forName( "fiji.plugin.trackmate.helper.model.detector." + type ).getConstructor().newInstance();
-						return ( DetectorSweepModel ) obj2;
+						@SuppressWarnings( "unchecked" )
+						final G obj2 = ( G ) Class.forName( packagePrefix + type ).getConstructor().newInstance();
+						return obj2;
 					}
 					catch ( InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e )
 					{
@@ -266,8 +248,38 @@ public class ParameterSweepModelIO
 					}
 				}
 
-				// Normal case.
-				return context.deserialize( element, Class.forName( "fiji.plugin.trackmate.helper.model.detector." + type ) );
+				// Deserialize from Json
+				@SuppressWarnings( "unchecked" )
+				final G ds = ( G ) context.deserialize( element, Class.forName( packagePrefix + type ) );
+
+				/*
+				 * We may have serialized that the module was not available or
+				 * properly configured at the time of serialization. In that
+				 * case, the submodel is only one information parameter. Instead
+				 * of returning it, we try to instantiate a new model, so that
+				 * the user is presented something par with the current
+				 * configuration they have.
+				 */
+				// Test if we serialized an error.
+				if ( ds.models.size() == 1 )
+				{
+					final AbstractParamSweepModel< ? > sm = ds.models.values().iterator().next();
+					if ( sm instanceof InfoParamSweepModel )
+					{
+						try
+						{
+							@SuppressWarnings( "unchecked" )
+							final G obj2 = ( G ) Class.forName( packagePrefix + type ).getConstructor().newInstance();
+							return obj2;
+						}
+						catch ( InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e )
+						{
+							e.printStackTrace();
+						}
+					}
+				}
+				// Otherwise we return it.
+				return ds;
 			}
 			catch ( final ClassNotFoundException cnfe )
 			{
@@ -276,7 +288,7 @@ public class ParameterSweepModelIO
 		}
 
 		@Override
-		public JsonElement serialize( final DetectorSweepModel src, final Type typeOfSrc, final JsonSerializationContext context )
+		public JsonElement serialize( final G src, final Type typeOfSrc, final JsonSerializationContext context )
 		{
 			final JsonObject result = new JsonObject();
 			result.add( "type", new JsonPrimitive( src.getClass().getSimpleName() ) );
@@ -285,82 +297,22 @@ public class ParameterSweepModelIO
 		}
 	}
 
-	private static class TrackerSweepModelAdapter implements JsonSerializer< TrackerSweepModel >, JsonDeserializer< TrackerSweepModel >
+	private static class DetectorSweepModelAdapter extends AbstractModuleSweepModelAdapter< DetectorSweepModel >
+	{
+		public DetectorSweepModelAdapter()
+		{
+			super( "fiji.plugin.trackmate.helper.model.detector." );
+		}
+	}
+
+	private static class TrackerSweepModelAdapter extends AbstractModuleSweepModelAdapter< TrackerSweepModel >
 	{
 
-		@Override
-		public TrackerSweepModel deserialize( final JsonElement json, final Type typeOfT, final JsonDeserializationContext context ) throws JsonParseException
+		public TrackerSweepModelAdapter()
 		{
-			final JsonObject jsonObject = json.getAsJsonObject();
-			final String type = jsonObject.get( "type" ).getAsString();
-			final JsonElement element = jsonObject.get( "properties" );
-
-			/*
-			 * Is the module of the model we are trying to deserialize
-			 * available?
-			 */
-			try
-			{
-				final Object obj = Class.forName( "fiji.plugin.trackmate.helper.model.tracker." + type ).getConstructor().newInstance();
-				final TrackerSweepModel m = ( TrackerSweepModel ) obj;
-				if ( m.factory == null )
-				{
-					/*
-					 * Non de-serialized version (will correctly show a message
-					 * about a missing module, even if the JSon files referred
-					 * to an installed module.
-					 */
-					return m;
-				}
-			}
-			catch ( InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException e )
-			{
-				e.printStackTrace();
-			}
-
-			/*
-			 * The module is available. But does the JSon file refers to a
-			 * missing module?
-			 */
-			try
-			{
-				final JsonElement properiesElement = json.getAsJsonObject().get( "properties" );
-				final JsonElement factoryElement = properiesElement.getAsJsonObject().get( "factory" );
-				if ( factoryElement == null )
-				{
-					/*
-					 * The JSon says that when it was saved it could not find
-					 * the module. But now we can. Substitute a default version
-					 * properly initialized.
-					 */
-					try
-					{
-						final Object obj2 = Class.forName( "fiji.plugin.trackmate.helper.model.tracker." + type ).getConstructor().newInstance();
-						return ( TrackerSweepModel ) obj2;
-					}
-					catch ( InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e )
-					{
-						e.printStackTrace();
-					}
-				}
-
-				// Normal case.
-				return context.deserialize( element, Class.forName( "fiji.plugin.trackmate.helper.model.tracker." + type ) );
-			}
-			catch ( final ClassNotFoundException cnfe )
-			{
-				throw new JsonParseException( "Unknown element type: " + type, cnfe );
-			}
+			super( "fiji.plugin.trackmate.helper.model.tracker." );
 		}
 
-		@Override
-		public JsonElement serialize( final TrackerSweepModel src, final Type typeOfSrc, final JsonSerializationContext context )
-		{
-			final JsonObject result = new JsonObject();
-			result.add( "type", new JsonPrimitive( src.getClass().getSimpleName() ) );
-			result.add( "properties", context.serialize( src, src.getClass() ) );
-			return result;
-		}
 	}
 
 	public static class ClassTypeAdapter implements JsonSerializer< Class< ? > >, JsonDeserializer< Class< ? > >
@@ -438,7 +390,7 @@ public class ParameterSweepModelIO
 				final EnumParamSweepModel< T > model = new EnumParamSweepModel<>( enumClass );
 				model.paramName( obj.get( "paramName" ).getAsString() );
 				model.fixedValue( Enum.valueOf( enumClass, obj.get( "fixedValue" ).getAsString() ) );
-				model.rangeType( Enum.valueOf( RangeType.class, obj.get( "rangeType" ).getAsString() ) );
+				model.rangeType( Enum.valueOf( ArrayRangeType.class, obj.get( "rangeType" ).getAsString() ) );
 				final JsonArray arr = obj.get( "set" ).getAsJsonArray();
 				for ( final JsonElement el : arr )
 					model.addValue( Enum.valueOf( enumClass, el.getAsString() ) );

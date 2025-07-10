@@ -21,19 +21,16 @@
  */
 package fiji.plugin.trackmate.helper.model.tracker;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.ArrayParamSweepModel;
-import fiji.plugin.trackmate.helper.model.parameter.InfoParamSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.CondaEnvParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.StringRangeParamSweepModel;
 import fiji.plugin.trackmate.tracking.SpotTrackerFactory;
 import fiji.plugin.trackmate.tracking.trackastra.TrackastraCLI;
 import fiji.plugin.trackmate.tracking.trackastra.TrackastraTrackerFactory;
-import fiji.plugin.trackmate.util.cli.CLIUtils;
 
 public class TrackastraOpt
 {
@@ -43,48 +40,28 @@ public class TrackastraOpt
 
 	static Map< String, AbstractParamSweepModel< ? > > createModels()
 	{
-		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
-		final List< String > envList = new ArrayList<>();
-		try
-		{
-			final List< String > l = CLIUtils.getEnvList();
-			envList.addAll( l );
-		}
-		catch ( final Exception e )
-		{
-			e.printStackTrace();
-		}
-		if ( envList == null || envList.isEmpty() )
-		{
-			models.put( "", new InfoParamSweepModel()
-					.info( "The conda executable seems not to be configured, <br>"
-							+ "or no conda environment could be found. Please <br>"
-							+ "follow the link below for installation instructions." )
-					.url( "https://imagej.net/plugins/trackmate/trackers/trackmate-trackastra" ) );
-			return models;
-		}
+		final CondaEnvParamSweepModel condaEnv = new CondaEnvParamSweepModel()
+				.paramName( "Trackastra conda environment" );
 
-		final ArrayParamSweepModel< String > condaEnv = new ArrayParamSweepModel<>(
-				envList.toArray( new String[] {} ) )
-						.paramName( "Trackastra conda environment" )
-						.addValue( envList.get( 0 ) )
-						.fixedValue( envList.get( 0 ) );
 		final ArrayParamSweepModel< String > pretrainedModel = new ArrayParamSweepModel<>( new String[] {
 				"general_2d",
 				"ctc" } )
 						.paramName( "Pretrained model" )
 						.addValue( "general_2d" )
 						.fixedValue( "general_2d" );
+
 		final ArrayParamSweepModel< String > pretrainedOrCustom = new ArrayParamSweepModel<>( new String[] {
 				"PRETRAINED_MODEL",
 				"CUSTOM_MODEL_PATH" } )
 						.paramName( "Use pretrained or custom model" )
 						.addValue( "PRETRAINED_MODEL" )
 						.fixedValue( "PRETRAINED_MODEL" );
+
 		final StringRangeParamSweepModel customModelPath = new StringRangeParamSweepModel()
 				.paramName( "Trackastra custom model path" )
 				.isFile( true )
 				.add( System.getProperty( "user.home" ) );
+
 		final ArrayParamSweepModel< String > trackingMode = new ArrayParamSweepModel<>( new String[] {
 				"greedy_nodiv",
 				"greedy",
@@ -92,6 +69,7 @@ public class TrackastraOpt
 						.paramName( "Tracking mode" )
 						.addValue( "greedy" )
 						.fixedValue( "greedy" );
+
 		final ArrayParamSweepModel< String > useGPU = new ArrayParamSweepModel<>( new String[] {
 				"automatic",
 				"mps",
@@ -101,6 +79,7 @@ public class TrackastraOpt
 						.addValue( "automatic" )
 						.fixedValue( "automatic" );
 
+		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
 		models.put( TrackastraCLI.KEY_CONDA_ENV, condaEnv );
 		models.put( TrackastraCLI.KEY_TRACKASTRA_MODEL, pretrainedModel );
 		models.put( TrackastraCLI.KEY_TRACKASTRA_PRETRAINED_OR_CUSTOM, pretrainedOrCustom );

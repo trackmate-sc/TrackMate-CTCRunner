@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -45,8 +45,9 @@ import javax.swing.border.EmptyBorder;
 
 import fiji.plugin.trackmate.gui.Fonts;
 import fiji.plugin.trackmate.gui.Icons;
+import fiji.plugin.trackmate.helper.model.parameter.AbstractArrayParamSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.AbstractArrayParamSweepModel.ArrayRangeType;
 import fiji.plugin.trackmate.helper.model.parameter.ArrayParamSweepModel;
-import fiji.plugin.trackmate.helper.model.parameter.ArrayParamSweepModel.RangeType;
 
 public class ArrayRangeSweepPanel< T > extends JPanel
 {
@@ -69,11 +70,11 @@ public class ArrayRangeSweepPanel< T > extends JPanel
 
 	private final JLabel lblValuesList;
 
-	private final ArrayParamSweepModel< T > values;
+	private final AbstractArrayParamSweepModel< T, ? > values;
 
 	private final JButton btnRemove;
 
-	public ArrayRangeSweepPanel( final ArrayParamSweepModel< T > val )
+	public ArrayRangeSweepPanel( final AbstractArrayParamSweepModel< T, ? > val )
 	{
 		this.values = val;
 		setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
@@ -90,7 +91,7 @@ public class ArrayRangeSweepPanel< T > extends JPanel
 		gbcLblParamName.gridy = 0;
 		add( lblParamName, gbcLblParamName );
 
-		rdbtnTestAll = new JRadioButton( "All values", val.getRangeType() == RangeType.TEST_ALL );
+		rdbtnTestAll = new JRadioButton( "All values", val.getRangeType() == ArrayRangeType.TEST_ALL );
 		final GridBagConstraints gbc_rdbtnTestAll = new GridBagConstraints();
 		gbc_rdbtnTestAll.anchor = GridBagConstraints.WEST;
 		gbc_rdbtnTestAll.gridwidth = 2;
@@ -99,7 +100,7 @@ public class ArrayRangeSweepPanel< T > extends JPanel
 		gbc_rdbtnTestAll.gridy = 1;
 		add( rdbtnTestAll, gbc_rdbtnTestAll );
 
-		rdbtnListValues = new JRadioButton( "Set of values", val.getRangeType() == RangeType.LIST );
+		rdbtnListValues = new JRadioButton( "Set of values", val.getRangeType() == ArrayRangeType.LIST );
 		final GridBagConstraints gbc_rdbtnManualRange = new GridBagConstraints();
 		gbc_rdbtnManualRange.anchor = GridBagConstraints.WEST;
 		gbc_rdbtnManualRange.gridwidth = 2;
@@ -144,7 +145,7 @@ public class ArrayRangeSweepPanel< T > extends JPanel
 		lblValuesList = new JLabel();
 		panelListValues.add( lblValuesList );
 
-		rdbtnFixed = new JRadioButton( "Fixed value", val.getRangeType() == RangeType.FIXED );
+		rdbtnFixed = new JRadioButton( "Fixed value", val.getRangeType() == ArrayRangeType.FIXED );
 		final GridBagConstraints gbcRdbtnFixed = new GridBagConstraints();
 		gbcRdbtnFixed.anchor = GridBagConstraints.WEST;
 		gbcRdbtnFixed.insets = new Insets( 0, 0, 0, 5 );
@@ -216,13 +217,13 @@ public class ArrayRangeSweepPanel< T > extends JPanel
 	private void update()
 	{
 		// Update model.
-		RangeType type;
+		ArrayRangeType type;
 		if ( rdbtnListValues.isSelected() )
-			type = RangeType.LIST;
+			type = ArrayRangeType.LIST;
 		else if ( rdbtnFixed.isSelected() )
-			type = RangeType.FIXED;
+			type = ArrayRangeType.FIXED;
 		else
-			type = RangeType.TEST_ALL;
+			type = ArrayRangeType.TEST_ALL;
 		values.rangeType( type ).fixedValue( ( T ) cmbboxFixedValue.getSelectedItem() );
 
 		// Update UI.
@@ -271,11 +272,11 @@ public class ArrayRangeSweepPanel< T > extends JPanel
 
 	public static void main( final String[] args )
 	{
-		final ArrayParamSweepModel< RangeType > model = new ArrayParamSweepModel<>( RangeType.values() )
+		final ArrayParamSweepModel< ArrayRangeType > model = new ArrayParamSweepModel<>( ArrayRangeType.values() )
 				.paramName( "Test enum" )
-				.rangeType( RangeType.LIST )
-				.addValue( RangeType.FIXED )
-				.addValue( RangeType.TEST_ALL );
+				.rangeType( ArrayRangeType.LIST )
+				.addValue( ArrayRangeType.FIXED )
+				.addValue( ArrayRangeType.TEST_ALL );
 
 		final JFrame frame = new JFrame();
 		frame.getContentPane().add( new ArrayRangeSweepPanel<>( model ) );
