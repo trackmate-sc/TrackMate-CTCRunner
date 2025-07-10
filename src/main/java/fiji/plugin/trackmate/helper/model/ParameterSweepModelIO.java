@@ -53,6 +53,7 @@ import fiji.plugin.trackmate.helper.model.parameter.AbstractArrayParamSweepModel
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModelIO;
 import fiji.plugin.trackmate.helper.model.parameter.EnumParamSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.InfoParamSweepModel;
 import fiji.plugin.trackmate.helper.model.tracker.TrackerSweepModel;
 import fiji.plugin.trackmate.providers.DetectorProvider;
 import fiji.plugin.trackmate.providers.TrackerProvider;
@@ -315,8 +316,36 @@ public class ParameterSweepModelIO
 					}
 				}
 
-				// Normal case.
-				return context.deserialize( element, Class.forName( "fiji.plugin.trackmate.helper.model.tracker." + type ) );
+				// Deserialize from Json
+				final TrackerSweepModel ds = ( TrackerSweepModel ) context.deserialize( element, Class.forName( "fiji.plugin.trackmate.helper.model.tracker." + type ) );
+
+				/*
+				 * We may have serialized that the module was not available or
+				 * properly configured at the time of serialization. In that
+				 * case, the submodel is only one information parameter. Instead
+				 * of returning it, we try to instantiate a new model, so that
+				 * the user is presented something par with the current
+				 * configuration they have.
+				 */
+				// Test if we serialized an error.
+				if ( ds.models.size() == 1 )
+				{
+					final AbstractParamSweepModel< ? > sm = ds.models.values().iterator().next();
+					if ( sm instanceof InfoParamSweepModel )
+					{
+						try
+						{
+							final Object obj2 = Class.forName( "fiji.plugin.trackmate.helper.model.tracker." + type ).getConstructor().newInstance();
+							return ( TrackerSweepModel ) obj2;
+						}
+						catch ( InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e )
+						{
+							e.printStackTrace();
+						}
+					}
+				}
+				// Otherwise we return it.
+				return ds;
 			}
 			catch ( final ClassNotFoundException cnfe )
 			{
