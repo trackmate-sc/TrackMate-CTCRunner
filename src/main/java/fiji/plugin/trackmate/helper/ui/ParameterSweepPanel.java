@@ -274,7 +274,7 @@ public class ParameterSweepPanel extends JPanel
 			final ActionListener al = l -> {
 				if ( chkbox.isSelected() )
 				{
-					tabbedPane.addTab( name, null, panel, null );
+					tabbedPane.addTab( name, dm.getIcon(), panel, null );
 					model.setActive( name, true );
 				}
 				else
@@ -319,7 +319,7 @@ public class ParameterSweepPanel extends JPanel
 			final ActionListener al = e -> {
 				if ( chkbox.isSelected() )
 				{
-					tabbedPane.addTab( name, null, panel, null );
+					tabbedPane.addTab( name, tm.getIcon(), panel, null );
 					model.setActive( name, true );
 				}
 				else
