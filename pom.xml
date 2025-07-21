@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>40.0.0</version>
+		<version>41.0.0</version>
 		<relativePath />
 	</parent>
 
@@ -87,6 +87,12 @@
 		<CTC-measures.version>1.0.3</CTC-measures.version>
 		<TrackMate.version>8.0.0-SNAPSHOT</TrackMate.version>
 		<TrackMate-Cellpose.version>1.0.0-SNAPSHOT</TrackMate-Cellpose.version>
+		<TrackMate-Ilastik.version>2.0.0-SNAPSHOT</TrackMate-Ilastik.version>
+		<TrackMate-MorphoLibJ.version>2.0.0-SNAPSHOT</TrackMate-MorphoLibJ.version>
+		<TrackMate-StarDist.version>2.0.0-SNAPSHOT</TrackMate-StarDist.version>
+		<TrackMate-Trackastra.version>1.1.2-SNAPSHOT</TrackMate-Trackastra.version>
+		<TrackMate-Weka.version>2.0.0-SNAPSHOT</TrackMate-Weka.version>
+		<TrackMate-YOLO.version>1.0.0-SNAPSHOT</TrackMate-YOLO.version>
 	</properties>
 
 	<dependencies>
