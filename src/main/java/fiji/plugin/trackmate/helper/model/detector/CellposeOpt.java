@@ -21,23 +21,29 @@
  */
 package fiji.plugin.trackmate.helper.model.detector;
 
+import static fiji.plugin.trackmate.cellpose.CellposeCLI.KEY_CELLPOSE_MODEL;
+import static fiji.plugin.trackmate.cellpose.CellposeCLI.KEY_CELLPOSE_PRETRAINED_OR_CUSTOM;
+import static fiji.plugin.trackmate.cellpose.CellposeCLI.KEY_CELL_DIAMETER;
+import static fiji.plugin.trackmate.cellpose.CellposeCLI.KEY_OPTIONAL_CHANNEL_2;
+import static fiji.plugin.trackmate.cellpose.CellposeCLIBase.KEY_CELLPOSE_CUSTOM_MODEL_FILEPATH;
+import static fiji.plugin.trackmate.cellpose.CellposeCLIBase.KEY_USE_GPU;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import fiji.plugin.trackmate.Dimension;
-import fiji.plugin.trackmate.cellpose.AbstractCellposeSettings.PretrainedModel;
+import fiji.plugin.trackmate.cellpose.CellposeCLIBase;
 import fiji.plugin.trackmate.cellpose.CellposeDetectorFactory;
-import fiji.plugin.trackmate.cellpose.CellposeSettings.PretrainedModelCellpose;
 import fiji.plugin.trackmate.detection.DetectorKeys;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.detection.ThresholdDetectorFactory;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractArrayParamSweepModel.ArrayRangeType;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.ArrayParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.BooleanParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.BooleanParamSweepModel.BooleanRangeType;
+import fiji.plugin.trackmate.helper.model.parameter.CondaEnvParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.DoubleParamSweepModel;
-import fiji.plugin.trackmate.helper.model.parameter.EnumParamSweepModel;
-import fiji.plugin.trackmate.helper.model.parameter.IntParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.NumberParamSweepModel.RangeType;
 import fiji.plugin.trackmate.helper.model.parameter.StringRangeParamSweepModel;
 
@@ -49,53 +55,77 @@ public class CellposeOpt
 
 	static Map< String, AbstractParamSweepModel< ? > > createModels()
 	{
-		final StringRangeParamSweepModel cellposePath = new StringRangeParamSweepModel()
-				.paramName( "Cellpose Python path" )
-				.isFile( true )
-				.add( System.getProperty( "user.home" ) );
-		final EnumParamSweepModel< PretrainedModelCellpose > cellposeModel = new EnumParamSweepModel<>( PretrainedModelCellpose.class )
-				.paramName( "Cellpose model" )
-				.rangeType( ArrayRangeType.FIXED )
-				.addValue( PretrainedModelCellpose.CYTO )
-				.addValue( PretrainedModelCellpose.CYTO2 )
-				.fixedValue( PretrainedModelCellpose.CYTO );
+		final CondaEnvParamSweepModel condaEnv = new CondaEnvParamSweepModel()
+				.paramName( "Cellpose conda environment" );
+
+		final ArrayParamSweepModel< String > pretrainedOrCustom = new ArrayParamSweepModel<>( new String[] {
+				KEY_CELLPOSE_MODEL,
+				KEY_CELLPOSE_CUSTOM_MODEL_FILEPATH } )
+						.paramName( "Use pretrained or custom model" )
+						.addValue(KEY_CELLPOSE_MODEL )
+						.fixedValue( KEY_CELLPOSE_MODEL );
+
+		final ArrayParamSweepModel< String > pretrainedModel = new ArrayParamSweepModel<>( new String[] {
+				"cyto3",
+				"nucleitorch_0",
+				"tissuenet_cp3" ,
+				"livecell_cp3" ,
+				"yeast_PhC_cp3" ,
+				"yeast_BF_cp3" ,
+				"bact_phase_cp3" ,
+				"bact_fluor_cp3" ,
+				"deepbacs_cp3" ,
+				"cyto2torch_0",
+				"cytotorch_0" } )
+						.paramName( "Pretrained model" )
+						.addValue( "cyto3" )
+						.fixedValue( "cyto3" );
+
 		final StringRangeParamSweepModel cellposeCustomModelPath = new StringRangeParamSweepModel()
 				.paramName( "Cellpose custom model path" )
 				.isFile( true )
 				.add( System.getProperty( "user.home" ) );
-		final IntParamSweepModel channel1 = new IntParamSweepModel()
+
+		final String[] chans1 = new String[] { "0", "1", "2", "3", "4" };
+		final ArrayParamSweepModel< String > channel1 = new ArrayParamSweepModel<>( chans1 )
+				.rangeType( ArrayRangeType.FIXED )
 				.paramName( "Channel to segment" )
-				.rangeType( RangeType.FIXED )
-				.min( 0 )
-				.max( 4 );
-		final IntParamSweepModel channel2 = new IntParamSweepModel()
+				.fixedValue( "0" )
+				.addValue( "0" );
+
+		final String[] chans2 = new String[] { "0", "1", "2", "3", "4" };
+		final ArrayParamSweepModel< String > channel2 = new ArrayParamSweepModel<>( chans2 )
+				.rangeType( ArrayRangeType.FIXED )
 				.paramName( "Optional second channel" )
-				.rangeType( RangeType.FIXED )
-				.min( 0 )
-				.max( 4 );
+				.fixedValue( "0" )
+				.addValue( "0" );
+
 		final DoubleParamSweepModel cellDiameter = new DoubleParamSweepModel()
 				.paramName( "Cell diameter" )
 				.dimension( Dimension.LENGTH )
 				.rangeType( RangeType.FIXED )
 				.min( 0. )
 				.max( 50. );
+
 		final BooleanParamSweepModel useGPU = new BooleanParamSweepModel()
 				.paramName( "Use GPU" )
 				.rangeType( BooleanRangeType.FIXED )
 				.fixedValue( true );
+
 		final BooleanParamSweepModel simplifyContours = new BooleanParamSweepModel()
 				.paramName( "Simplify contours" )
 				.rangeType( BooleanRangeType.FIXED )
 				.fixedValue( true );
 
 		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
-		models.put( CellposeDetectorFactory.KEY_CELLPOSE_PYTHON_FILEPATH, cellposePath );
-		models.put( CellposeDetectorFactory.KEY_CELLPOSE_MODEL, cellposeModel );
-		models.put( CellposeDetectorFactory.KEY_CELLPOSE_CUSTOM_MODEL_FILEPATH, cellposeCustomModelPath );
-		models.put( CellposeDetectorFactory.KEY_CELL_DIAMETER, cellDiameter );
+		models.put( CellposeCLIBase.KEY_CONDA_ENV, condaEnv );
+		models.put( KEY_CELLPOSE_PRETRAINED_OR_CUSTOM, pretrainedOrCustom );
+		models.put( KEY_CELLPOSE_MODEL, pretrainedModel );
+		models.put( KEY_CELLPOSE_CUSTOM_MODEL_FILEPATH, cellposeCustomModelPath );
+		models.put( KEY_CELL_DIAMETER, cellDiameter );
 		models.put( DetectorKeys.KEY_TARGET_CHANNEL, channel1 );
-		models.put( CellposeDetectorFactory.KEY_OPTIONAL_CHANNEL_2, channel2 );
-		models.put( CellposeDetectorFactory.KEY_USE_GPU, useGPU );
+		models.put( KEY_OPTIONAL_CHANNEL_2, channel2 );
+		models.put( KEY_USE_GPU, useGPU );
 		models.put( ThresholdDetectorFactory.KEY_SIMPLIFY_CONTOURS, simplifyContours );
 		return models;
 	}
@@ -103,14 +133,5 @@ public class CellposeOpt
 	public static SpotDetectorFactoryBase< ? > createFactory()
 	{
 		return new CellposeDetectorFactory<>();
-	}
-
-	public static Object castPretrainedModel( final String str )
-	{
-		for ( final PretrainedModel e : PretrainedModelCellpose.values() )
-			if ( e.toString().equals( str ) )
-				return e;
-
-		return null;
 	}
 }
