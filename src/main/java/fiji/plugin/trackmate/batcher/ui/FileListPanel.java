@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -23,19 +23,20 @@ package fiji.plugin.trackmate.batcher.ui;
 
 import static fiji.plugin.trackmate.gui.Fonts.SMALL_FONT;
 import static fiji.plugin.trackmate.gui.Icons.ADD_ICON;
-import static fiji.plugin.trackmate.gui.Icons.REMOVE_ICON;
+import static fiji.plugin.trackmate.gui.Icons.BIN_CLOSED_ICON;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.FocusAdapter;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -57,33 +58,19 @@ import fiji.plugin.trackmate.util.FileChooser.SelectionMode;
 public class FileListPanel extends JPanel
 {
 
-	private final List< FileBoxPanel > fileBoxes = new ArrayList<>();
-
 	private final EverythingDisablerAndReenabler enabler;
-
-	private final Runnable refresher;
 
 	private final JPanel mainPanel;
 
 	private final JPanel buttonPanel;
 
+	private final FileListModel model;
+
 	public FileListPanel( final FileListModel model )
 	{
+		this.model = model;
+		model.listeners().add( this::refresh );
 		this.enabler = new EverythingDisablerAndReenabler( this, new Class[] { JLabel.class } );
-		this.refresher = new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				final List< String > strs = new ArrayList<>( fileBoxes.size() );
-				for ( final FileBoxPanel fb : fileBoxes )
-				{
-					final String str = fb.tfStr.getText();
-					strs.add( str );
-				}
-				model.setAll( strs );
-			}
-		};
 		setLayout( new BorderLayout( 0, 0 ) );
 
 		final JScrollPane scrollPane = new JScrollPane();
@@ -94,9 +81,7 @@ public class FileListPanel extends JPanel
 		scrollPane.setBorder( null );
 		scrollPane.getVerticalScrollBar().setUnitIncrement( 16 );
 
-		mainPanel = new JPanel();
-		final BoxLayout jPanelAllThresholdsLayout = new BoxLayout( mainPanel, BoxLayout.Y_AXIS );
-		mainPanel.setLayout( jPanelAllThresholdsLayout );
+		mainPanel = new JPanel( new GridBagLayout() );
 		scrollPane.setViewportView( mainPanel );
 
 		final JButton btnAdd = new JButton();
@@ -108,75 +93,54 @@ public class FileListPanel extends JPanel
 		buttonPanel.add( btnAdd );
 
 		/*
-		 * Default values.
-		 */
-
-		mainPanel.add( buttonPanel );
-		for ( final String string : model.getList() )
-			addFileBox( string );
-		if ( fileBoxes.size() > 1 )
-			fileBoxes.forEach( sp -> sp.btnRemove.setVisible( true ) );
-		else if ( fileBoxes.size() > 0 )
-			fileBoxes.get( 0 ).btnRemove.setVisible( false );
-
-		/*
 		 * Listeners & co.
 		 */
 
-		btnAdd.addActionListener( e -> addFileBox() );
+		btnAdd.addActionListener( e -> model.add( System.getProperty( "user.home" ) ) );
 		setDropTarget( new AddFilesDropTarget() );
+		refresh();
 	}
 
-	public void addFileBox()
+	/**
+	 * Refreshes the panel when the model changes.
+	 */
+	private void refresh()
 	{
-		addFileBox( System.getProperty( "user.home" ) );
-	}
+		mainPanel.removeAll();
 
-	private void addFileBox( final String str )
-	{
-		final FileBoxPanel panel = new FileBoxPanel( str );
-		addFileBox( panel );
-		refresher.run();
-	}
+		final GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.NORTHWEST;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 1.0;
 
-	private void addFileBoxes( final List< String > files )
-	{
-		for ( final String str : files )
+		mainPanel.add( buttonPanel, gbc );
+
+		final List< String > list = model.getList();
+		for ( int i = 0; i < list.size(); i++ )
 		{
-			final FileBoxPanel panel = new FileBoxPanel( str );
-			addFileBox( panel );
+			final String str = list.get( i );
+			final int index = i;
+			final FileBoxPanel panel = new FileBoxPanel( str, ( s ) -> model.set( index, s ) );
+			panel.btnRemove.addActionListener( e -> model.remove( index ) );
+			if ( list.size() > 1 )
+				panel.btnRemove.setVisible( true );
+			else if ( list.size() == 1 && i == 0 )
+				panel.btnRemove.setVisible( false );
+
+			gbc.gridy++;
+			mainPanel.add( Box.createVerticalStrut( 5 ), gbc );
+			gbc.gridy++;
+			mainPanel.add( panel, gbc );
 		}
-		refresher.run();
-	}
 
-	private void addFileBox( final FileBoxPanel panel )
-	{
-		mainPanel.remove( buttonPanel );
+		gbc.gridy++;
+		gbc.weighty = 1.0;
+		mainPanel.add( Box.createVerticalGlue(), gbc );
 
-		final Component strut = Box.createVerticalStrut( 5 );
-		fileBoxes.add( panel );
-		mainPanel.add( panel );
-		mainPanel.add( strut );
-		mainPanel.add( buttonPanel );
-
-		if ( fileBoxes.size() > 1 )
-			fileBoxes.forEach( sp -> sp.btnRemove.setVisible( true ) );
-
-		panel.btnRemove.addActionListener( e -> removeStringPanel( panel, strut ) );
-		mainPanel.revalidate();
-	}
-
-	private void removeStringPanel( final FileBoxPanel stringPanel, final Component strut )
-	{
-		fileBoxes.remove( stringPanel );
-
-		if ( fileBoxes.size() < 2 )
-			fileBoxes.forEach( sp -> sp.btnRemove.setVisible( false ) );
-		mainPanel.remove( strut );
-		mainPanel.remove( stringPanel );
 		mainPanel.revalidate();
 		mainPanel.repaint();
-		refresher.run();
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -199,7 +163,7 @@ public class FileListPanel extends JPanel
 				@SuppressWarnings( "unchecked" )
 				final List< File > droppedFiles = ( List< File > ) evt.getTransferable().getTransferData( DataFlavor.javaFileListFlavor );
 				final List< String > list = droppedFiles.stream().map( File::getAbsolutePath ).collect( Collectors.toList() );
-				addFileBoxes( list );
+				model.addAll( list );
 			}
 			catch ( final Exception ex )
 			{
@@ -217,17 +181,23 @@ public class FileListPanel extends JPanel
 
 		private final JTextField tfStr;
 
-		public FileBoxPanel( final String str )
-		{
-			setLayout( new BoxLayout( this, BoxLayout.X_AXIS ) );
+		private final Consumer< String > refresher;
 
-			btnRemove = new JButton();
+		public FileBoxPanel( final String str, final Consumer< String > refresher )
+		{
+			this.refresher = refresher;
+
+			setLayout( new BoxLayout( this, BoxLayout.X_AXIS ) );
+			btnRemove = new JButton( BIN_CLOSED_ICON );
+			final int w = 30;
+			btnRemove.setPreferredSize( new java.awt.Dimension( w, w ) );
+			btnRemove.setSize( w, w );
+			btnRemove.setMinimumSize( new java.awt.Dimension( w, w ) );
+			btnRemove.setContentAreaFilled( false );
+			btnRemove.setBorderPainted( false );
+			btnRemove.setFocusPainted( false );
+			btnRemove.setOpaque( false );
 			add( btnRemove );
-			btnRemove.setIcon( REMOVE_ICON );
-			btnRemove.setFont( SMALL_FONT );
-			btnRemove.setPreferredSize( new java.awt.Dimension( 24, 24 ) );
-			btnRemove.setSize( 24, 24 );
-			btnRemove.setMinimumSize( new java.awt.Dimension( 24, 24 ) );
 
 			add( Box.createHorizontalStrut( 5 ) );
 			tfStr = new JTextField( str );
@@ -240,20 +210,21 @@ public class FileListPanel extends JPanel
 			btnBrowse.addActionListener( e -> browse() );
 			add( btnBrowse );
 
-			setMinimumSize( new java.awt.Dimension( 24, 24 ) );
-			setPreferredSize( new java.awt.Dimension( 100, 24 ) );
-			setMaximumSize( new java.awt.Dimension( 6000, 30 ) );
+			setMinimumSize( new java.awt.Dimension( w, w ) );
+			setPreferredSize( new java.awt.Dimension( 100, w ) );
+			setMaximumSize( new java.awt.Dimension( 6000, w ) );
 			setBorder( BorderFactory.createEmptyBorder( 2, 5, 2, 5 ) );
 
 			// Listeners.
 			fiji.plugin.trackmate.gui.GuiUtils.selectAllOnFocus( tfStr );
-			tfStr.addActionListener( e -> refresher.run() );
+
+			tfStr.addActionListener( e -> refresher.accept( tfStr.getText() ) );
 			final FocusAdapter fa = new FocusAdapter()
 			{
 				@Override
 				public void focusLost( final java.awt.event.FocusEvent e )
 				{
-					refresher.run();
+					refresher.accept( tfStr.getText() );
 				}
 			};
 			tfStr.addFocusListener( fa );
@@ -274,7 +245,7 @@ public class FileListPanel extends JPanel
 				if ( file != null )
 				{
 					tfStr.setText( file.getAbsolutePath() );
-					refresher.run();
+					refresher.accept( tfStr.getText() );
 				}
 			}
 			finally

@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -74,10 +74,23 @@ public class BatcherPanel extends JPanel
 		mainPanel.add( panelInput );
 		panelInput.setLayout( new BorderLayout( 0, 0 ) );
 
+		final JPanel fileListHeaderPanel = new JPanel();
+		fileListHeaderPanel.setLayout( new BoxLayout( fileListHeaderPanel, BoxLayout.X_AXIS ) );
 		final JLabel lblInput = new JLabel( "Input images" );
 		lblInput.setFont( Fonts.FONT.deriveFont( Font.BOLD ) );
-		panelInput.add( lblInput, BorderLayout.NORTH );
-		final FileListPanel fileListPanel = new FileListPanel( model.getFileListModel() );
+		fileListHeaderPanel.add( lblInput );
+		fileListHeaderPanel.add( Box.createHorizontalGlue() );
+		final JButton clearAllFilesBtn = new JButton( Icons.BIN_ICON );
+		fileListHeaderPanel.add( clearAllFilesBtn );
+		final JLabel lblClearAll = new JLabel( "Clear all" );
+		lblClearAll.setFont( Fonts.FONT );
+		fileListHeaderPanel.add( lblClearAll );
+
+		final FileListModel fileListModel = model.getFileListModel();
+		clearAllFilesBtn.addActionListener( e -> fileListModel.removeAll() );
+
+		panelInput.add( fileListHeaderPanel, BorderLayout.NORTH );
+		final FileListPanel fileListPanel = new FileListPanel( fileListModel );
 		fileListPanel.setBorder( BorderFactory.createLineBorder( Color.GRAY ) );
 		fileListPanel.setPreferredSize( new Dimension( 200, 200 ) );
 		panelInput.add( fileListPanel );
@@ -111,7 +124,7 @@ public class BatcherPanel extends JPanel
 		this.logger = logPanel.getLogger();
 		logPanel.setPreferredSize( new Dimension( 300, 200 ) );
 		log.add( logPanel );
-		
+
 		btnRun = new JButton( "Run", Icons.EXECUTE_ICON );
 		btnCancel = new JButton( "Cancel", Icons.CANCEL_ICON );
 		btnRun.setFont( Fonts.SMALL_FONT );
