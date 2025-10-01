@@ -77,10 +77,7 @@ public class ParameterSweepModel
 		this.trackFilterModels = new ArrayList<>();
 
 		// Register models.
-		detectorModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
-		trackerModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
-		spotFilterModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
-		trackFilterModels().forEach( model -> model.listeners().add( () -> notifyListeners() ) );
+		reRegisterListeners();
 	}
 
 	/**
@@ -93,7 +90,7 @@ public class ParameterSweepModel
 		reRegisterListeners( detectorModels.values(), notifier );
 		reRegisterListeners( trackerModels.values(), notifier );
 		reRegisterListeners( spotFilterModels, notifier );
-		reRegisterListeners( spotFilterModels, notifier );
+		reRegisterListeners( trackFilterModels, notifier );
 	}
 
 	private void reRegisterListeners( final Collection< ? extends AbstractSweepModelBase > models, final ModelListener notifier )
