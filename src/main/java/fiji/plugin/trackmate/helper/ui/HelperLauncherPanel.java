@@ -24,6 +24,7 @@ package fiji.plugin.trackmate.helper.ui;
 import static fiji.plugin.trackmate.gui.Fonts.BIG_FONT;
 import static fiji.plugin.trackmate.gui.Fonts.FONT;
 import static fiji.plugin.trackmate.gui.Fonts.SMALL_FONT;
+import static fiji.plugin.trackmate.helper.ui.components.GuiUtils.HELPER_ICON;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -51,7 +52,6 @@ import javax.swing.JTextField;
 import org.scijava.prefs.PrefService;
 import org.scijava.util.VersionUtils;
 
-import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.helper.ui.components.MetricsChooserPanel;
 import fiji.plugin.trackmate.util.FileChooser;
 import fiji.plugin.trackmate.util.FileChooser.DialogType;
@@ -88,7 +88,7 @@ public class HelperLauncherPanel extends JPanel
 		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		setLayout( gridBagLayout );
 
-		final Image im = Icons.TRACKMATE_ICON.getImage();
+		final Image im = HELPER_ICON.getImage();
 		final Image newimg = im.getScaledInstance( 32, 32, java.awt.Image.SCALE_SMOOTH );
 		final ImageIcon icon = new ImageIcon( newimg );
 

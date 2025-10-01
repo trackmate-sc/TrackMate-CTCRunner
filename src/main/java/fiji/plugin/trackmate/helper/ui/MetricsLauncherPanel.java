@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -25,6 +25,7 @@ import static fiji.plugin.trackmate.gui.Fonts.BIG_FONT;
 import static fiji.plugin.trackmate.gui.Fonts.FONT;
 import static fiji.plugin.trackmate.gui.Fonts.SMALL_FONT;
 import static fiji.plugin.trackmate.helper.ui.HelperLauncherPanel.GT_PATH_KEY;
+import static fiji.plugin.trackmate.helper.ui.components.GuiUtils.HELPER_ICON;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -46,7 +47,6 @@ import org.scijava.util.VersionUtils;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Model;
-import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.helper.ui.HelperLauncherPanel.SetFileDropTarget;
 import fiji.plugin.trackmate.helper.ui.components.MetricsChooserPanel;
 import fiji.plugin.trackmate.io.TmXmlReader;
@@ -83,7 +83,7 @@ public class MetricsLauncherPanel extends JPanel
 		gridBagLayout.columnWeights = new double[] { 1., 0. };
 		setLayout( gridBagLayout );
 
-		final Image im = Icons.TRACKMATE_ICON.getImage();
+		final Image im = HELPER_ICON.getImage();
 		final Image newimg = im.getScaledInstance( 32, 32, java.awt.Image.SCALE_SMOOTH );
 		final ImageIcon icon = new ImageIcon( newimg );
 
@@ -239,7 +239,7 @@ public class MetricsLauncherPanel extends JPanel
 		/*
 		 * Listeners & co.
 		 */
-		
+
 		this.logger = labelLogger.getLogger();
 		final PrefService prefService = TMUtils.getContext().getService( PrefService.class );
 

@@ -21,12 +21,13 @@
  */
 package fiji.plugin.trackmate.helper.ui;
 
+import static fiji.plugin.trackmate.helper.ui.components.GuiUtils.HELPER_ICON;
+
 import java.io.File;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.helper.HelperRunner;
 import fiji.plugin.trackmate.helper.HelperRunner.Builder;
 import fiji.plugin.trackmate.helper.TrackingMetricsType;
@@ -45,7 +46,7 @@ public class HelperLauncherController
 	{
 		final HelperLauncherPanel gui = new HelperLauncherPanel();
 		final JFrame frame = new JFrame( "TrackMate-Helper Launcher" );
-		frame.setIconImage( Icons.TRACKMATE_ICON.getImage() );
+		frame.setIconImage( HELPER_ICON.getImage() );
 		frame.getContentPane().add( gui );
 		frame.setSize( 350, 550 );
 		frame.setLocationRelativeTo( null );
@@ -112,7 +113,7 @@ public class HelperLauncherController
 								.replaceAll( "/", "/<wbr>" )
 						+ "</body></html>";
 				final String title = "TrackMate Helper";
-				JOptionPane.showMessageDialog( frame, wrappedMessage, title, JOptionPane.ERROR_MESSAGE, Icons.TRACKMATE_ICON );
+				JOptionPane.showMessageDialog( frame, wrappedMessage, title, JOptionPane.ERROR_MESSAGE, HELPER_ICON );
 				return;
 			}
 

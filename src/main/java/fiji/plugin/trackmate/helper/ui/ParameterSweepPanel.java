@@ -27,7 +27,7 @@ import static fiji.plugin.trackmate.gui.Fonts.SMALL_FONT;
 import static fiji.plugin.trackmate.gui.Icons.CANCEL_ICON;
 import static fiji.plugin.trackmate.gui.Icons.EXECUTE_ICON;
 import static fiji.plugin.trackmate.gui.Icons.REVERT_ICON;
-import static fiji.plugin.trackmate.gui.Icons.TRACKMATE_ICON_16x16;
+import static fiji.plugin.trackmate.helper.ui.components.GuiUtils.HELPER_ICON;
 
 import java.awt.BorderLayout;
 import java.awt.Desktop;
@@ -64,6 +64,8 @@ import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.features.track.TrackBranchingAnalyzer;
 import fiji.plugin.trackmate.gui.Fonts;
+import fiji.plugin.trackmate.gui.GuiUtils;
+import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.gui.components.LogPanel;
 import fiji.plugin.trackmate.helper.ResultsCrawler;
 import fiji.plugin.trackmate.helper.model.AbstractSweepModelBase.ModelListener;
@@ -134,15 +136,15 @@ public class ParameterSweepPanel extends JPanel
 		tabbedPane.addTab( "Log", null, panelLog, null );
 
 		final CrawlerResultsPanel bestParamsPanel = new CrawlerResultsPanel( crawler, imp );
-		tabbedPane.addTab( "Best params", null, bestParamsPanel, null );
+		tabbedPane.addTab( "Best params", HELPER_ICON, bestParamsPanel, null );
 
 		panelSpotFilters = new SpotFilterConfigPanel( Spot.QUALITY, imp, model );
-		tabbedPane.addTab( "Spot filters", null, panelSpotFilters, null );
+		tabbedPane.addTab( "Spot filters", Icons.SPOT_ICON_16x16, panelSpotFilters, null );
 		// Enabler.
 		enablers.add( new EverythingDisablerAndReenabler( panelSpotFilters, new Class[] { JLabel.class } ) );
 
 		panelTrackFilters = new TrackFilterConfigPanel( TrackBranchingAnalyzer.NUMBER_SPOTS, imp, model );
-		tabbedPane.addTab( "Track filters", null, panelTrackFilters, null );
+		tabbedPane.addTab( "Track filters", Icons.TRACK_ICON_64x64, panelTrackFilters, null );
 		// Enabler.
 		enablers.add( new EverythingDisablerAndReenabler( panelTrackFilters, new Class[] { JLabel.class } ) );
 
@@ -171,8 +173,9 @@ public class ParameterSweepPanel extends JPanel
 		final JLabel lblTitle = new JLabel( "<html><center>TrackMate Helper <small>v"
 				+ VersionUtils.getVersion( ParameterSweepPanel.class )
 				+ "</small></center></html>" );
-		lblTitle.setIcon( TRACKMATE_ICON_16x16 );
+		lblTitle.setIcon( GuiUtils.scaleImage( HELPER_ICON, 32, 32 ) );
 		lblTitle.setFont( BIG_FONT );
+		lblTitle.setHorizontalAlignment( JLabel.CENTER );
 		final GridBagConstraints gbcLblTitle = new GridBagConstraints();
 		gbcLblTitle.insets = new Insets( 0, 0, 5, 0 );
 		gbcLblTitle.fill = GridBagConstraints.BOTH;

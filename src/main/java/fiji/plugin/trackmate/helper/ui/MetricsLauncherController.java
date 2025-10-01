@@ -8,18 +8,20 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
 package fiji.plugin.trackmate.helper.ui;
+
+import static fiji.plugin.trackmate.helper.ui.components.GuiUtils.HELPER_ICON;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -37,7 +39,6 @@ import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMate;
-import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.helper.MetricsRunner;
 import fiji.plugin.trackmate.helper.TrackingMetrics;
 import fiji.plugin.trackmate.helper.TrackingMetricsType;
@@ -60,7 +61,7 @@ public class MetricsLauncherController implements Cancelable
 	{
 		final MetricsLauncherPanel gui = new MetricsLauncherPanel();
 		final JFrame frame = new JFrame( "TrackMate tracking metrics" );
-		frame.setIconImage( Icons.TRACKMATE_ICON.getImage() );
+		frame.setIconImage( HELPER_ICON.getImage() );
 		frame.getContentPane().add( gui );
 		frame.setSize( 350, 550 );
 		frame.setLocationRelativeTo( null );
@@ -115,7 +116,7 @@ public class MetricsLauncherController implements Cancelable
 		final String gtName = FilenameUtils.removeExtension( new File( gtPath ).getName() );
 		final String csvFileName = type.csvSuffix() + "_" + gtName + ".csv";
 		final File csvFile = new File( saveFolder, csvFileName );
-		
+
 		// Echo info
 		logger.log( "Performing tracking metrics measurements.\n"
 				+ " - Tracking metrics type: " + ( ctcSelected ? "Cell Tracking Challenge" : "Single-Particle Tracking Challenge" ) + "\n"
@@ -125,7 +126,7 @@ public class MetricsLauncherController implements Cancelable
 		for ( int i = 0; i < type.metrics().size(); i++ )
 			str.append( " - " + type.metrics().get( i ).key + ": " + type.metrics().get( i ).description + '\n' );
 		logger.log( str.toString() );
-		
+
 		// Save CSV header.
 		final String[] csvHeader = new String[ 1 + type.metrics().size() ];
 		csvHeader[ 0 ] = "File";
