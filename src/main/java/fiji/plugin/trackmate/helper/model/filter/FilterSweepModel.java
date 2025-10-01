@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.scijava.listeners.Listeners;
+
 import fiji.plugin.trackmate.Dimension;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.features.FeatureFilter;
@@ -29,6 +31,8 @@ public class FilterSweepModel extends AbstractSweepModelBase implements Iterable
 
 	public static final String ISABOVE = "ISABOVE";
 
+	private final transient Listeners.List< ModelListener > modelListeners = new Listeners.SynchronizedList<>();
+
 	public FilterSweepModel( final TrackMateObject target, final Map< String, String > featureNames, final FeatureFilter filter, final int index )
 	{
 		this( target, featureNames, index );
@@ -40,6 +44,16 @@ public class FilterSweepModel extends AbstractSweepModelBase implements Iterable
 		super( "Filter on " + target.toString(), createModels( featureNames, index ) );
 	}
 
+	public final Listeners.List< ModelListener > listeners()
+	{
+		return modelListeners;
+	}
+
+	protected final void notifyListeners()
+	{
+		for ( final ModelListener l : listeners().list )
+			l.modelChanged();
+	}
 
 	/**
 	 * Sets this model to represent the single feature filter specified.

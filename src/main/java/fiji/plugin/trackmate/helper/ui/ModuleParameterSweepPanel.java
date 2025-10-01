@@ -124,7 +124,7 @@ public class ModuleParameterSweepPanel extends JPanel
 			lblInfo.setText( str );
 		};
 		infoListener.modelChanged();
-		model.listeners().add( infoListener );
+		model.getModels().values().forEach( m -> m.listeners().add( infoListener ) );
 	}
 
 	public static final JPanel createPanelFor( final AbstractParamSweepModel< ? > cm, final String spaceUnits, final String timeUnits )

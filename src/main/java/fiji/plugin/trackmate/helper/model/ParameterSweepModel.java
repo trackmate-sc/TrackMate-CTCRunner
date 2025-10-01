@@ -42,6 +42,7 @@ import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.helper.model.AbstractSweepModelBase.ModelListener;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
 import fiji.plugin.trackmate.helper.model.filter.FilterSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.helper.model.tracker.TrackerSweepModel;
 import fiji.plugin.trackmate.util.TMUtils;
 
@@ -95,10 +96,9 @@ public class ParameterSweepModel
 
 	private void reRegisterListeners( final Collection< ? extends AbstractSweepModelBase > models, final ModelListener notifier )
 	{
-		models.forEach( m -> {
-			m.listeners().add( notifier );
-			m.models.values().forEach( sm -> sm.listeners().add( notifier ) );
-		} );
+		for ( final AbstractSweepModelBase sweepModel : models )
+			for ( final AbstractParamSweepModel< ? > paramModel : sweepModel.getModels().values() )
+				paramModel.listeners().add( notifier );
 	}
 
 	public Collection< DetectorSweepModel > detectorModels()

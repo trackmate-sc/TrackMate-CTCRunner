@@ -24,7 +24,6 @@ package fiji.plugin.trackmate.helper.model;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.scijava.listeners.Listeners;
 import org.scijava.plugin.SciJavaPlugin;
 
 import fiji.plugin.trackmate.Settings;
@@ -38,8 +37,6 @@ public abstract class AbstractSweepModelBase implements SciJavaPlugin
 		public void modelChanged();
 	}
 
-	private final transient Listeners.List< ModelListener > modelListeners = new Listeners.SynchronizedList<>();
-
 	protected final String name;
 
 	protected final Map< String, AbstractParamSweepModel< ? > > models;
@@ -49,9 +46,6 @@ public abstract class AbstractSweepModelBase implements SciJavaPlugin
 		super();
 		this.name = name;
 		this.models = models;
-
-		// Register models.
-		models.values().forEach( m -> m.listeners().add( () -> notifyListeners() ) );
 	}
 
 	public abstract Iterator< Settings > iterator( final Settings base, final int targetChannel );
@@ -64,16 +58,5 @@ public abstract class AbstractSweepModelBase implements SciJavaPlugin
 	public Map< String, AbstractParamSweepModel< ? > > getModels()
 	{
 		return models;
-	}
-
-	public final Listeners.List< ModelListener > listeners()
-	{
-		return modelListeners;
-	}
-
-	protected final void notifyListeners()
-	{
-		for ( final ModelListener l : listeners().list )
-			l.modelChanged();
 	}
 }
