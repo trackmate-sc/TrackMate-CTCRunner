@@ -68,7 +68,6 @@ public class CLITestDrive
 				.runSettings( modelPath.getAbsolutePath() )
 				.image( imp )
 				.batchLogger( Logger.DEFAULT_LOGGER )
-				.targetChannel( 2 )
 				.get();
 
 		if ( runner == null )

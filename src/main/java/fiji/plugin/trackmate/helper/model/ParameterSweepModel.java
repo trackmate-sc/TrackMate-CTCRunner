@@ -206,12 +206,11 @@ public class ParameterSweepModel
 	 */
 	public int countTrackerSettings()
 	{
-		final int targetChannel = 1;
 		final Settings base = new Settings( null );
 		int count = 0;
 		for ( final TrackerSweepModel trackerModel : getActiveTracker() )
 		{
-			final Iterator< Settings > tit = trackerModel.iterator( base, targetChannel );
+			final Iterator< Settings > tit = trackerModel.iterator( base );
 			while ( tit.hasNext() )
 			{
 				tit.next();
@@ -229,12 +228,11 @@ public class ParameterSweepModel
 	 */
 	public int countDetectorSettings()
 	{
-		final int targetChannel = 1;
 		final Settings base = new Settings( null );
 		int count = 0;
 		for ( final DetectorSweepModel detectorModel : getActiveDetectors() )
 		{
-			final Iterator< Settings > dit = detectorModel.iterator( base, targetChannel );
+			final Iterator< Settings > dit = detectorModel.iterator( base );
 			while ( dit.hasNext() )
 			{
 				dit.next();

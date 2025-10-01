@@ -21,15 +21,15 @@
  */
 package fiji.plugin.trackmate.helper.model.detector;
 
-import static fiji.plugin.trackmate.detection.DetectorKeys.KEY_TARGET_CHANNEL;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import fiji.plugin.trackmate.Dimension;
 import fiji.plugin.trackmate.Settings;
+import fiji.plugin.trackmate.detection.DetectorKeys;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.detection.ThresholdDetectorFactory;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel.ModelsIterator;
@@ -57,6 +57,11 @@ public class MorphoLibJOpt
 
 	public static Map< String, AbstractParamSweepModel< ? > > createModels()
 	{
+		final IntParamSweepModel targetChannel = new IntParamSweepModel()
+				.paramName( "Target channel" )
+				.dimension( Dimension.NONE )
+				.rangeType( RangeType.FIXED )
+				.min( 1 );
 		final DoubleParamSweepModel toleranceParam = new DoubleParamSweepModel()
 				.paramName( "Tolerance" )
 				.rangeType( RangeType.LIN_RANGE )
@@ -74,17 +79,17 @@ public class MorphoLibJOpt
 				.fixedValue( true );
 
 		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
+		models.put( DetectorKeys.KEY_TARGET_CHANNEL, targetChannel );
 		models.put( MorphoLibJDetectorFactory.KEY_TOLERANCE, toleranceParam );
 		models.put( MorphoLibJDetectorFactory.KEY_CONNECTIVITY, connectivityParam );
 		models.put( ThresholdDetectorFactory.KEY_SIMPLIFY_CONTOURS, simplifyContourParam );
 		return models;
 	}
 
-	public static Iterator< Settings > iterator( final Map< String, AbstractParamSweepModel< ? > > models, final Settings base, final int targetChannel )
+	public static Iterator< Settings > iterator( final Map< String, AbstractParamSweepModel< ? > > models, final Settings base )
 	{
 		final Settings s = base.copyOn( base.imp );
 		final Map< String, Object > ds = createFactory().getDefaultSettings();
-		ds.put( KEY_TARGET_CHANNEL, targetChannel );
 		s.detectorFactory = createFactory();
 		s.detectorSettings = ds;
 

@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -24,12 +24,14 @@ package fiji.plugin.trackmate.helper.model.detector;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import fiji.plugin.trackmate.Dimension;
+import fiji.plugin.trackmate.detection.DetectorKeys;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.DoubleParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.IntParamSweepModel;
-import fiji.plugin.trackmate.helper.model.parameter.StringRangeParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.NumberParamSweepModel.RangeType;
+import fiji.plugin.trackmate.helper.model.parameter.StringRangeParamSweepModel;
 import fiji.plugin.trackmate.ilastik.IlastikDetectorFactory;
 
 public class IlastikOpt
@@ -40,6 +42,11 @@ public class IlastikOpt
 
 	public static Map< String, AbstractParamSweepModel< ? > > createModels()
 	{
+		final IntParamSweepModel targetChannel = new IntParamSweepModel()
+				.paramName( "Target channel" )
+				.dimension( Dimension.NONE )
+				.rangeType( RangeType.FIXED )
+				.min( 1 );
 		final StringRangeParamSweepModel classifierPath = new StringRangeParamSweepModel()
 				.paramName( "Ilastik project path" )
 				.isFile( true )
@@ -56,6 +63,7 @@ public class IlastikOpt
 				.min( 1 );
 
 		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
+		models.put( DetectorKeys.KEY_TARGET_CHANNEL, targetChannel );
 		models.put( IlastikDetectorFactory.KEY_CLASSIFIER_FILEPATH, classifierPath );
 		models.put( IlastikDetectorFactory.KEY_CLASS_INDEX, classIndex );
 		models.put( IlastikDetectorFactory.KEY_PROBA_THRESHOLD, probaThreshold );

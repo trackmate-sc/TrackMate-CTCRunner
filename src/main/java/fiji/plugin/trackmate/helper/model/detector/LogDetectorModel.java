@@ -33,6 +33,7 @@ import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.BooleanParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.BooleanParamSweepModel.BooleanRangeType;
 import fiji.plugin.trackmate.helper.model.parameter.DoubleParamSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.IntParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.NumberParamSweepModel.RangeType;
 
 @Plugin( type = DetectorSweepModel.class, priority = 1000000 - 1 )
@@ -46,6 +47,11 @@ public class LogDetectorModel extends DetectorSweepModel
 
 	private static Map< String, AbstractParamSweepModel< ? > > createModels()
 	{
+		final IntParamSweepModel targetChannel = new IntParamSweepModel()
+				.paramName( "Target channel" )
+				.dimension( Dimension.NONE )
+				.rangeType( RangeType.FIXED )
+				.min( 1 );
 		final DoubleParamSweepModel estimatedRadius = new DoubleParamSweepModel()
 				.paramName( "Estimated radius" )
 				.dimension( Dimension.LENGTH )
@@ -67,6 +73,7 @@ public class LogDetectorModel extends DetectorSweepModel
 				.fixedValue( false );
 
 		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
+		models.put( DetectorKeys.KEY_TARGET_CHANNEL, targetChannel );
 		models.put( DetectorKeys.KEY_RADIUS, estimatedRadius );
 		models.put( DetectorKeys.KEY_THRESHOLD, threshold );
 		models.put( DetectorKeys.KEY_DO_SUBPIXEL_LOCALIZATION, subpixelLocalization );

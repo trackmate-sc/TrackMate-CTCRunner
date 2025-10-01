@@ -33,6 +33,7 @@ import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.BooleanParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.BooleanParamSweepModel.BooleanRangeType;
 import fiji.plugin.trackmate.helper.model.parameter.DoubleParamSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.IntParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.NumberParamSweepModel.RangeType;
 
 @Plugin( type = DetectorSweepModel.class, priority = 1000000 - 3 )
@@ -46,6 +47,11 @@ public class HessianDetectorModel extends DetectorSweepModel
 
 	private static Map< String, AbstractParamSweepModel< ? > > createModels()
 	{
+		final IntParamSweepModel targetChannel = new IntParamSweepModel()
+				.paramName( "Target channel" )
+				.dimension( Dimension.NONE )
+				.rangeType( RangeType.FIXED )
+				.min( 1 );
 		final DoubleParamSweepModel estimatedXYRadius = new DoubleParamSweepModel()
 				.paramName( "Estimated XY radius" )
 				.dimension( Dimension.LENGTH )
@@ -72,6 +78,7 @@ public class HessianDetectorModel extends DetectorSweepModel
 				.fixedValue( true );
 
 		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
+		models.put( DetectorKeys.KEY_TARGET_CHANNEL, targetChannel );
 		models.put( DetectorKeys.KEY_RADIUS, estimatedXYRadius );
 		models.put( DetectorKeys.KEY_RADIUS_Z, estimatedZRadius );
 		models.put( DetectorKeys.KEY_THRESHOLD, threshold );

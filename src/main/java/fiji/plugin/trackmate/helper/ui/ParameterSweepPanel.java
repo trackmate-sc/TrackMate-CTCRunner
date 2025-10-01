@@ -52,7 +52,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -103,8 +102,6 @@ public class ParameterSweepPanel extends JPanel
 	final JButton btnStop;
 
 	final JButton btnReset;
-
-	final JSlider sliderChannel;
 
 	final JCheckBox chckbxSaveTrackMateFile;
 
@@ -404,17 +401,6 @@ public class ParameterSweepPanel extends JPanel
 		gbcPanelChannel.gridy = 3;
 		panelPath.add( panelChannel, gbcPanelChannel );
 
-		sliderChannel = new JSlider();
-		panelChannel.add( sliderChannel );
-		sliderChannel.setMaximum( 60 );
-		sliderChannel.setMaximum( imp.getNChannels() );
-		sliderChannel.setMinimum( 1 );
-		sliderChannel.setValue( imp.getChannel() );
-
-		final JLabel labelChannel = new JLabel( "1" );
-		labelChannel.setFont( SMALL_FONT );
-		panelChannel.add( labelChannel );
-
 		final GridBagConstraints gbcSeparator1 = new GridBagConstraints();
 		gbcSeparator1.fill = GridBagConstraints.BOTH;
 		gbcSeparator1.gridwidth = 2;
@@ -495,26 +481,6 @@ public class ParameterSweepPanel extends JPanel
 		btnRun.setFont( SMALL_FONT );
 		btnRun.setIcon( EXECUTE_ICON );
 		panelButtons.add( btnRun );
-
-		/*
-		 * Deal with channels: the slider and channel labels are only visible if
-		 * we find more than one channel.
-		 */
-		final int nChannels = imp.getNChannels();
-
-		if ( nChannels <= 1 )
-		{
-			lblSegmentInChannel.setVisible( false );
-			labelChannel.setVisible( false );
-			sliderChannel.setVisible( false );
-		}
-		else
-		{
-			lblSegmentInChannel.setVisible( true );
-			labelChannel.setVisible( true );
-			sliderChannel.setVisible( true );
-		}
-		sliderChannel.addChangeListener( e -> labelChannel.setText( "" + sliderChannel.getValue() ) );
 
 		/*
 		 * The split-pane that contains the path panel and the checkbox panel.

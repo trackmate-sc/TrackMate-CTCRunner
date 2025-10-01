@@ -78,7 +78,7 @@ public class FilterSweepModel extends AbstractSweepModelBase implements Iterable
 	}
 
 	@Override
-	public Iterator< Settings > iterator( final Settings base, final int targetChannel )
+	public Iterator< Settings > iterator( final Settings base )
 	{
 		throw new UnsupportedOperationException( "Not implemented" );
 	}

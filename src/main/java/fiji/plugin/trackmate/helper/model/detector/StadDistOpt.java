@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -25,12 +25,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import fiji.plugin.trackmate.Dimension;
+import fiji.plugin.trackmate.detection.DetectorKeys;
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.DoubleParamSweepModel;
-import fiji.plugin.trackmate.helper.model.parameter.InfoParamSweepModel;
-import fiji.plugin.trackmate.helper.model.parameter.StringRangeParamSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.IntParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.NumberParamSweepModel.RangeType;
+import fiji.plugin.trackmate.helper.model.parameter.StringRangeParamSweepModel;
 import fiji.plugin.trackmate.stardist.StarDistCustomDetectorFactory;
 import fiji.plugin.trackmate.stardist.StarDistDetectorFactory;
 
@@ -47,10 +49,13 @@ public class StadDistOpt
 
 	public static Map< String, AbstractParamSweepModel< ? > > createModelsBuiltin()
 	{
+		final IntParamSweepModel targetChannel = new IntParamSweepModel()
+				.paramName( "Target channel" )
+				.dimension( Dimension.NONE )
+				.rangeType( RangeType.FIXED )
+				.min( 1 );
 		final Map< String, AbstractParamSweepModel< ? > > models = new HashMap<>();
-		models.put( "", new InfoParamSweepModel()
-				.info( "The TrackMate-StarDist built-in detector has no parameter to tune." )
-				.url( "" ) );
+		models.put( DetectorKeys.KEY_TARGET_CHANNEL, targetChannel );
 		return models;
 	}
 
@@ -61,6 +66,11 @@ public class StadDistOpt
 
 	public static Map< String, AbstractParamSweepModel< ? > > createModelsCustom()
 	{
+		final IntParamSweepModel targetChannel = new IntParamSweepModel()
+				.paramName( "Target channel" )
+				.dimension( Dimension.NONE )
+				.rangeType( RangeType.FIXED )
+				.min( 1 );
 		final StringRangeParamSweepModel stardistBunblePath = new StringRangeParamSweepModel()
 				.paramName( "StarDist model bundle path" )
 				.isFile( true )
@@ -77,6 +87,7 @@ public class StadDistOpt
 				.min( 0.5 );
 
 		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
+		models.put( DetectorKeys.KEY_TARGET_CHANNEL, targetChannel );
 		models.put( StarDistCustomDetectorFactory.KEY_MODEL_FILEPATH, stardistBunblePath );
 		models.put( StarDistCustomDetectorFactory.KEY_SCORE_THRESHOLD, probaThreshold );
 		models.put( StarDistCustomDetectorFactory.KEY_OVERLAP_THRESHOLD, overlapThreshold );

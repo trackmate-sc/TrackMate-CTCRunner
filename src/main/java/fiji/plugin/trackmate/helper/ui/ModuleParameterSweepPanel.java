@@ -111,7 +111,7 @@ public class ModuleParameterSweepPanel extends JPanel
 		add( scrollPane, BorderLayout.CENTER );
 
 		final ModelListener infoListener = () -> {
-			final Iterator< Settings > it = model.iterator( new Settings(), 1 );
+			final Iterator< Settings > it = model.iterator( new Settings() );
 			int ns = 0;
 			while ( it.hasNext() )
 			{

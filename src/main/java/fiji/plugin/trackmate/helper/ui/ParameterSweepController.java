@@ -149,9 +149,6 @@ public class ParameterSweepController implements Cancelable
 		gui.btnStop.setEnabled( true );
 		gui.logger.setProgress( 0. );
 
-		final int targetChannel = gui.sliderChannel.getValue();
-		runner.setTargetChannel( targetChannel );
-
 		final boolean saveEachTime = gui.chckbxSaveTrackMateFile.isSelected();
 		runner.setSaveTrackMateFiles( saveEachTime );
 

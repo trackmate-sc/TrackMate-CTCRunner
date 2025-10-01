@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -74,8 +74,6 @@ public class HelperRunner implements Runnable, Cancelable
 
 	private final ParameterSweepModel model;
 
-	private int targetChannel;
-
 	private final String savePath;
 
 	private Logger batchLogger;
@@ -98,7 +96,6 @@ public class HelperRunner implements Runnable, Cancelable
 			final ImagePlus imp,
 			final ParameterSweepModel model,
 			final String modelPath,
-			final int targetChannel,
 			final String savePath,
 			final Logger batchLogger,
 			final Logger trackmateLogger,
@@ -109,7 +106,6 @@ public class HelperRunner implements Runnable, Cancelable
 		this.imp = imp;
 		this.model = model;
 		this.modelPath = modelPath;
-		this.targetChannel = targetChannel;
 		this.savePath = savePath;
 		this.batchLogger = batchLogger;
 		this.trackmateLogger = trackmateLogger;
@@ -133,7 +129,7 @@ public class HelperRunner implements Runnable, Cancelable
 	/**
 	 * Exposes the crawler of this runner that monitors result files appearing
 	 * in the save folder.
-	 * 
+	 *
 	 * @return the {@link ResultsCrawler}.
 	 */
 	public ResultsCrawler getCrawler()
@@ -143,7 +139,7 @@ public class HelperRunner implements Runnable, Cancelable
 
 	/**
 	 * Exposes the settings model that will be used by this runner.
-	 * 
+	 *
 	 * @return the {@link ParameterSweepModel}.
 	 */
 	public ParameterSweepModel getModel()
@@ -155,7 +151,7 @@ public class HelperRunner implements Runnable, Cancelable
 	 * Returns the path to the file that stores the settings model that will be
 	 * used by this runner. This path is used to save the model to a file when
 	 * modified.
-	 * 
+	 *
 	 * @return the path to the settings model.
 	 */
 	public String getModelPath()
@@ -165,7 +161,7 @@ public class HelperRunner implements Runnable, Cancelable
 
 	/**
 	 * Exposes the input image this runner is configured to run on.
-	 * 
+	 *
 	 * @return the image.
 	 */
 	public ImagePlus getImage()
@@ -176,7 +172,7 @@ public class HelperRunner implements Runnable, Cancelable
 	/**
 	 * Returns the path to the ground-truth file or folder this runner is
 	 * configured to use.
-	 * 
+	 *
 	 * @return the path to the ground-truth.
 	 */
 	public String getGroundTruthPath()
@@ -186,7 +182,7 @@ public class HelperRunner implements Runnable, Cancelable
 
 	/**
 	 * Returns the type of tracking metrics this runner is configured to use.
-	 * 
+	 *
 	 * @return the tracking metrics type.
 	 */
 	public TrackingMetricsType getType()
@@ -196,7 +192,7 @@ public class HelperRunner implements Runnable, Cancelable
 
 	/**
 	 * Sets the logger to use to log progress of the run.
-	 * 
+	 *
 	 * @param batchLogger
 	 *            a {@link Logger} instance.
 	 */
@@ -208,7 +204,7 @@ public class HelperRunner implements Runnable, Cancelable
 	/**
 	 * Sets the logger to use to log individual tracking tests. This is only
 	 * useful for debugging.
-	 * 
+	 *
 	 * @param trackmateLogger
 	 *            a {@link Logger} instance.
 	 */
@@ -218,23 +214,10 @@ public class HelperRunner implements Runnable, Cancelable
 	}
 
 	/**
-	 * Sets the index of the channel in the input image to use for tracking.
-	 * Channels are here 1-numbered, meaning that "1" is the first available
-	 * channel.
-	 * 
-	 * @param targetChannel
-	 *            the channel index
-	 */
-	public void setTargetChannel( final int targetChannel )
-	{
-		this.targetChannel = targetChannel;
-	}
-
-	/**
 	 * Sets whether TrackMate results XML files will be saved for every test.
 	 * <p>
 	 * This can consume a lot off disk space if there are many tests to run.
-	 * 
+	 *
 	 * @param saveTrackMateFiles
 	 *            whether TrackMate XML files will be saved for every test.
 	 */
@@ -265,7 +248,7 @@ public class HelperRunner implements Runnable, Cancelable
 	/**
 	 * Iterates over possible several detector configurations, and adds them to
 	 * the specified base settings, then loop over spot filter configurations.
-	 * 
+	 *
 	 * @param base
 	 *            the {@link Settings} base. Must be fully configured except for
 	 *            detector settings, spot filters, tracker settings and track
@@ -284,7 +267,7 @@ public class HelperRunner implements Runnable, Cancelable
 	{
 		MAIN_LOOP: for ( final DetectorSweepModel detectorModel : model.getActiveDetectors() )
 		{
-			final Iterator< Settings > detectorIterator = detectorModel.iterator( base, targetChannel );
+			final Iterator< Settings > detectorIterator = detectorModel.iterator( base );
 			while ( detectorIterator.hasNext() )
 			{
 				if ( isCanceled() )
@@ -307,7 +290,7 @@ public class HelperRunner implements Runnable, Cancelable
 	/**
 	 * Iterates over possible several spot filter configurations, and adds them
 	 * to the specified base settings, then loop over tracker configurations.
-	 * 
+	 *
 	 * @param base
 	 *            the {@link Settings} base. Must be fully configured except for
 	 *            spot filters, tracker settings and track filters.
@@ -353,7 +336,7 @@ public class HelperRunner implements Runnable, Cancelable
 	/**
 	 * Iterates over possible several tracker configurations, and adds them to
 	 * the specified base settings, then loop over track filters configurations.
-	 * 
+	 *
 	 * @param base
 	 *            the {@link Settings} base. Must be fully configured except for
 	 *            tracker settings and track filters.
@@ -372,7 +355,7 @@ public class HelperRunner implements Runnable, Cancelable
 	{
 		MAIN_LOOP: for ( final TrackerSweepModel trackerModel : model.getActiveTracker() )
 		{
-			final Iterator< Settings > trackerIterator = trackerModel.iterator( base, targetChannel );
+			final Iterator< Settings > trackerIterator = trackerModel.iterator( base );
 			while ( trackerIterator.hasNext() )
 			{
 				if ( isCanceled() )
@@ -394,7 +377,7 @@ public class HelperRunner implements Runnable, Cancelable
 	 * Iterates over possible several track filter configurations, and adds them
 	 * to the specified base settings, then execute the tracking and metrics
 	 * measurements.
-	 * 
+	 *
 	 * @param base
 	 *            the {@link Settings} base. Must be fully configured except for
 	 *            track filters.
@@ -444,7 +427,7 @@ public class HelperRunner implements Runnable, Cancelable
 	/**
 	 * Execute the full tracking process using the fully configured
 	 * {@link Settings}.
-	 * 
+	 *
 	 * @param settings
 	 *            the settings to use to run TrackMate.
 	 * @param iterationData
@@ -667,8 +650,6 @@ public class HelperRunner implements Runnable, Cancelable
 
 		private String runSettingsPath;
 
-		private int targetChannel = 1;
-
 		private String savePath;
 
 		private Logger batchLogger = Logger.DEFAULT_LOGGER;
@@ -687,7 +668,7 @@ public class HelperRunner implements Runnable, Cancelable
 
 		/**
 		 * Sets the tracking metrics type to use.
-		 * 
+		 *
 		 * @param type
 		 *            the tracking metrics type.
 		 * @return this builder.
@@ -704,7 +685,7 @@ public class HelperRunner implements Runnable, Cancelable
 		 * Sets the tracking metrics type to use with a string. Currently
 		 * supported types are "CTC" (Cell-Tracking-Challenge) and "SPT"
 		 * (Single-Particle Tracking Challenge).
-		 * 
+		 *
 		 * @param type
 		 *            the tracking metrics type as a string.
 		 * @return this builder.
@@ -724,7 +705,7 @@ public class HelperRunner implements Runnable, Cancelable
 		 * Sets the path to the ground-truth file or folder.
 		 * <p>
 		 * The files need to comply to the tracking metrics.
-		 * 
+		 *
 		 * @param groundTruth
 		 *            path to the ground-truth file or folder.
 		 * @return this builder.
@@ -745,7 +726,7 @@ public class HelperRunner implements Runnable, Cancelable
 		 * The config file is used to specify what parameters to test. It is a
 		 * JSon file named <code>helperrunnersettings.json</code>. Use the GUI
 		 * to set it.
-		 * 
+		 *
 		 * @param runSettings
 		 *            path to the helper runner configuration file.
 		 * @return this builder.
@@ -760,7 +741,7 @@ public class HelperRunner implements Runnable, Cancelable
 
 		/**
 		 * Sets the path to the folder in which runner results will be saved.
-		 * 
+		 *
 		 * @param savePath
 		 *            path to the save folder.
 		 * @return this builder.
@@ -775,7 +756,7 @@ public class HelperRunner implements Runnable, Cancelable
 
 		/**
 		 * Sets the path to the image file to use as input.
-		 * 
+		 *
 		 * @param imagePath
 		 *            path to the image file to use as input.
 		 * @return this builder.
@@ -790,7 +771,7 @@ public class HelperRunner implements Runnable, Cancelable
 
 		/**
 		 * Sets the path to the image to use as input.
-		 * 
+		 *
 		 * @param image
 		 *            path to the image to use as input.
 		 * @return this builder.
@@ -804,25 +785,8 @@ public class HelperRunner implements Runnable, Cancelable
 		}
 
 		/**
-		 * Sets the index of the channel in the input image to use for tracking.
-		 * Channels are here 1-numbered, meaning that "1" is the first available
-		 * channel.
-		 * 
-		 * @param targetChannel
-		 *            the channel index
-		 * @return this builder.
-		 */
-		public Builder targetChannel( final int targetChannel )
-		{
-			if ( this.targetChannel != targetChannel )
-				this.targetChannel = targetChannel;
-
-			return this;
-		}
-
-		/**
 		 * Sets the logger to use to log progress of the run.
-		 * 
+		 *
 		 * @param batchLogger
 		 *            a {@link Logger} instance.
 		 * @return this builder.
@@ -838,7 +802,7 @@ public class HelperRunner implements Runnable, Cancelable
 		/**
 		 * Sets the logger to use to log individual tracking tests. This is only
 		 * useful for debugging.
-		 * 
+		 *
 		 * @param trackmateLogger
 		 *            a {@link Logger} instance.
 		 * @return this builder.
@@ -856,7 +820,7 @@ public class HelperRunner implements Runnable, Cancelable
 		 * test.
 		 * <p>
 		 * This can consume a lot off disk space if there are many tests to run.
-		 * 
+		 *
 		 * @param saveTrackMateFiles
 		 *            whether TrackMate XML files will be saved for every test.
 		 * @return this builder
@@ -875,7 +839,7 @@ public class HelperRunner implements Runnable, Cancelable
 		 * <p>
 		 * Only affect the SPT metrics type, if it is specified via the string
 		 * method {@link #trackingMetricsType(String)} of this builder.
-		 * 
+		 *
 		 * @param maxDist
 		 *            the max pairing distance.
 		 * @return this builder.
@@ -1025,7 +989,6 @@ public class HelperRunner implements Runnable, Cancelable
 					imp,
 					model,
 					runSettingsPath,
-					targetChannel,
 					savePath,
 					batchLogger,
 					trackmateLogger,

@@ -26,11 +26,14 @@ import java.util.Map;
 
 import org.scijava.plugin.Plugin;
 
+import fiji.plugin.trackmate.Dimension;
+import fiji.plugin.trackmate.detection.DetectorKeys;
 import fiji.plugin.trackmate.detection.ThresholdDetectorFactory;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.BooleanParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.BooleanParamSweepModel.BooleanRangeType;
 import fiji.plugin.trackmate.helper.model.parameter.DoubleParamSweepModel;
+import fiji.plugin.trackmate.helper.model.parameter.IntParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.NumberParamSweepModel.RangeType;
 
 @Plugin( type = DetectorSweepModel.class, priority = 1000000 - 5 )
@@ -44,6 +47,11 @@ public class ThresholdDetectorModel extends DetectorSweepModel
 
 	private static Map< String, AbstractParamSweepModel< ? > > createModels()
 	{
+		final IntParamSweepModel targetChannel = new IntParamSweepModel()
+				.paramName( "Target channel" )
+				.dimension( Dimension.NONE )
+				.rangeType( RangeType.FIXED )
+				.min( 1 );
 		final BooleanParamSweepModel simplifyContours = new BooleanParamSweepModel()
 				.paramName( "Simplify contours" )
 				.rangeType( BooleanRangeType.FIXED )
@@ -55,6 +63,7 @@ public class ThresholdDetectorModel extends DetectorSweepModel
 				.max( 100. )
 				.nSteps( 3 );
 		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
+		models.put( DetectorKeys.KEY_TARGET_CHANNEL, targetChannel );
 		models.put( ThresholdDetectorFactory.KEY_INTENSITY_THRESHOLD, intensityThreshold );
 		models.put( ThresholdDetectorFactory.KEY_SIMPLIFY_CONTOURS, simplifyContours );
 		return models;

@@ -48,7 +48,7 @@ public abstract class AbstractSweepModelBase implements SciJavaPlugin
 		this.models = models;
 	}
 
-	public abstract Iterator< Settings > iterator( final Settings base, final int targetChannel );
+	public abstract Iterator< Settings > iterator( final Settings base );
 
 	public String getName()
 	{

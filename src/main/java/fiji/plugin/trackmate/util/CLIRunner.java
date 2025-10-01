@@ -42,7 +42,6 @@ public class CLIRunner
 		final String taskDefFile = jsonObject.get( "helper_task_definition_path" ).getAsString();
 		final String logFile = jsonObject.get( "log_file" ).getAsString();
 		final double maxDist = jsonObject.get( "spt_max_linking_distance" ).getAsDouble();
-		final int channel = jsonObject.get( "target_channel" ).getAsInt();
 
 		final ImagePlus imp = IJ.openImage( sourceImagePath );
 		final String units = "image units";
@@ -71,7 +70,6 @@ public class CLIRunner
 				.runSettings( taskDefFile )
 				.image( imp )
 				.batchLogger( logger )
-				.targetChannel( channel )
 				.sptMetricsMaxPairingDistance( maxDist )
 				.get();
 
