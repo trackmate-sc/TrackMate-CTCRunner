@@ -8,18 +8,20 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
 package fiji.plugin.trackmate.batcher.ui;
+
+import static fiji.plugin.trackmate.batcher.BatcherUtils.BATCHER_ICON;
 
 import java.awt.event.WindowAdapter;
 import java.nio.file.Path;
@@ -39,7 +41,6 @@ import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.batcher.BatcherUtils;
 import fiji.plugin.trackmate.batcher.RunParamModel;
 import fiji.plugin.trackmate.batcher.TrackMateBatcher;
-import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings;
 import fiji.plugin.trackmate.gui.wizard.descriptors.StartDialogDescriptor;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
@@ -162,7 +163,7 @@ public class BatcherController implements Cancelable
 				cancel( "User closed the batcher window." );
 			}
 		} );
-		frame.setIconImage( Icons.TRACKMATE_ICON.getImage() );
+		frame.setIconImage( BATCHER_ICON.getImage() );
 		frame.getContentPane().add( gui );
 		frame.pack();
 		frame.setLocationRelativeTo( null );

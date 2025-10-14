@@ -21,6 +21,8 @@
  */
 package fiji.plugin.trackmate.batcher.ui;
 
+import static fiji.plugin.trackmate.batcher.BatcherUtils.BATCHER_ICON;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -40,6 +42,7 @@ import com.itextpdf.text.Font;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.gui.Fonts;
+import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.gui.components.LogPanel;
 
@@ -62,7 +65,7 @@ public class BatcherPanel extends JPanel
 		final JLabel lblTitle = new JLabel( "<html><center>TrackMate Batcher <small>v"
 				+ VersionUtils.getVersion( BatcherPanel.class )
 				+ "</small></center></html>" );
-		lblTitle.setIcon( Icons.TRACKMATE_ICON_16x16 );
+		lblTitle.setIcon( GuiUtils.scaleImage( BATCHER_ICON, 32, 32 ) );
 		lblTitle.setFont( Fonts.BIG_FONT );
 		add( lblTitle, BorderLayout.NORTH );
 
