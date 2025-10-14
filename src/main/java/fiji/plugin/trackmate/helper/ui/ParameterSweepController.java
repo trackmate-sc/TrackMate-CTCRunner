@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -29,12 +29,12 @@ import javax.swing.JOptionPane;
 
 import org.scijava.Cancelable;
 
-import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.helper.HelperRunner;
 import fiji.plugin.trackmate.helper.HelperRunner.Builder;
 import fiji.plugin.trackmate.helper.ResultsCrawler;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModel;
 import fiji.plugin.trackmate.helper.model.ParameterSweepModelIO;
+import fiji.plugin.trackmate.helper.ui.components.GuiUtils;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import ij.ImagePlus;
 
@@ -79,7 +79,7 @@ public class ParameterSweepController implements Cancelable
 				crawler.stopWatching();
 			}
 		} );
-		frame.setIconImage( Icons.TRACKMATE_ICON.getImage() );
+		frame.setIconImage( GuiUtils.HELPER_ICON_BIG.getImage() );
 		frame.getContentPane().add( gui );
 		frame.setSize( 600, 700 );
 		frame.setLocationRelativeTo( null );
@@ -97,7 +97,7 @@ public class ParameterSweepController implements Cancelable
 				+ "<p>"
 				+ "and relaunching this user interface. Are you sure?";
 		final String title = "Reset parameters";
-		final int answer = JOptionPane.showConfirmDialog( frame, toHtml( msg ), title, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, Icons.TRACKMATE_ICON );
+		final int answer = JOptionPane.showConfirmDialog( frame, toHtml( msg ), title, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, GuiUtils.HELPER_ICON );
 		if ( answer != JOptionPane.YES_OPTION )
 			return;
 
@@ -108,7 +108,7 @@ public class ParameterSweepController implements Cancelable
 		if ( file.exists() )
 		{
 			final String msg2 = "Could not delete the file: " + file;
-			JOptionPane.showMessageDialog( frame, toHtml( msg2 ), title, JOptionPane.ERROR_MESSAGE, Icons.TRACKMATE_ICON );
+			JOptionPane.showMessageDialog( frame, toHtml( msg2 ), title, JOptionPane.ERROR_MESSAGE, GuiUtils.HELPER_ICON );
 			return;
 		}
 
@@ -132,7 +132,7 @@ public class ParameterSweepController implements Cancelable
 		if ( newRunner == null )
 		{
 			final String msg3 = builder.getErrorMessage();
-			JOptionPane.showMessageDialog( frame, toHtml( msg3 ), title, JOptionPane.ERROR_MESSAGE, Icons.TRACKMATE_ICON );
+			JOptionPane.showMessageDialog( frame, toHtml( msg3 ), title, JOptionPane.ERROR_MESSAGE, GuiUtils.HELPER_ICON );
 			return;
 		}
 

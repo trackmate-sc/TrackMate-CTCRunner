@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -31,10 +31,10 @@ import org.scijava.util.VersionUtils;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.gui.Fonts;
-import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.helper.ctc.CTCTrackingMetricsType;
 import fiji.plugin.trackmate.helper.spt.SPTTrackingMetricsType;
 import fiji.plugin.trackmate.helper.ui.CrawlerResultsPanel;
+import fiji.plugin.trackmate.helper.ui.components.GuiUtils;
 import fiji.plugin.trackmate.util.TMUtils;
 import fiji.util.gui.GenericDialogPlus;
 import ij.IJ;
@@ -51,9 +51,9 @@ public class TrackMateParameterSweepResultsPlugin implements PlugIn
 	public void run( final String arg )
 	{
 		final GenericDialogPlus dialog = new GenericDialogPlus( "TrackMate-Helper results inspector" );
-		dialog.setIconImage( Icons.TRACKMATE_ICON.getImage() );
+		dialog.setIconImage( GuiUtils.HELPER_ICON_BIG.getImage() );
 
-		dialog.addImage( Icons.TRACKMATE_ICON );
+		dialog.addImage( GuiUtils.HELPER_ICON );
 		dialog.addToSameRow();
 		dialog.addMessage( "TrackMate-Helper results inspector", Fonts.BIG_FONT );
 		dialog.addMessage( "v" + VersionUtils.getVersion( TrackMateParameterSweepPlugin.class ), Fonts.SMALL_FONT );
@@ -122,7 +122,7 @@ public class TrackMateParameterSweepResultsPlugin implements PlugIn
 				crawler.stopWatching();
 			}
 		} );
-		frame.setIconImage( Icons.TRACKMATE_ICON.getImage() );
+		frame.setIconImage( GuiUtils.HELPER_ICON_BIG.getImage() );
 		frame.getContentPane().add( panel );
 		frame.setSize( 800, 400 );
 		frame.setLocationRelativeTo( null );

@@ -47,7 +47,6 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import fiji.plugin.trackmate.detection.SpotDetectorFactoryBase;
-import fiji.plugin.trackmate.gui.Icons;
 import fiji.plugin.trackmate.helper.model.detector.DetectorSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractArrayParamSweepModel.ArrayRangeType;
 import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
@@ -55,6 +54,7 @@ import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModelIO;
 import fiji.plugin.trackmate.helper.model.parameter.EnumParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.InfoParamSweepModel;
 import fiji.plugin.trackmate.helper.model.tracker.TrackerSweepModel;
+import fiji.plugin.trackmate.helper.ui.components.GuiUtils;
 import fiji.plugin.trackmate.providers.DetectorProvider;
 import fiji.plugin.trackmate.providers.TrackerProvider;
 import fiji.plugin.trackmate.tracking.SpotTrackerFactory;
@@ -131,7 +131,7 @@ public class ParameterSweepModelIO
 					+ " "
 					+ modelFile;
 			final String title = "TrackMate-Helper error";
-			JOptionPane.showMessageDialog( null, msg, title, JOptionPane.ERROR_MESSAGE, Icons.TRACKMATE_ICON );
+			JOptionPane.showMessageDialog( null, msg, title, JOptionPane.ERROR_MESSAGE, GuiUtils.HELPER_ICON );
 			e.printStackTrace();
 		}
 		catch ( final FileNotFoundException e )
