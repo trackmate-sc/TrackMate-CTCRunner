@@ -322,7 +322,8 @@ public class ParameterSweepPanel extends JPanel
 			final ActionListener al = e -> {
 				if ( chkbox.isSelected() )
 				{
-					tabbedPane.addTab( name, tm.getIcon(), panel, null );
+					final ImageIcon smallIcon = fiji.plugin.trackmate.gui.GuiUtils.scaleImage( tm.getIcon(), 16, 16 );
+					tabbedPane.addTab( name, smallIcon, panel, null );
 					model.setActive( name, true );
 				}
 				else
