@@ -32,6 +32,8 @@ public class GuiUtils
 
 	public static final ImageIcon HELPER_ICON = new ImageIcon( GuiUtils.class.getResource( "/images/TrackMate-Helper-logo-64px.png" ) );
 
+	public static final ImageIcon HELPER_ICON_16x16 = fiji.plugin.trackmate.gui.GuiUtils.scaleImage( HELPER_ICON, 16, 16 );
+
 	public static final ImageIcon HELPER_ICON_BIG = new ImageIcon( GuiUtils.class.getResource( "/images/TrackMate-Helper-logo.png" ) );
 
 	public static void changeFont( final Component component, final Font font )

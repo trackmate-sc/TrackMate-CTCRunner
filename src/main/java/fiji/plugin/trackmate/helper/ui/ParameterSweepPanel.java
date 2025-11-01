@@ -28,6 +28,7 @@ import static fiji.plugin.trackmate.gui.Icons.CANCEL_ICON;
 import static fiji.plugin.trackmate.gui.Icons.EXECUTE_ICON;
 import static fiji.plugin.trackmate.gui.Icons.REVERT_ICON;
 import static fiji.plugin.trackmate.helper.ui.components.GuiUtils.HELPER_ICON;
+import static fiji.plugin.trackmate.helper.ui.components.GuiUtils.HELPER_ICON_16x16;
 
 import java.awt.BorderLayout;
 import java.awt.Desktop;
@@ -46,6 +47,7 @@ import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -133,7 +135,7 @@ public class ParameterSweepPanel extends JPanel
 		tabbedPane.addTab( "Log", null, panelLog, null );
 
 		final CrawlerResultsPanel bestParamsPanel = new CrawlerResultsPanel( crawler, imp );
-		tabbedPane.addTab( "Best params", HELPER_ICON, bestParamsPanel, null );
+		tabbedPane.addTab( "Best params", HELPER_ICON_16x16, bestParamsPanel, null );
 
 		panelSpotFilters = new SpotFilterConfigPanel( Spot.QUALITY, imp, model );
 		tabbedPane.addTab( "Spot filters", Icons.SPOT_ICON_16x16, panelSpotFilters, null );
@@ -141,7 +143,7 @@ public class ParameterSweepPanel extends JPanel
 		enablers.add( new EverythingDisablerAndReenabler( panelSpotFilters, new Class[] { JLabel.class } ) );
 
 		panelTrackFilters = new TrackFilterConfigPanel( TrackBranchingAnalyzer.NUMBER_SPOTS, imp, model );
-		tabbedPane.addTab( "Track filters", Icons.TRACK_ICON_64x64, panelTrackFilters, null );
+		tabbedPane.addTab( "Track filters", Icons.TRACK_SCHEME_ICON_16x16, panelTrackFilters, null );
 		// Enabler.
 		enablers.add( new EverythingDisablerAndReenabler( panelTrackFilters, new Class[] { JLabel.class } ) );
 
@@ -274,7 +276,8 @@ public class ParameterSweepPanel extends JPanel
 			final ActionListener al = l -> {
 				if ( chkbox.isSelected() )
 				{
-					tabbedPane.addTab( name, dm.getIcon(), panel, null );
+					final ImageIcon smallIcon = fiji.plugin.trackmate.gui.GuiUtils.scaleImage( dm.getIcon(), 16, 16 );
+					tabbedPane.addTab( name, smallIcon, panel, null );
 					model.setActive( name, true );
 				}
 				else

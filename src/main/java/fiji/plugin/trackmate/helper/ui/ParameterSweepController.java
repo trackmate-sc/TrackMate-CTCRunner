@@ -23,6 +23,7 @@ package fiji.plugin.trackmate.helper.ui;
 
 import java.awt.event.WindowAdapter;
 import java.io.File;
+import java.util.Arrays;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -79,7 +80,11 @@ public class ParameterSweepController implements Cancelable
 				crawler.stopWatching();
 			}
 		} );
-		frame.setIconImage( GuiUtils.HELPER_ICON_BIG.getImage() );
+		frame.setIconImages( Arrays.asList(
+				GuiUtils.HELPER_ICON_16x16.getImage(),
+				GuiUtils.HELPER_ICON.getImage(),
+				GuiUtils.HELPER_ICON_BIG.getImage()
+		) );
 		frame.getContentPane().add( gui );
 		frame.setSize( 600, 700 );
 		frame.setLocationRelativeTo( null );
