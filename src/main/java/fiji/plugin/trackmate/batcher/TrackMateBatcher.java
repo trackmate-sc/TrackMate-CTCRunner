@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -22,6 +22,7 @@
 package fiji.plugin.trackmate.batcher;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
@@ -42,7 +43,6 @@ import fiji.plugin.trackmate.util.TMUtils;
 import ij.IJ;
 import ij.ImagePlus;
 import loci.formats.FormatException;
-import loci.plugins.BF;
 import net.imglib2.algorithm.Algorithm;
 import net.imglib2.algorithm.MultiThreaded;
 
@@ -146,7 +146,7 @@ public class TrackMateBatcher implements Cancelable, MultiThreaded, Algorithm
 			{
 				try
 				{
-					imps = BF.openImagePlus( path.toString() );
+					imps = openUsingBioFormats( path.toString() );
 				}
 				catch ( FormatException | IOException e )
 				{
@@ -286,5 +286,32 @@ public class TrackMateBatcher implements Cancelable, MultiThreaded, Algorithm
 	public boolean isCanceled()
 	{
 		return cancelReason != null;
+	}
+
+	/** Copied and adapted from the ij.io.Opener class. */
+	@SuppressWarnings( { "rawtypes", "unchecked" } )
+	public static ImagePlus[] openUsingBioFormats( final String path ) throws FormatException, IOException
+	{
+		final String className = "loci.plugins.BF";
+		final String methodName = "openImagePlus";
+		try
+		{
+			final Class c = IJ.getClassLoader().loadClass( className );
+			if ( c == null )
+				return null;
+			final Class[] argClasses = new Class[ 1 ];
+			argClasses[ 0 ] = methodName.getClass();
+			final Method m = c.getMethod( methodName, argClasses );
+			final Object[] args = new Object[ 1 ];
+			args[ 0 ] = path;
+			final Object obj = m.invoke( null, args );
+			final ImagePlus[] images = obj != null ? ( ImagePlus[] ) obj : null;
+			if ( images == null || images.length == 0 )
+				return null;
+			return images;
+		}
+		catch ( final Exception e )
+		{}
+		return null;
 	}
 }
