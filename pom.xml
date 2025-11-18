@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>41.0.0</version>
+		<version>43.0.0</version>
 		<relativePath />
 	</parent>
 
@@ -85,14 +85,14 @@
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
 		<CTC-measures.version>1.0.3</CTC-measures.version>
-		<TrackMate.version>8.0.0-SNAPSHOT</TrackMate.version>
-		<TrackMate-Cellpose.version>1.0.0-SNAPSHOT</TrackMate-Cellpose.version>
-		<TrackMate-Ilastik.version>2.0.0-SNAPSHOT</TrackMate-Ilastik.version>
-		<TrackMate-MorphoLibJ.version>2.0.0-SNAPSHOT</TrackMate-MorphoLibJ.version>
-		<TrackMate-StarDist.version>2.0.0-SNAPSHOT</TrackMate-StarDist.version>
-		<TrackMate-Trackastra.version>1.1.2-SNAPSHOT</TrackMate-Trackastra.version>
-		<TrackMate-Weka.version>2.0.0-SNAPSHOT</TrackMate-Weka.version>
-		<TrackMate-YOLO.version>1.0.0-SNAPSHOT</TrackMate-YOLO.version>
+		<TrackMate.version>8.0.0</TrackMate.version>
+		<TrackMate-Cellpose.version>1.0.0</TrackMate-Cellpose.version>
+		<TrackMate-Ilastik.version>2.0.0</TrackMate-Ilastik.version>
+		<TrackMate-MorphoLibJ.version>2.0.0</TrackMate-MorphoLibJ.version>
+		<TrackMate-StarDist.version>2.0.0</TrackMate-StarDist.version>
+		<TrackMate-Trackastra.version>2.0.0</TrackMate-Trackastra.version>
+		<TrackMate-Weka.version>2.0.0</TrackMate-Weka.version>
+		<TrackMate-YOLO.version>1.0.0</TrackMate-YOLO.version>
 	</properties>
 
 	<dependencies>
@@ -124,20 +124,43 @@
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate-Trackastra</artifactId>
-			<version>1.1.2-SNAPSHOT</version>
+			<version>2.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate-YOLO</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
+			<version>1.0.0</version>
 		</dependency>
 
-		<!-- Cell Tracking Challenge dependencies -->
+		<!-- Cell Tracking Challenge dependencies and all its exclusion to get it to compile -->
 		<dependency>
 			<groupId>net.celltrackingchallenge</groupId>
 			<artifactId>CTC-measures</artifactId>
 			<version>${CTC-measures.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>loci</groupId>
+					<artifactId>loci_plugins</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>loci</groupId>
+					<artifactId>bio-formats</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>loci</groupId>
+					<artifactId>scifio</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>loci</groupId>
+					<artifactId>ome-xml</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>loci</groupId>
+					<artifactId>loci-common</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
+
 
 		<!-- Other stuff -->
 		<dependency>
