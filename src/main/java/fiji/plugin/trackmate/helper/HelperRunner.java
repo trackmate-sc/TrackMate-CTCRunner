@@ -255,8 +255,6 @@ public class HelperRunner implements Runnable, Cancelable
 	 *            filters.
 	 * @param iterationData
 	 *            the iteration data.
-	 * @return
-	 * @return
 	 * @return an <code>int</code> value that determines what should be the next
 	 *         iteration step:
 	 *         <ol start="4">
@@ -445,34 +443,34 @@ public class HelperRunner implements Runnable, Cancelable
 	 *         <li>if detectors can be skipped and the iteration should stop.
 	 *         </ol>
 	 */
-	private int execTracking( final Settings base, final IterationData iterationData )
+	private int execTracking( final Settings settings, final IterationData iterationData )
 	{
 		batchLogger.setProgress( ( double ) ++iterationData.progress / iterationData.count );
 		batchLogger.log( "________________________________________\n" );
 
-		if ( crawler.isSettingsPresent( base ) )
+		if ( crawler.isSettingsPresent( settings ) )
 		{
-			batchLogger.log( "Settings for detector " + base.detectorFactory.getKey() + " with parameters:\n" );
-			batchLogger.log( TMUtils.echoMap( base.detectorSettings, 2 ) );
-			batchLogger.log( "and tracker " + base.trackerFactory.getKey() + " with parameters:\n" );
-			batchLogger.log( TMUtils.echoMap( base.trackerSettings, 2 ) );
-			if ( base.getSpotFilters().isEmpty() )
+			batchLogger.log( "Settings for detector " + settings.detectorFactory.getKey() + " with parameters:\n" );
+			batchLogger.log( TMUtils.echoMap( settings.detectorSettings, 2 ) );
+			batchLogger.log( "and tracker " + settings.trackerFactory.getKey() + " with parameters:\n" );
+			batchLogger.log( TMUtils.echoMap( settings.trackerSettings, 2 ) );
+			if ( settings.getSpotFilters().isEmpty() )
 			{
 				batchLogger.log( "without spot filter,\n" );
 			}
 			else
 			{
 				batchLogger.log( "and with spot filters:\n" );
-				batchLogger.log( echoFilters( base.getSpotFilters() ) );
+				batchLogger.log( echoFilters( settings.getSpotFilters() ) );
 			}
-			if ( base.getTrackFilters().isEmpty() )
+			if ( settings.getTrackFilters().isEmpty() )
 			{
 				batchLogger.log( "without track filter,\n" );
 			}
 			else
 			{
 				batchLogger.log( "and with track filters:\n" );
-				batchLogger.log( echoFilters( base.getTrackFilters() ) );
+				batchLogger.log( echoFilters( settings.getTrackFilters() ) );
 			}
 			batchLogger.log( "were already tested. Skipping.\n" );
 			return TRACK_FILTER_LOOP;
@@ -486,9 +484,9 @@ public class HelperRunner implements Runnable, Cancelable
 		{
 			batchLogger.log( "\n________________________________________\n" );
 			batchLogger.log( TMUtils.getCurrentTimeString() + "\n" );
-			batchLogger.setStatus( base.detectorFactory.getName() );
+			batchLogger.setStatus( settings.detectorFactory.getName() );
 
-			final ValuePair< TrackMate, Double > detectionResult = iterationData.runner.execDetection( base );
+			final ValuePair< TrackMate, Double > detectionResult = iterationData.runner.execDetection( settings );
 			iterationData.trackmate = detectionResult.getA();
 			iterationData.detectionTiming = detectionResult.getB();
 			iterationData.detectionDone = true;
@@ -516,7 +514,7 @@ public class HelperRunner implements Runnable, Cancelable
 			 * TrackMate with the current settings we iterate to.
 			 */
 			final Model tmModel = iterationData.trackmate.getModel();
-			iterationData.trackmate = new TrackMate( tmModel, base );
+			iterationData.trackmate = new TrackMate( tmModel, settings );
 		}
 
 		if ( !iterationData.trackingDone )
