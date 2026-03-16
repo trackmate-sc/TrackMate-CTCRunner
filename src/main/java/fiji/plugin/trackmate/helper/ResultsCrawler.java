@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -47,6 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.scijava.listeners.Listeners;
 
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
@@ -167,7 +168,12 @@ public class ResultsCrawler
 		final List< String > csvFiles = findFiles( resultsFolder, "csv" );
 		for ( final String csvFile : csvFiles )
 		{
-			try (CSVReader csvReader = new CSVReaderBuilder( new FileReader( csvFile ) ).build())
+			try (CSVReader csvReader = new CSVReaderBuilder( new FileReader( csvFile ) )
+					.withCSVParser(
+							new CSVParserBuilder()
+									.withEscapeChar( '\0' )
+									.build() )
+					.build())
 			{
 				final String[] readHeader = csvReader.readNext();
 				if ( !type.isHeader( readHeader ) )
