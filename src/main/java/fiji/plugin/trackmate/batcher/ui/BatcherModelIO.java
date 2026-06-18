@@ -104,8 +104,10 @@ public class BatcherModelIO
 
 			return model;
 		}
-		catch ( final IOException e )
-		{}
+		catch ( final IOException | RuntimeException e )
+		{
+			System.err.println( "Could not read settings from " + modelFile + ": " + e.getMessage() );
+		}
 		return new BatcherModel();
 	}
 
@@ -136,15 +138,29 @@ public class BatcherModelIO
 	private static class ExporterParamAdapter implements JsonSerializer< ExporterParam >, JsonDeserializer< ExporterParam >
 	{
 
+		private static final String KEY_TYPE = "type";
+
+		private static final String KEY_PROPERTIES = "properties";
+
+		private static final String KEY_ENUM_TYPE = "enumType";
+
 		@Override
 		public ExporterParam deserialize( final JsonElement json, final Type typeOfT, final JsonDeserializationContext context ) throws JsonParseException
 		{
 			final JsonObject jsonObject = json.getAsJsonObject();
-			final String type = jsonObject.get( "type" ).getAsString();
-			final JsonElement element = jsonObject.get( "properties" );
+			final String type = jsonObject.get( KEY_TYPE ).getAsString();
+			final JsonElement element = jsonObject.get( KEY_PROPERTIES );
 
 			try
 			{
+				// EnumExporterParam must be handled manually because type
+				// erasure
+				// causes Gson to see the field 'value' as plain Enum, not the
+				// concrete subtype, so it cannot convert the JSON string to the
+				// right enum constant.
+				if ( "EnumExporterParam".equals( type ) )
+					return deserializeEnumParam( jsonObject, element );
+
 				return context.deserialize( element, Class.forName( "fiji.plugin.trackmate.batcher.exporter.ExporterParam$" + type ) );
 			}
 			catch ( final ClassNotFoundException cnfe )
@@ -153,12 +169,41 @@ public class BatcherModelIO
 			}
 		}
 
+		@SuppressWarnings( { "unchecked", "rawtypes" } )
+		private ExporterParam deserializeEnumParam( final JsonObject jsonObject, final JsonElement element ) throws ClassNotFoundException
+		{
+			final JsonObject propertiesObj = element.getAsJsonObject();
+			final String paramName = propertiesObj.get( "paramName" ).getAsString();
+			final String enumValueName = propertiesObj.get( "value" ).getAsString();
+
+			final JsonElement enumTypeEl = jsonObject.get( KEY_ENUM_TYPE );
+			if ( enumTypeEl == null )
+				throw new JsonParseException( "Missing '" + KEY_ENUM_TYPE + "' field — re-save your settings to upgrade the format." );
+
+			final String enumClassName = enumTypeEl.getAsString();
+			final Class< ? extends Enum > cls = ( Class< ? extends Enum > ) Class.forName( enumClassName );
+			final Enum enumValue = Enum.valueOf( cls, enumValueName );
+
+			return new ExporterParam.EnumExporterParam<>( paramName, enumValue );
+		}
+
 		@Override
 		public JsonElement serialize( final ExporterParam src, final Type typeOfSrc, final JsonSerializationContext context )
 		{
 			final JsonObject result = new JsonObject();
-			result.add( "type", new JsonPrimitive( src.getClass().getSimpleName() ) );
-			result.add( "properties", context.serialize( src, src.getClass() ) );
+			result.add( KEY_TYPE, new JsonPrimitive( src.getClass().getSimpleName() ) );
+			result.add( KEY_PROPERTIES, context.serialize( src, src.getClass() ) );
+
+			// Store the concrete enum class so we can reconstruct it on load.
+			// Without this, type erasure makes the field type just 'Enum' and
+			// Gson cannot pick the right valueOf() target.
+			if ( src instanceof ExporterParam.EnumExporterParam )
+			{
+				final Object value = src.value();
+				if ( value != null )
+					result.add( KEY_ENUM_TYPE, new JsonPrimitive( value.getClass().getName() ) );
+			}
+
 			return result;
 		}
 	}

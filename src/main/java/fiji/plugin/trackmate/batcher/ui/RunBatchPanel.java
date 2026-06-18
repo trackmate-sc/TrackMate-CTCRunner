@@ -47,14 +47,12 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
 import fiji.plugin.trackmate.batcher.RunParamModel;
 import fiji.plugin.trackmate.batcher.RunParamModel.RunParamListener;
@@ -62,13 +60,13 @@ import fiji.plugin.trackmate.batcher.exporter.ExporterParam;
 import fiji.plugin.trackmate.gui.displaysettings.StyleElements;
 import fiji.plugin.trackmate.gui.displaysettings.StyleElements.BooleanElement;
 import fiji.plugin.trackmate.gui.displaysettings.StyleElements.DoubleElement;
+import fiji.plugin.trackmate.gui.displaysettings.StyleElements.EnumElement;
 import fiji.plugin.trackmate.gui.displaysettings.StyleElements.IntElement;
 import fiji.plugin.trackmate.gui.displaysettings.StyleElements.StyleElement;
 import fiji.plugin.trackmate.util.EverythingDisablerAndReenabler;
 import fiji.plugin.trackmate.util.FileChooser;
 import fiji.plugin.trackmate.util.FileChooser.DialogType;
 import fiji.plugin.trackmate.util.FileChooser.SelectionMode;
-import net.imagej.ImageJ;
 
 public class RunBatchPanel extends JPanel
 {
@@ -192,6 +190,12 @@ public class RunBatchPanel extends JPanel
 					else if ( DoubleElement.class.isAssignableFrom( el.getClass() ) )
 					{
 						component = StyleElements.linkedFormattedTextField( ( DoubleElement ) el );
+					}
+					else if ( EnumElement.class.isAssignableFrom( el.getClass() ) )
+					{
+						@SuppressWarnings( { "rawtypes", "unchecked" } )
+						final JComboBox c = StyleElements.linkedComboBoxEnumSelector( ( EnumElement ) el );
+						component = c;
 					}
 					else
 					{
@@ -340,22 +344,5 @@ public class RunBatchPanel extends JPanel
 				setPanelEnabled( ( JPanel ) component, isEnabled );
 			component.setEnabled( isEnabled );
 		}
-	}
-
-	public static void main( final String[] args ) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
-	{
-		final ImageJ ij = new ImageJ();
-		ij.launch( args );
-
-		final RunParamModel model = new RunParamModel();
-		model.listeners().add( () -> System.out.println( model ) );
-
-		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
-		final JPanel panel = new RunBatchPanel( model );
-		final JFrame frame = new JFrame();
-		frame.getContentPane().add( panel );
-		frame.pack();
-		frame.setLocationRelativeTo( null );
-		frame.setVisible( true );
 	}
 }

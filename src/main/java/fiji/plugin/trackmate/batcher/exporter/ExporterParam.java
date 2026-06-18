@@ -23,6 +23,7 @@ package fiji.plugin.trackmate.batcher.exporter;
 
 import fiji.plugin.trackmate.gui.displaysettings.StyleElements;
 import fiji.plugin.trackmate.gui.displaysettings.StyleElements.BoundedDoubleElement;
+import fiji.plugin.trackmate.gui.displaysettings.StyleElements.EnumElement;
 import fiji.plugin.trackmate.gui.displaysettings.StyleElements.IntElement;
 import fiji.plugin.trackmate.gui.displaysettings.StyleElements.StyleElement;
 
@@ -61,6 +62,11 @@ public abstract class ExporterParam
 	public static DoubleExporterParam doubleParam( final String name, final double value, final double min, final double max )
 	{
 		return new DoubleExporterParam( name, value, min, max );
+	}
+
+	public static < E extends Enum< E > > EnumExporterParam< E > enumParam( final String name, final E value )
+	{
+		return new EnumExporterParam<>( name, value );
 	}
 
 	public static class IntExporterParam extends ExporterParam
@@ -134,4 +140,35 @@ public abstract class ExporterParam
 		}
 	}
 
+	public static class EnumExporterParam< E extends Enum< E > > extends ExporterParam
+	{
+
+		private E value;
+
+		public EnumExporterParam( final String name, final E value )
+		{
+			super( name );
+			this.value = value;
+		}
+
+		@Override
+		public StyleElement element( final Runnable notify )
+		{
+
+			@SuppressWarnings( "unchecked" )
+			final E[] values = ( E[] ) value.getClass().getEnumConstants();
+			final EnumElement< E > el = StyleElements.enumElement( paramName, values, () -> value, v -> {
+				value = v;
+				notify.run();
+			} );
+			el.setValue( value );
+			return el;
+		}
+
+		@Override
+		public Object value()
+		{
+			return value;
+		}
+	}
 }
