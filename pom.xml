@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -14,7 +16,8 @@
 	<version>2.0.1-SNAPSHOT</version>
 
 	<name>TrackMate-CTCRunner</name>
-	<description>Batch measurements of the Cell-Tracking-Challenge metrics using TrackMate.</description>
+	<description>Batch measurements of the Cell-Tracking-Challenge metrics using
+		TrackMate.</description>
 	<url>https://github.com/trackmate-sc/TrackMate-CTCRunner</url>
 	<inceptionYear>2021</inceptionYear>
 	<organization>
@@ -49,7 +52,9 @@
 		<contributor>
 			<name>Curtis Rueden</name>
 			<url>https://imagej.net/people/ctrueden</url>
-			<properties><id>ctrueden</id></properties>
+			<properties>
+				<id>ctrueden</id>
+			</properties>
 		</contributor>
 	</contributors>
 
@@ -62,7 +67,8 @@
 
 	<scm>
 		<connection>scm:git:https://github.com/trackmate-sc/TrackMate-CTCRunner</connection>
-		<developerConnection>scm:git:git@github.com:trackmate-sc/TrackMate-CTCRunner</developerConnection>
+		<developerConnection>
+			scm:git:git@github.com:trackmate-sc/TrackMate-CTCRunner</developerConnection>
 		<tag>HEAD</tag>
 		<url>https://github.com/trackmate-sc/TrackMate-CTCRunner</url>
 	</scm>
@@ -134,7 +140,8 @@
 			<version>${TrackMate-YOLO.version}</version>
 		</dependency>
 
-		<!-- Cell Tracking Challenge dependencies and all its exclusion to get it to compile -->
+		<!-- Cell Tracking Challenge dependencies and all its exclusion to get
+		it to compile -->
 		<dependency>
 			<groupId>net.celltrackingchallenge</groupId>
 			<artifactId>CTC-measures</artifactId>
