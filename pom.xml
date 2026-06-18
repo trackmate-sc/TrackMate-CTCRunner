@@ -90,9 +90,9 @@
 		<TrackMate-Ilastik.version>2.0.0</TrackMate-Ilastik.version>
 		<TrackMate-MorphoLibJ.version>2.0.0</TrackMate-MorphoLibJ.version>
 		<TrackMate-StarDist.version>2.0.0</TrackMate-StarDist.version>
-		<TrackMate-Trackastra.version>2.0.0</TrackMate-Trackastra.version>
+		<TrackMate-Trackastra.version>2.0.3</TrackMate-Trackastra.version>
 		<TrackMate-Weka.version>2.0.0</TrackMate-Weka.version>
-		<TrackMate-YOLO.version>1.0.0</TrackMate-YOLO.version>
+		<TrackMate-YOLO.version>1.0.4</TrackMate-YOLO.version>
 	</properties>
 
 	<dependencies>
@@ -124,12 +124,12 @@
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate-Trackastra</artifactId>
-			<version>2.0.0</version>
+			<version>${TrackMate-Trackastra.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>TrackMate-YOLO</artifactId>
-			<version>1.0.0</version>
+			<version>${TrackMate-YOLO.version}</version>
 		</dependency>
 
 		<!-- Cell Tracking Challenge dependencies and all its exclusion to get it to compile -->
