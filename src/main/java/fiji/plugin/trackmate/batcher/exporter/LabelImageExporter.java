@@ -24,7 +24,9 @@ package fiji.plugin.trackmate.batcher.exporter;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,6 +40,7 @@ import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.action.LabelImgExporter;
 import fiji.plugin.trackmate.action.LabelImgExporter.LabelIdPainting;
+import fiji.plugin.trackmate.batcher.exporter.ExporterParam.EnumExporterParam;
 import fiji.plugin.trackmate.gui.displaysettings.DisplaySettings;
 import fiji.plugin.trackmate.visualization.ViewUtils;
 import ij.IJ;
@@ -49,10 +52,18 @@ public class LabelImageExporter implements BatchResultExporter
 
 	private static final String LABEL_IMAGE_KEY = "Label image (TIF)";
 
+	private static final String LABEL_ID_KEY = "Label ID";
+
 	@Override
 	public List< String > getExportables()
 	{
 		return Arrays.asList( new String[] { LABEL_IMAGE_KEY } );
+	}
+
+	@Override
+	public List< ExporterParam > getExtraParameters()
+	{
+		return Collections.singletonList( ExporterParam.enumParam( LABEL_ID_KEY, LabelIdPainting.LABEL_IS_SPOT_ID ) );
 	}
 
 	@Override
@@ -71,6 +82,21 @@ public class LabelImageExporter implements BatchResultExporter
 		if ( commonKeys.isEmpty() )
 			return;
 
+		// Get label id export parameter.
+		final Optional< ExporterParam > opt = parameters.stream().filter( p -> p.name().equals( LABEL_ID_KEY ) ).findAny();
+		final LabelIdPainting useSpotIDsAsLabels;
+		if ( !opt.isPresent() )
+		{
+			logger.error( "Could not find the setting value for " + LABEL_ID_KEY + "\nSubstituting default.\n" );
+			useSpotIDsAsLabels = LabelIdPainting.LABEL_IS_SPOT_ID;
+		}
+		else
+		{
+			@SuppressWarnings( "unchecked" )
+			final EnumExporterParam< LabelIdPainting > param = ( EnumExporterParam< LabelIdPainting > ) opt.get();
+			useSpotIDsAsLabels = ( LabelIdPainting ) param.value();
+		}
+
 		// Generate label image.
 		final Model model = trackmate.getModel();
 		final ImagePlus imp = ( trackmate.getSettings().imp == null )
@@ -79,7 +105,6 @@ public class LabelImageExporter implements BatchResultExporter
 
 		final boolean exportSpotsAsDots = false;
 		final boolean exportTracksOnly = false;
-		final LabelIdPainting useSpotIDsAsLabels = LabelIdPainting.LABEL_IS_SPOT_ID;
 		final ImagePlus labels = LabelImgExporter.createLabelImagePlus(
 				model,
 				imp,
