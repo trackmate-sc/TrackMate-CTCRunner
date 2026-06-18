@@ -29,6 +29,7 @@ import fiji.plugin.trackmate.helper.model.parameter.AbstractParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.CondaEnvParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.DoubleParamSweepModel;
 import fiji.plugin.trackmate.helper.model.parameter.StringRangeParamSweepModel;
+import fiji.plugin.trackmate.util.cli.CondaCLIConfigurator;
 import fiji.plugin.trackmate.yolo.YOLOCLI;
 import fiji.plugin.trackmate.yolo.YOLODetectorFactory;
 
@@ -64,7 +65,7 @@ public class YOLOOpt
 				.nSteps( 5 );
 
 		final Map< String, AbstractParamSweepModel< ? > > models = new LinkedHashMap<>();
-		models.put( YOLOCLI.KEY_CONDA_ENV, condaEnv );
+		models.put( CondaCLIConfigurator.KEY_CONDA_ENV, condaEnv );
 		models.put( YOLODetectorFactory.KEY_YOLO_MODEL_FILEPATH, modelPath );
 		models.put( YOLODetectorFactory.KEY_YOLO_CONF, confidenceParam );
 		models.put( YOLODetectorFactory.KEY_YOLO_IOU, ioUParam );
