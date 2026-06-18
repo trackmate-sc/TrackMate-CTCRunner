@@ -84,6 +84,8 @@
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 
+		<scijava.jvm.version>21</scijava.jvm.version>
+
 		<CTC-measures.version>1.0.3</CTC-measures.version>
 		<TrackMate.version>8.0.0</TrackMate.version>
 		<TrackMate-Cellpose.version>1.0.0</TrackMate-Cellpose.version>
