@@ -25,7 +25,6 @@ import javax.swing.SwingUtilities;
 
 import fiji.plugin.trackmate.batcher.ui.BatcherController;
 import ij.plugin.PlugIn;
-import net.imagej.ImageJ;
 
 public class TrackMateBatcherPlugin implements PlugIn
 {
@@ -35,13 +34,5 @@ public class TrackMateBatcherPlugin implements PlugIn
 	{
 		final BatcherController controller = new BatcherController();
 		SwingUtilities.invokeLater( () -> controller.show() );
-	}
-
-	public static void main( final String[] args )
-	{
-		final ImageJ ij = new ImageJ();
-		ij.launch( args );
-
-		new TrackMateBatcherPlugin().run( null );
 	}
 }
