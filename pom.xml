@@ -92,7 +92,7 @@
 
 		<CTC-measures.version>1.0.3</CTC-measures.version>
 		<TrackMate.version>9.0.0-SNAPSHOT</TrackMate.version>
-		<TrackMate-Cellpose.version>1.0.0</TrackMate-Cellpose.version>
+		<TrackMate-Cellpose.version>3.0.0-SNAPSHOT</TrackMate-Cellpose.version>
 		<TrackMate-Ilastik.version>2.0.0</TrackMate-Ilastik.version>
 		<TrackMate-MorphoLibJ.version>2.0.0</TrackMate-MorphoLibJ.version>
 		<TrackMate-StarDist.version>2.0.0</TrackMate-StarDist.version>
