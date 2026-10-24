@@ -5,6 +5,7 @@ models/
 
 ## Eclipse ##
 /.classpath
+/.factorypath
 /.project
 /.settings/
 
@@ -19,3 +20,6 @@ models/
 
 ## SciJava release tools
 pom.xml.releaseBackup
+
+## IntelliJ ##
+/.idea/
